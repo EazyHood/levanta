@@ -44,6 +44,7 @@ class Drawing:
     prims: list[Prim] = field(default_factory=list)
     background: str = "#ffffff"
     font_family: str = "Inter, 'Segoe UI', Helvetica, Arial, sans-serif"
+    meta: dict = field(default_factory=dict)  # e.g. the plan->pixel transform of a floor plan
 
     # -- builders ------------------------------------------------------------------------
 

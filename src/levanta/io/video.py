@@ -30,6 +30,26 @@ def _sharpness(gray: np.ndarray) -> float:
     return float(cv2.Laplacian(gray, cv2.CV_64F).var())
 
 
+FLAT_MAX = 0.6  # measured: title cards 0.87-0.98, rooms 0.07-0.31
+
+
+def _flatness(gray: np.ndarray) -> float:
+    """Fraction of pixels inside the dominant band of 9 grey levels.
+
+    A title card (text on black), a fade, a lens cap or a plain wall filling the frame
+    score above ``FLAT_MAX``; text on black is also the sharpest thing in a clip by
+    variance of the Laplacian, which is why sharpness alone picked six title cards out of
+    24 frames on the first real walkthrough.
+    """
+    h = np.bincount(gray.ravel(), minlength=256).astype(float)
+    return float(np.convolve(h, np.ones(9), "same").max() / gray.size)
+
+
+def _usable(gray: np.ndarray) -> float:
+    """Sharpness of a frame worth keeping, 0 for a flat one."""
+    return 0.0 if _flatness(gray) > FLAT_MAX else _sharpness(gray)
+
+
 def extract_frames(
     video_path: str | Path,
     out_dir: str | Path,
@@ -42,7 +62,8 @@ def extract_frames(
     """Write the sharpest frame of every ``1/fps`` window of ``video_path`` to ``out_dir``.
 
     Returns the frames in time order.  Frames whose sharpness is below ``min_sharpness``
-    are dropped even if they were the best of their window.  With ``max_frames`` the clip
+    are dropped even if they were the best of their window, and so are flat frames (title
+    cards, fades, a wall filling the picture).  With ``max_frames`` the clip
     is cut into that many equal stretches and the sharpest window of each is kept, so a
     long walk is covered end to end; stretches that are all blur are filled with the
     sharpest leftover windows.
@@ -69,7 +90,7 @@ def extract_frames(
         if gray.shape[1] > 640:
             scale = 640 / gray.shape[1]
             gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
-        s = _sharpness(gray)
+        s = _usable(gray)
         if best is None or s > best[0]:
             best = (s, bgr, i)
         if (i + 1) % window == 0:
@@ -126,7 +147,8 @@ def inspect_video(video_path: str | Path, fps: float = 1.0, min_sharpness: float
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
     duration = n / src_fps if src_fps else 0.0
     step = max(1, n // max_probe) if n else 1
-    scores: list[float] = []
+    window = max(1, round(src_fps / fps))
+    probes: list[tuple[int, float, bool]] = []  # (frame index, sharpness, flat)
     idx = 0
     while True:
         ok = cap.grab()
@@ -139,23 +161,27 @@ def inspect_video(video_path: str | Path, fps: float = 1.0, min_sharpness: float
                 if gray.shape[1] > 640:
                     s = 640 / gray.shape[1]
                     gray = cv2.resize(gray, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
-                scores.append(_sharpness(gray))
+                is_flat = _flatness(gray) > FLAT_MAX
+                probes.append((idx, 0.0 if is_flat else _sharpness(gray), is_flat))
         idx += 1
     cap.release()
-    scores_arr = np.asarray(scores) if scores else np.zeros(1)
-    window = max(1, round(src_fps / fps))
-    n_windows = max(1, n // window)
-    # usable windows: those whose best probe is sharp
-    per_window = max(1, len(scores) // n_windows)
-    best = [scores_arr[i : i + per_window].max() for i in range(0, len(scores_arr), per_window)] if len(scores_arr) else []
-    usable = int(sum(1 for b in best if b >= min_sharpness))
+    # judge every real 1/fps window by the probes that fell in it
+    wins: dict[int, list[tuple[float, bool]]] = {}
+    for i, sc, fl in probes:
+        wins.setdefault(i // window, []).append((sc, fl))
+    flat_windows = sum(1 for v in wins.values() if all(fl for _, fl in v))
+    usable = sum(1 for v in wins.values() if max(sc for sc, _ in v) >= min_sharpness)
+    blurry_windows = len(wins) - usable - flat_windows
+    room_scores = np.asarray([sc for _, sc, fl in probes if not fl]) if any(not fl for _, _, fl in probes) else np.zeros(1)
     warnings: list[str] = []
     if duration < 20:
         warnings.append("shorter than 20 s: walk slowly through every room, 30-60 s per room")
     if min(w, h) < 700:
         warnings.append(f"low resolution ({w}x{h}): 1080p gives noticeably better walls")
-    if len(scores_arr) and np.median(scores_arr) < 40:
+    if np.median(room_scores) < 40:
         warnings.append("mostly blurry: move slower, more light, no zoom")
+    if flat_windows:
+        warnings.append(f"{flat_windows / fps:.0f} s of title cards or blank frames: skipped (they are not the house)")
     if usable < 12:
         warnings.append(f"only ~{usable} usable frames at {fps:g} fps: film longer or raise --fps")
     return {
@@ -164,10 +190,11 @@ def inspect_video(video_path: str | Path, fps: float = 1.0, min_sharpness: float
         "fps": float(src_fps),
         "frames": n,
         "duration_s": float(duration),
-        "sharpness_median": float(np.median(scores_arr)),
-        "sharpness_p10": float(np.percentile(scores_arr, 10)),
-        "usable_frames": usable,
-        "blurry_windows": int(len(best) - usable),
+        "sharpness_median": float(np.median(room_scores)),
+        "sharpness_p10": float(np.percentile(room_scores, 10)),
+        "usable_frames": int(usable),
+        "blurry_windows": int(blurry_windows),
+        "flat_windows": int(flat_windows),
         "warnings": warnings,
     }
 

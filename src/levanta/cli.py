@@ -191,7 +191,7 @@ def check(
     rep = inspect_video(video, fps=fps)
     typer.echo(f"{video.name}: {rep['width']}x{rep['height']}, {rep['duration_s']:.0f} s at {rep['fps']:.0f} fps, {rep['frames']} frames")
     typer.echo(f"sharpness: median {rep['sharpness_median']:.0f}, 10th percentile {rep['sharpness_p10']:.0f}  (below 20 is blurry)")
-    typer.echo(f"would keep {rep['usable_frames']} frames at {fps:g} fps ({rep['blurry_windows']} windows had nothing sharp)")
+    typer.echo(f"would keep {rep['usable_frames']} frames at {fps:g} fps ({rep['blurry_windows']} windows had nothing sharp, {rep['flat_windows']} were title cards or blank)")
     for w in rep["warnings"]:
         _warn("! " + w)
     if not rep["warnings"]:
@@ -204,7 +204,9 @@ def video(
     out: Path = typer.Option(Path("out"), "--out", "-o"),
     stem: str = typer.Option("plan"),
     fps: float = typer.Option(1.0, help="Frames per second to sample from the video."),
-    max_views: int = typer.Option(32, help="Frames given to the network (VRAM bound: 8 GB ~ 24-32 views)."),
+    max_views: int = typer.Option(24, help="Frames the network takes at once (VRAM bound: 8 GB ~ 24). A longer walk goes in chunks of this size that overlap."),
+    overlap: int = typer.Option(4, help="Frames shared by consecutive chunks; they carry the pose from one chunk to the next."),
+    max_frames: int | None = typer.Option(None, help="Cap on the frames used, spread over the clip (default: every sharp frame at --fps)."),
     model: str = typer.Option("facebook/map-anything-apache", help="HuggingFace checkpoint (Apache-2.0 by default)."),
     focal_px: float | None = typer.Option(None, "--focal-px", help="Focal length in pixels of the (downscaled) frames, if known; improves the metric scale."),
     manhattan: bool = typer.Option(True, "--manhattan/--free", help="Snap walls to two orthogonal directions."),
@@ -239,10 +241,16 @@ def video(
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     _step("picking sharp frames")
-    kept = extract_frames(video, out / "frames", fps=fps, max_frames=max_views)
+    kept = extract_frames(video, out / "frames", fps=fps, max_frames=max_frames)
     if len(kept) < 4:
         _fail(f"only {len(kept)} usable frames; the video is too short or too blurry (run 'levanta check').")
-    _ok(f"{len(kept)} frames ({time.time() - t0:.0f} s)")
+    import json as _json
+
+    (out / "frames" / "index.json").write_text(
+        _json.dumps([{"file": k.path.name, "frame": k.index, "time_s": round(k.time_s, 2), "sharpness": round(k.sharpness, 1)} for k in kept], indent=1),
+        encoding="utf-8",
+    )
+    _ok(f"{len(kept)} frames covering {kept[0].time_s:.0f}-{kept[-1].time_s:.0f} s of the clip ({time.time() - t0:.0f} s)")
     frames = []
     for k in kept:
         cam = None
@@ -254,15 +262,17 @@ def video(
 
             cam = Camera(K=np.array([[focal_px, 0, w / 2], [0, focal_px, h / 2], [0, 0, 1.0]]), T=np.eye(4), width=w, height=h)
         frames.append(Frame(path=k.path, camera=cam))
-    _step(f"reconstructing with MapAnything ({model}); the first run downloads ~4.6 GB of weights")
+    n_chunks = 1 if len(frames) <= max_views else 1 + -(-(len(frames) - max_views) // max(1, max_views - overlap))
+    _step(f"reconstructing with MapAnything ({model}), {len(frames)} frames in {n_chunks} chunk{'s' if n_chunks > 1 else ''} of {max_views}; the first run downloads ~4.6 GB of weights")
     t1 = time.time()
-    be = MapAnythingBackend(model_name=model, max_views=max_views)
+    be = MapAnythingBackend(model_name=model, max_views=max_views, overlap=overlap)
     try:
         cloud = be.reconstruct(frames)
     except Exception as e:
         _fail(f"reconstruction failed: {type(e).__name__}: {e}\n  Out of memory?  Lower --max-views.  'OS error 1455' on Windows: close other applications.")
     cloud.save_ply(out / f"{stem}_recon.ply")
-    _ok(f"{len(cloud):,} points from {len(frames)} views ({time.time() - t1:.0f} s)")
+    dropped = cloud.meta.get("views_dropped_flat", 0)
+    _ok(f"{len(cloud):,} points from {len(frames)} views in {cloud.meta.get('chunks', 1)} chunk(s) ({time.time() - t1:.0f} s)" + (f"; {dropped} view(s) were a flat picture and were skipped" if dropped else ""))
     res = _run_plan(cloud, out, stem, manhattan, up, True, None)
     if not focal_px and not door_width and not scale:
         _warn("scale from video alone is typically 5-15 % short; pass --focal-px, or --door-width 0.90 to calibrate on the doors")
@@ -389,7 +399,8 @@ def reconstruct(
     frames_dir: Path = typer.Argument(..., exists=True, help="Directory of JPEG/PNG frames."),
     out: Path = typer.Option(Path("cloud.ply"), "--out", "-o"),
     model: str = typer.Option("facebook/map-anything-apache"),
-    max_views: int = typer.Option(32),
+    max_views: int = typer.Option(24, help="Frames the network takes at once; more go in overlapping chunks."),
+    overlap: int = typer.Option(4),
     stride: int = typer.Option(2, help="Pixel stride when lifting depth maps."),
 ) -> None:
     """RGB frames -> metric point cloud with MapAnything (what 'video' does second)."""
@@ -399,10 +410,7 @@ def reconstruct(
     paths = sorted(p for p in frames_dir.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".png"))
     if not paths:
         _fail(f"no images in {frames_dir}")
-    if len(paths) > max_views:
-        idx = [round(i * (len(paths) - 1) / (max_views - 1)) for i in range(max_views)]
-        paths = [paths[i] for i in idx]
-    be = MapAnythingBackend(model_name=model, max_views=max_views, stride=stride)
+    be = MapAnythingBackend(model_name=model, max_views=max_views, overlap=overlap, stride=stride)  # a long series goes in overlapping chunks
     cloud = be.reconstruct([Frame(path=p) for p in paths])
     out.parent.mkdir(parents=True, exist_ok=True)
     cloud.save_ply(out)

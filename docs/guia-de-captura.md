@@ -39,6 +39,10 @@ preguntándote por qué falta una pared.
   inventarlo.
 - No cambies de lente ni hagas zoom a mitad del vídeo; la focal tiene que ser constante.
 - No pares y vuelvas a grabar; un clip continuo por planta.
+- No entregues un vídeo editado: los rótulos, fundidos y cortes se saltan (para un
+  ordenador el texto sobre negro parece *más nítido* que cualquier habitación), pero cada
+  corte rompe el solape entre fotogramas seguidos del que depende la reconstrucción. El
+  clip en bruto siempre es mejor.
 
 ## Comprueba antes de gastar GPU
 

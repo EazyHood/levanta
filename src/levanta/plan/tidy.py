@@ -272,6 +272,58 @@ def tidy_walls(plan: FloorPlan, attach_dist: float = 0.25, trim_margin: float = 
     return plan
 
 
+def square_corners(plan: FloorPlan, reach: float = 0.35, min_len: float = 0.3) -> FloorPlan:
+    """Make wall ends meet the wall they run into.
+
+    An end that lies within ``reach`` of a crossing wall's centreline is moved along its
+    own wall onto that wall's face: the *outer* face at an L-corner (so the corner closes
+    square, with no stub poking out and no notch), the *near* face at a T-junction.  Ends
+    away from any crossing wall are left alone.  Openings keep their absolute position.
+    """
+    walls = plan.walls
+    for w in walls:
+        d = w.direction
+        for which in ("a", "b"):
+            e = np.asarray(getattr(w, which), dtype=float)
+            out_dir = d if which == "b" else -d  # pointing away from the wall's body
+            best: tuple[float, float] | None = None  # (|t_line|, new t along out_dir)
+            for c in walls:
+                if c.id == w.id or abs(float(c.direction @ d)) > 0.5:
+                    continue
+                n = c.normal
+                dn = float(out_dir @ n)
+                if abs(dn) < 0.5:
+                    continue
+                t_line = float((np.asarray(c.a) - e) @ n) / dn  # along out_dir to c's centreline
+                if abs(t_line) > reach:
+                    continue
+                proj = e + out_dir * t_line
+                s_c = float((proj - np.asarray(c.a)) @ c.direction)
+                if s_c < -reach or s_c > c.length + reach:
+                    continue  # the lines cross, the walls do not (the other may still be short of the corner)
+                corner = s_c < w.thickness + 0.05 or s_c > c.length - w.thickness - 0.05
+                t_new = t_line + (c.thickness / 2 if corner else -c.thickness / 2)
+                if best is None or abs(t_line) < best[0]:
+                    best = (abs(t_line), t_new)
+            if best is None or abs(best[1]) < 1e-3:
+                continue
+            new_e = e + out_dir * best[1]
+            if which == "b":
+                if float((new_e - np.asarray(w.a)) @ d) < min_len:
+                    continue
+                w.b = (float(new_e[0]), float(new_e[1]))
+            else:
+                if float((np.asarray(w.b) - new_e) @ d) < min_len:
+                    continue
+                shift = float((new_e - np.asarray(w.a)) @ d)  # > 0: the start moved forward
+                w.a = (float(new_e[0]), float(new_e[1]))
+                for o in plan.openings:
+                    if o.wall_id == w.id:
+                        o.t0 -= shift
+                        o.t1 -= shift
+    return plan
+
+
 def drop_stubs(plan: FloorPlan, max_len: float = 0.6, connect_dist: float = 0.15) -> FloorPlan:
     """Short walls that touch no other wall at either end are jambs, cabinet sides or
     noise: set them aside."""

@@ -37,6 +37,11 @@ measurement. No GPU, no data, no internet needed except for `pip`.
    ```bash
    levanta video walk.mp4 -o out/house --names "Living,Kitchen,Bedroom,Bath" --open
    ```
+   Every sharp frame at `--fps` (1 per second by default) goes to the network, 24 at a
+   time on an 8 GB card (`--max-views`): a longer walk is reconstructed in chunks that
+   share 4 frames (`--overlap`), and each chunk is placed onto the previous one, so a
+   three-minute walk is one metric model. `out/house/frames/index.json` lists which
+   second each frame came from; title cards and blank frames are skipped.
 4. **Fix the scale** if the doors come out narrow. Measure one door and:
    ```bash
    levanta render out/house/plan.json --door-width 0.90
@@ -180,6 +185,31 @@ are set aside (`extra_walls` in the JSON) instead of cluttering the plan. See
 
 <p align="center">
   <img src="examples/tum_fr1_room/plan.png" width="520" alt="Plan of the TUM fr1_room office: three walls, a door, one side dashed as not scanned">
+</p>
+
+**A real phone video**, a CC BY apartment tour from YouTube (U2APARTMENT, East Flatbush
+one-bedroom in a prewar building, 1080p, 220 s; attribution in
+[`examples/video_u2apartment/ATTRIBUTION.md`](examples/video_u2apartment/ATTRIBUTION.md)).
+It is a produced real-estate tour, with title cards, cuts and fast pans, so it is the hard
+case, not the showcase:
+
+| | |
+|---|---|
+| `levanta check` | 221 windows at 1 fps: 151 usable, 31 blurry, 39 title cards or blank |
+| frames to the network | 170, covering 1–182 s, in 9 chunks of 24 (4 shared), 225 s on the RTX 5060 |
+| points | 974 319 from 170 views (median 3 665 per view); 1 view was a flat picture and was skipped |
+| plan | 23 walls, 5 rooms (30.99 m², four of them flagged incomplete), 2 doors + 1 passage, ceiling 3.11 m measured |
+| scale | from the network alone: the two doors come out 0.67 and 0.56 m, so `--door-width 0.80` would scale it up by 1.2–1.4; the ceiling (3.11 m) says the scale is about right. Both are on the sheet; neither is verified. |
+
+Before the fixes this video produced *one* wall: 24 frames spread over 220 s had six
+title cards among them (text on black is the sharpest thing in the clip), the intro
+graphic came back as a plane 0.6 m in front of the camera, and the room views were 1–5 m
+apart, too far for the network to register (1–21 points per view). See
+[`examples/video_u2apartment/`](examples/video_u2apartment/) for the sheet, the plan
+JSON and the diagnostic image.
+
+<p align="center">
+  <img src="examples/video_u2apartment/plan.png" width="720" alt="Plan from a real-estate walkthrough video: five rooms, four flagged incomplete, two doors and a passage">
 </p>
 
 **MapAnything from RGB only** on the same sequence (16 frames of 640×480, RTX 5060 laptop

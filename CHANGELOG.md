@@ -28,6 +28,17 @@ Drafter's review of the first 0.3.0 sheet (tests in `tests/test_drafter_review.p
 - The sheet is filled to at least 60 % of the usable page, or the note says which larger scale did not fit.
 - `python -m levanta` works.
 
+First real inputs after the review (a public TUM RGB-D room and a CC BY phone walkthrough):
+
+- Wall ends meet the wall they run into: flush at corners, stopped at T-junctions (`square_corners`, `tests/test_square_corners.py`). The TUM sheet drew a 0.15 m stub of the left wall above the corner.
+- `levanta video --max-views N` spreads the N frames over the whole clip (the sharpest of N equal stretches) instead of keeping the first N sharp seconds (`tests/test_video_frames.py`). The 220 s walkthrough would have used only its first 24 s; the CLI now prints the span covered.
+- Title cards, fades and blank frames never reach the network (`tests/test_video_flat_frames.py`): text on black is the sharpest thing in a clip by variance of the Laplacian, and the first real walkthrough (a real-estate tour) got six title cards among its 24 frames. `levanta check` now counts them ("39 s of title cards or blank frames") and judges every real 1/fps window by the probes that fell in it, so usable + blurry + flat add up to the clip.
+- A long walk is reconstructed in overlapping chunks that land in one metric world frame (`MapAnythingBackend.reconstruct`, `tests/test_recon_chunks.py`): every sharp frame goes to the network, `--max-views` at a time; each chunk after the first starts with `--overlap` views of the previous one, handed over with their known poses and intrinsics, and its output is aligned onto them (scale, rotation, translation). Measured before the fix on the 220 s walkthrough: 24 frames spread over the clip were 1-5 m apart and the network masked the rooms out (mask 1-2 % per view, 1-21 points).
+- A view that comes back as one flat picture (an intro graphic, a poster filling the frame: valid depth over half the frame on one plane within 2 % of its distance) is skipped and counted (`views_dropped_flat`). The intro of that walkthrough came back as a plane at 0.62 m covering 90 % of the frame and the rooms were masked out around it.
+- Room labels stay inside their room and wall tags stay off them (`tests/test_labels_fit.py`, on the real walkthrough plan kept in `tests/data/`): a narrow corridor gets its name, "(incomplete)", area and size on separate lines, shrunk down to 6 pt if it must; a tag whose spot is taken moves along the wall or to its other side.
+- `examples/video_u2apartment/`: the outputs of that CC BY walkthrough, with attribution.
+- MapAnything's weights go from the safetensors file straight to the GPU: the network is built on the meta device and filled on the card, tied weights included (`tests/test_recon_loading.py`). The host never holds the 4.6 GB, which is what killed the run with "OS error 1455: the paging file is too small" on a 32 GB laptop with other applications open.
+
 
 ## 0.2.0 — 2026-09-05
 

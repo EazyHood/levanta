@@ -34,6 +34,9 @@ missing.
   nothing usable. levanta will show that side as "not scanned" instead of inventing it.
 - Don't switch lenses or zoom mid-video; the focal length must stay constant.
 - Don't stop and restart recording; one continuous clip per floor.
+- Don't hand over an edited video: title cards, fades and cuts are skipped (text on black
+  looks *sharper* than any room to a computer) but every cut breaks the overlap between
+  consecutive frames that the reconstruction depends on. The raw clip is always better.
 
 ## Check before spending GPU time
 

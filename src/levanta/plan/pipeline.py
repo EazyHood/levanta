@@ -25,7 +25,7 @@ from levanta.geometry import estimate_normals_pca, make_pose, orient_normals_tow
 from levanta.plan.gravity import GravityResult, align_to_gravity
 from levanta.plan.occupancy import Grid, count_raster, coverage_raster, dilate, free_space_raster
 from levanta.plan.rooms import LineOpening, build_rooms, detect_windows, resolve_gaps, snap_corners
-from levanta.plan.tidy import close_outline_gaps, drop_stubs, tidy_walls
+from levanta.plan.tidy import close_outline_gaps, drop_stubs, square_corners, tidy_walls
 from levanta.plan.types import FloorPlan, Opening, Room, Wall
 from levanta.plan.walls import (
     Face,
@@ -273,6 +273,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     if opts.tidy:
         plan = tidy_walls(plan, attach_dist=opts.wall_attach_dist, trim_margin=opts.wall_trim_margin, min_len=opts.min_wall_len)
         plan = drop_stubs(plan, max_len=opts.stub_max_len)
+        plan = square_corners(plan)
         plan = close_outline_gaps(
             plan,
             free_r,

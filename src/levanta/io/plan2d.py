@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import re
+from collections.abc import Sequence
 from itertools import pairwise
 
 import numpy as np
@@ -235,25 +236,92 @@ def wall_orientation(wall: Wall, side: float, north_deg: float | None, lang: str
     return names[round(bearing / 45.0) % 8]
 
 
-def wall_tag_point(plan: FloorPlan, w: Wall) -> tuple[np.ndarray, float]:
+def wall_tag_point(plan: FloorPlan, w: Wall, avoid: Sequence[tuple[float, float, float, float]] = (), radius: float = 0.12) -> tuple[np.ndarray, float]:
     """Where the wall tag / elevation marker sits: inside the larger adjoining room, at
-    the middle of the longest solid stretch (never on top of a door)."""
+    the middle of the longest solid stretch (never on top of a door), and clear of the
+    boxes in ``avoid`` (room labels, plan metres) when any position along the wall is."""
     a_plus, a_minus = room_side_areas(plan, w)
     side = 1.0 if a_plus >= a_minus else -1.0
     if a_plus == 0 and a_minus == 0:
         side = 1.0
     st = _stations(plan, w)
     ops = plan.openings_of(w.id)
-    best, best_len = w.length / 2, -1.0
+    solid = []
     for s0, s1 in pairwise(st):
         if any(abs(o.t0 - s0) < 1e-6 and abs(o.t1 - s1) < 1e-6 for o in ops):
             continue  # this stretch is an opening
-        if s1 - s0 > best_len:
-            best, best_len = (s0 + s1) / 2, s1 - s0
-    if best_len < 0.25:
+        solid.append((s1 - s0, (s0 + s1) / 2, s0, s1))
+    solid.sort(reverse=True)
+    if not solid or solid[0][0] < 0.25:
         # the wall is one opening (a door found between two wall pieces): tag it beside the jamb
         best = -0.18 if w.length < 1.0 else w.length + 0.18
-    return w.point_at(best) + w.normal * side * (w.thickness / 2 + 0.28), side
+        return w.point_at(best) + w.normal * side * (w.thickness / 2 + 0.28), side
+    candidates = [mid for _, mid, _, _ in solid]
+    for _, _, s0, s1 in solid:  # then the quarters of every solid stretch
+        candidates += [s0 + (s1 - s0) * 0.25, s0 + (s1 - s0) * 0.75]
+    offset = w.thickness / 2 + 0.28
+    for sd in (side, -side):
+        for tpos in candidates:
+            pt = w.point_at(tpos) + w.normal * sd * offset
+            if not any(bx0 - radius <= pt[0] <= bx1 + radius and by0 - radius <= pt[1] <= by1 + radius for bx0, by0, bx1, by1 in avoid):
+                return pt, sd
+    return w.point_at(candidates[0]) + w.normal * side * offset, side
+
+
+def _room_chord(poly, pt: tuple[float, float]) -> float:
+    """Length of the horizontal stretch of ``poly`` through ``pt`` (the width a label
+    has there), or the bounds width when the point is outside."""
+    from shapely.geometry import LineString
+
+    bx0, _by0, bx1, _by1 = poly.bounds
+    cut = poly.intersection(LineString([(bx0 - 1, pt[1]), (bx1 + 1, pt[1])]))
+    parts = list(cut.geoms) if hasattr(cut, "geoms") else [cut]
+    for g in parts:
+        if g.geom_type == "LineString" and g.length > 0 and min(x for x, _ in g.coords) - 1e-9 <= pt[0] <= max(x for x, _ in g.coords) + 1e-9:
+            return float(g.length)
+    return float(bx1 - bx0)
+
+
+def room_label_specs(plan: FloorPlan, lang: str, units: str, scale: float, fs: float, min_size: float = 6.0) -> list[dict]:
+    """Where and how big each room label is drawn: lines (text, size, bold), the anchor in
+    plan metres and the box (plan metres) they cover.  Lines that would run past the room
+    are shrunk, down to ``min_size`` px; the name and "(incomplete)" go on separate lines
+    in a narrow room so a corridor keeps a readable label."""
+    from levanta.io.pdf import text_width
+
+    specs = []
+    for r in plan.rooms:
+        poly = r.shapely
+        cx, cy = r.centroid
+        if not poly.contains(Point(cx, cy)):
+            rp = poly.representative_point()
+            cx, cy = float(rp.x), float(rp.y)
+        bx0, by0, bx1, by1 = poly.bounds
+        avail = max(0.3, _room_chord(poly, (cx, cy)) - 0.16) * scale  # px, wall faces kept clear
+        lines = [(r.name, 13.0 * fs, True)]
+        if not r.closed:
+            inc = f"({t(lang, 'incomplete')})"
+            if text_width(f"{r.name} {inc}", 13.0 * fs, True) <= avail:
+                lines = [(f"{r.name} {inc}", 13.0 * fs, True)]
+            else:
+                lines.append((inc, 11.0 * fs, False))
+        dims = f"{fmt_len(bx1 - bx0, units)} × {fmt_len(by1 - by0, units)}"
+        if text_width(f"{fmt_area(r.area, units)} · {dims}", 11.0 * fs, False) <= avail:
+            lines.append((f"{fmt_area(r.area, units)} · {dims}", 11.0 * fs, False))
+        else:
+            lines += [(fmt_area(r.area, units), 11.0 * fs, False), (dims, 11.0 * fs, False)]
+        if plan.project.get("level"):
+            lines.append((f"{t(lang, 'level_marker')} {plan.project['level']}", 9.5 * fs, False))
+        fitted = []
+        for text, size, bold in lines:
+            w_px = text_width(text, size, bold)
+            if w_px > avail:
+                size = max(min_size, size * avail / w_px)
+            fitted.append((text, size, bold))
+        total_h = sum(sz * 1.25 for _, sz, _ in fitted)
+        width_px = max(text_width(tx, sz, b) for tx, sz, b in fitted)
+        specs.append({"room": r, "x": cx, "y": cy, "lines": fitted, "box": (cx - width_px / 2 / scale, cy - total_h / 2 / scale, cx + width_px / 2 / scale, cy + total_h / 2 / scale)})
+    return specs
 
 
 def next_sheet(sheet: str | None) -> str:
@@ -354,6 +422,7 @@ def floor_plan_drawing(
 
     ox = pad + m_left * scale
     oy = pad + m_top * scale
+    d.meta.update({"ox": ox, "oy": oy, "scale": scale, "xmin": xmin, "ymax": ymax})  # X(x) = ox + (x - xmin) * scale, Y(y) = oy + (ymax - y) * scale
 
     def X(x: float) -> float:
         return ox + (x - xmin) * scale
@@ -420,11 +489,12 @@ def floor_plan_drawing(
             col = COLORS["door"] if o.kind == "door" else COLORS["window"] if o.kind == "window" else COLORS["label"]
             d.text(X(tag_pt[0]), Y(tag_pt[1]) + 3.5 * fs, o.tag, size=9.5 * fs, weight="bold", color=col, cls="tag")
     # wall tags: elevation markers (circle with the wall number, pointer towards the wall)
+    label_specs = room_label_specs(plan, lang, units, scale, fs) if show_labels else []
     if show_labels:
         for w in plan.walls:
             if w.length < 0.6:
                 continue
-            p, side = wall_tag_point(plan, w)
+            p, side = wall_tag_point(plan, w, avoid=[sp["box"] for sp in label_specs], radius=(7 * fs + 2) / scale)
             n = w.normal * side
             r = 7 * fs
             cx, cy = X(p[0]), Y(p[1])
@@ -433,16 +503,13 @@ def floor_plan_drawing(
             d.line((X(edge[0]), Y(edge[1])), (X(face[0]), Y(face[1])), stroke=COLORS["walltag"], width=0.9 * fs, cls="wall-tag-pointer")
             d.circle(cx, cy, r, fill="#ffffff", stroke=COLORS["walltag"], width=0.9 * fs, cls="wall-tag-circle")
             d.text(cx, cy + 3 * fs, f"M{w.id + 1}", size=7.5 * fs, weight="bold", color=COLORS["walltag"], cls="wall-tag")
-    # room labels
-    if show_labels:
-        for r in plan.rooms:
-            cx, cy = r.centroid
-            bx0, by0, bx1, by1 = r.shapely.bounds
-            name = r.name if r.closed else f"{r.name} ({t(lang, 'incomplete')})"
-            d.text(X(cx), Y(cy) - 4 * fs, name, size=13 * fs, weight="bold", color=COLORS["label"], cls="label")
-            d.text(X(cx), Y(cy) + 11 * fs, f"{fmt_area(r.area, units)} · {fmt_len(bx1 - bx0, units)} × {fmt_len(by1 - by0, units)}", size=11 * fs, color=COLORS["sub"], cls="label")
-            if plan.project.get("level"):
-                d.text(X(cx), Y(cy) + 24 * fs, f"{t(lang, 'level_marker')} {plan.project['level']}", size=9.5 * fs, color=COLORS["sub"], cls="label")
+    # room labels (name, "(incomplete)", area and size, level), sized to the room
+    for sp in label_specs:
+        total_h = sum(sz * 1.25 for _, sz, _ in sp["lines"])
+        y = Y(sp["y"]) - total_h / 2
+        for i, (text, size, bold) in enumerate(sp["lines"]):
+            y += size * 1.25
+            d.text(X(sp["x"]), y - size * 0.3, text, size=size, weight="bold" if bold else "normal", color=COLORS["label"] if i == 0 else COLORS["sub"], cls="label")
     # dimension chains (perimeter outside, partitions inside)
     for ch in chains:
         _draw_chain(d, ch, X, Y, scale, units, fs)
