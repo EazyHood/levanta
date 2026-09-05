@@ -324,13 +324,14 @@ def room_label_specs(plan: FloorPlan, lang: str, units: str, scale: float, fs: f
     return specs
 
 
-def stamp(d: Drawing, cx: float, cy: float, extent: float, lang: str, fs: float) -> None:
-    """A diagonal "PRELIMINARY - scale not calibrated" across the drawing, sized to it."""
+def stamp(d: Drawing, cx: float, cy: float, extent: float, lang: str, fs: float, unreliable: bool = False) -> None:
+    """A diagonal "PRELIMINARY - scale not calibrated" across the drawing, sized to it;
+    "NOT RECONSTRUCTIBLE - mirror or glass" when the reconstruction itself broke."""
     from levanta.io.pdf import text_width
 
-    text = t(lang, "stamp")
+    text = t(lang, "stamp_unreliable" if unreliable else "stamp")
     size = max(12.0 * fs, min(extent / 9.0, 0.9 * extent * 1.25 / max(text_width(text, 1.0, True), 1e-6)))
-    d.text(cx, cy + size * 0.35, text, size=size, weight="bold", color="#e8a0a0", rotate=28.0, cls="stamp")
+    d.text(cx, cy + size * 0.35, text, size=size, weight="bold", color="#e07070" if unreliable else "#e8a0a0", rotate=28.0, cls="stamp")
 
 
 def next_sheet(sheet: str | None) -> str:
@@ -535,8 +536,8 @@ def floor_plan_drawing(
     # north arrow
     if plan.north_deg is not None:
         _north_arrow(d, X(xmin) - 1.05 * scale, oy - 0.45 * scale, plan.north_deg, fs, lang)
-    if plan.scale_uncalibrated:
-        stamp(d, X((xmin + xmax) / 2), Y((ymin + ymax) / 2), min(plan_w, plan_h), lang, fs)
+    if plan.scale_uncalibrated or plan.unreliable is not None:
+        stamp(d, X((xmin + xmax) / 2), Y((ymin + ymax) / 2), min(plan_w, plan_h), lang, fs, unreliable=plan.unreliable is not None)
     # tables + notes
     if have_tables:
         if below:

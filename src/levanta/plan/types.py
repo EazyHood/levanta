@@ -195,6 +195,9 @@ class FloorPlan:
             out.append({"key": "thickness", "level": "info" if one_sided else "ok", "text": t(lang, "qa_thickness_assumed").format(n=one_sided, m=len(self.walls))})
         if not self.ceiling_measured:
             out.append({"key": "ceiling", "level": "warn", "text": t(lang, "qa_ceiling_default")})
+        bad = self.unreliable
+        if bad is not None:
+            out.append({"key": "unreliable", "level": "warn", "text": t(lang, "qa_unreliable").format(bad=bad[0], n=bad[1], cover=round(100 * bad[2]))})
         if self.scale_uncalibrated:
             out.append({"key": "scale", "level": "warn", "text": t(lang, "qa_scale_uncalibrated")})
         unmeasured = [o.tag or o.kind for o in self.openings if o.kind == "door" and not o.height_measured]
@@ -222,6 +225,25 @@ class FloorPlan:
                 if n:
                     r.name = str(n)
         return self
+
+    @property
+    def unreliable(self) -> tuple[int, int, float] | None:
+        """(chunks whose scale broke, chunks, median mask coverage) when the reconstruction
+        cannot be trusted: a chunk had to be scaled by less than 0.5 or more than 2 to meet
+        the previous one, or the network kept less than 15 % of a typical frame.  Mirrors,
+        glass and tiles do this (ARKitScenes 47430051: scales 0.25-0.58, one wall).  None
+        for a healthy reconstruction or for plans that did not come from video."""
+        scales = self.meta.get("chunk_scales")
+        cover = self.meta.get("mask_fraction")
+        if scales is None and cover is None:
+            return None
+        scales = list(scales or [])
+        bad = sum(1 for s in scales if not (0.5 <= float(s) <= 2.0))
+        n = len(scales) + 1
+        cov = float(cover) if cover is not None else 1.0
+        if bad == 0 and cov >= 0.15:
+            return None
+        return bad, n, cov
 
     @property
     def scale_uncalibrated(self) -> bool:

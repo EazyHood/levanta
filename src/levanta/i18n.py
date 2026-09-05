@@ -98,6 +98,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "note_assumed_thickness": "Walls {walls}: thickness assumed {th} (seen from one side only).",
         "note_scale_fit": "Scale 1:{s}: 1:{next} does not fit {paper}.",
         "stamp": "PRELIMINARY · scale not calibrated",
+        "stamp_unreliable": "NOT RECONSTRUCTIBLE · mirror or glass",
+        "qa_unreliable": "Reconstruction not reliable: {bad} of {n} chunks broke scale, the network kept {cover} % of a typical frame. Mirrors, glass or tiles do this; film that room from the doorway and measure it by hand.",
         "stamp_short": "not calibrated",
     },
     "es": {
@@ -195,6 +197,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "note_assumed_thickness": "Muros {walls}: grosor supuesto {th} (vistos por una sola cara).",
         "note_scale_fit": "Escala 1:{s}: 1:{next} no cabe en {paper}.",
         "stamp": "PRELIMINAR · escala sin calibrar",
+        "stamp_unreliable": "NO RECONSTRUIBLE · espejo o cristal",
+        "qa_unreliable": "Reconstrucción no fiable: {bad} de {n} tramos rompieron la escala, la red conservó el {cover} % de un fotograma típico. Lo hacen los espejos, el cristal y el azulejo; graba esa habitación desde el vano de la puerta y mídela a mano.",
         "stamp_short": "sin calibrar",
     },
 }

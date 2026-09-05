@@ -57,10 +57,13 @@ como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
   un 22–44 % por debajo del suelo LiDAR incluso con la escala bien: el contorno sigue
   el suelo que la cámara vio, y esos escaneos miraban objetos, no el zócalo. Recorre el
   perímetro con el móvil apuntando a la arista pared–suelo, no solo al centro.
-- **Las habitaciones pequeñas son el peor caso.** Dos baños de 4–5 m² salieron un 31 %
-  y un 78 % más grandes, uno con una sola pared. Ponte en el vano de la puerta, mantén
-  1,5 m de distancia a lo que grabas, incluye el marco y el suelo, y cuenta con
-  corregirlos a mano.
+- **Las habitaciones pequeñas son el peor caso, y la causa son espejos y azulejos.** Dos
+  baños de 4–5 m² salieron un 31 % y un 78 % más grandes; en uno la red conservó 56 k
+  puntos de 57 fotogramas, halló una sola pared y su escala cayó a 0,26. levanta ahora lo
+  detecta (un tramo escalado por menos de 0,5 o más de 2 para encajar con el anterior, o
+  menos del 15 % del fotograma conservado) y sella la lámina *NO RECONSTRUIBLE · espejo o
+  cristal* en vez de dibujar una habitación. Ponte en el vano de la puerta, mantén 1,5 m
+  de distancia, incluye el marco y el suelo, y mide esa habitación a mano.
 - **Una habitación, uno o dos minutos.** La trayectoria derivó 0,4–0,9 m en paseos de
   uno a tres minutos; todavía no hay cierre de bucle, así que deambular largo degrada
   el plano más de lo que lo haría un segundo clip corto.

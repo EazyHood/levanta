@@ -101,12 +101,13 @@ def _dedupe(pts: list[np.ndarray], tol: float = 1e-6) -> list[np.ndarray]:
     return out
 
 
-def snap_edges_to_walls(poly: Polygon, walls: list[WallSeg], max_dist: float = 1.0, min_overlap: float = 0.5, angle_tol_deg: float = 10.0) -> Polygon:
+def snap_edges_to_walls(poly: Polygon, walls: list[WallSeg], max_dist: float = 2.5, min_overlap: float = 0.35, angle_tol_deg: float = 10.0) -> Polygon:
     """Move each edge of an orthogonal outline onto the inner face of the nearest parallel
     wall that runs alongside it (within ``max_dist``, covering ``min_overlap`` of the edge).
 
     This is what turns "the floor I could see" into "the room": a desk hides the floor
-    next to a wall, but the wall itself was seen.
+    next to a wall, but the wall itself was seen.  Measured on ARKitScenes, the seen
+    floor stops one to two metres short of walls that were detected; hence the reach.
     """
     src = orient(poly, sign=1.0)  # counter-clockwise: outward normal of a->b is (dy, -dx)
     pts = [np.array(p, dtype=float) for p in src.exterior.coords[:-1]]
@@ -146,7 +147,7 @@ def snap_edges_to_walls(poly: Polygon, walls: list[WallSeg], max_dist: float = 1
             if overlap < min_overlap * L:
                 continue
             inner_face = off - np.sign(off) * th / 2 if abs(off) > th / 2 else 0.0
-            score = (overlap, -abs(off))
+            score = (-abs(off), overlap)  # the nearest wall that runs alongside wins; ties by overlap
             if best is None or score > best[0]:
                 best = (score, inner_face)
         if best is not None:

@@ -288,6 +288,7 @@ class MapAnythingBackend:
         overlap = max(1, min(self.overlap, self.max_views - 1))
         step = self.max_views - overlap
         solved: dict[int, dict] = {}  # frame index -> view dict in the world frame
+        chunk_scales: list[float] = []  # what each chunk after the first had to be scaled by
         chunks = 0
         start = 0
         prev: list[int] = []
@@ -309,7 +310,8 @@ class MapAnythingBackend:
             views = self.predict_views([frames[i].path for i in idx], intrinsics=ks if any(k is not None for k in ks) else None, poses=known if any(T is not None for T in known) else None)
             chunks += 1
             if prev:
-                sim = align_similarity([views[j]["T"] for j in range(len(ov))], [solved[i]["T"] for i in ov])
+                sim = align_chunk([views[j] for j in range(len(ov))], [solved[i] for i in ov])
+                chunk_scales.append(sim.scale)
                 for v in views:
                     v["T"] = sim.apply(v["T"])
                     v["depth"] = v["depth"] * sim.scale
@@ -330,7 +332,8 @@ class MapAnythingBackend:
                 dropped += 1
             out_frames.append(Frame(image=v["image"], depth=depth, camera=Camera(K=v["K"], T=v["T"], width=w, height=h)))
         cloud = fuse_frames(out_frames, stride=self.stride, voxel=self.voxel, depth_max=self.depth_max, edge_rel=0.06)
-        cloud.meta.update({"source": "mapanything", "model": self.model_name, "views": n, "chunks": chunks, "views_dropped_flat": dropped})
+        cover = float(np.median([solved[i]["mask"].mean() for i in range(n)])) if n else 0.0
+        cloud.meta.update({"source": "mapanything", "model": self.model_name, "views": n, "chunks": chunks, "views_dropped_flat": dropped, "chunk_scales": chunk_scales, "mask_fraction": cover})
         return cloud
 
 
@@ -366,6 +369,34 @@ class Similarity:
         out[:3, :3] = self.R @ T[:3, :3]
         out[:3, 3] = self.scale * (self.R @ T[:3, 3]) + self.t
         return out
+
+
+def align_chunk(new_views: Sequence[dict], solved_views: Sequence[dict]) -> Similarity:
+    """The similarity that carries a chunk onto the world, from the views the two share.
+
+    Scale comes from the *depth maps* of the shared views (the median ratio of the
+    depths both chunks predicted for the same pixels), not from the distances between
+    their camera centres: four cameras half a metre apart give a scale that is wrong by
+    tens of percent (measured on ARKitScenes: per-chunk scales 0.66-1.21 within one room
+    after the centre-based fit), thousands of shared pixels do not.  Rotation comes from
+    the camera orientations, translation from the centres once scaled.
+    """
+    ratios = []
+    for nv, sv in zip(new_views, solved_views, strict=True):
+        dn, ds = nv["depth"], sv["depth"]
+        if dn.shape != ds.shape:
+            continue
+        m = nv["mask"] & sv["mask"] & (dn > 0.05) & (ds > 0.05)
+        if m.sum() >= 200:
+            ratios.append(float(np.median(ds[m] / dn[m])))
+    base = align_similarity([v["T"] for v in new_views], [v["T"] for v in solved_views])
+    if not ratios:
+        return base
+    scale = float(np.median(ratios))
+    cs = np.array([v["T"][:3, 3] for v in new_views])
+    cd = np.array([v["T"][:3, 3] for v in solved_views])
+    t = (cd - scale * (base.R @ cs.T).T).mean(axis=0)
+    return Similarity(scale, base.R, t)
 
 
 def align_similarity(src: Sequence[np.ndarray], dst: Sequence[np.ndarray]) -> Similarity:

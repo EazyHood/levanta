@@ -49,3 +49,23 @@ floor IoU, rooms detected vs. truth, doors detected (no truth), camera RMS.
 Two of the five scans are tiny bathrooms picked by index, not by hand. The
 ARKitScenes license (research, non-commercial) is why the overlays and levanta's sheets
 for these scenes are not in the repository; the numbers and the script are.
+
+## Bigger scenes: not in this dataset
+
+Asked for two scenes of 40 m² or more with three or more rooms. Screened 44 validation
+meshes with `bench/scan_scenes.py` (floor raster at 5 cm, holes filled, erosion 0.40 m):
+the largest is 43.0 m² (42897599) and *every one of the 44 is a single room*. That is the
+dataset's design: one ARKitScenes video is one room; a home is a `visit_id` with several
+videos (in the validation split, up to 8 videos per visit, 183 visits for 549 videos).
+So an apartment-sized continuous walk with a LiDAR truth does not exist here.
+
+What would give it, publicly:
+- **ARKitScenes visits**: the 5–8 single-room videos of one `visit_id` cover one home, but
+  each is its own capture with its own ARKit world; they would have to be placed against
+  each other through the meshes (no continuous walk, so no test of drift across rooms).
+- **Replica** (Meta; real scanned apartments `apartment_0/1/2`, several rooms each,
+  license accepted in the download script): render a continuous virtual walk through the
+  mesh with Open3D off-screen and use the mesh floor as truth. Synthetic camera, real
+  geometry; it measures the planner and the chunking, not the phone.
+- Matterport3D, HM3D, ScanNet++ have whole homes with video or panoramas but need a signed
+  form; excluded by the brief.

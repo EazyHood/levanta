@@ -312,7 +312,7 @@ def build_rooms(
             if manhattan:
                 poly = rectilinearize(poly)
                 poly = simplify_orthogonal(poly, min_edge=room_min_jog)
-                poly = snap_edges_to_walls(poly, segs, max_dist=room_snap_dist)
+                poly = snap_edges_to_walls(poly, segs, max_dist=room_snap_dist, min_overlap=0.35)
                 poly = clip_to_walls(poly, unary_union(bodies), min_area)
                 poly = simplify_orthogonal(poly.simplify(0.02, preserve_topology=True), min_edge=room_min_jog)
             if plausible(poly):

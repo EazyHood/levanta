@@ -108,8 +108,8 @@ def elevations_drawing(
         y0 += row_h
     if title_block:
         _title_block(d, margin, H - tb_h - 10 * fs, W - 2 * margin, tb_h, plan, title, lang, units, scale, print_scale, fs, sheet=sheet or next_sheet(plan.project.get("sheet")), subtitle=t(lang, "elevations"))
-    if plan.scale_uncalibrated:
-        stamp(d, W / 2, (H - tb_h) / 2, min(W, H - tb_h), lang, fs)
+    if plan.scale_uncalibrated or plan.unreliable is not None:
+        stamp(d, W / 2, (H - tb_h) / 2, min(W, H - tb_h), lang, fs, unreliable=plan.unreliable is not None)
     else:
         d.text(margin, H - 10 * fs, t(lang, "generated_by"), size=10 * fs, anchor="start", color="#666")
     return d

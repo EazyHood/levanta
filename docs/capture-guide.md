@@ -51,9 +51,13 @@ Measured on five ARKitScenes rooms (real iPhone walks with a LiDAR floor as trut
   22–44 % below the LiDAR floor even at the right scale: the outline follows the floor
   the camera saw, and those scans looked at objects, not at the skirting. Walk the
   perimeter with the phone pointing at the wall–floor edge, not only at the middle.
-- **Small rooms are the worst case.** Two bathrooms of 4–5 m² came out 31 % and 78 %
-  too big, one of them with a single wall. Stand in the doorway, keep 1.5 m from what
-  you film, include the door frame and the floor, and expect to correct them by hand.
+- **Small rooms are the worst case, mirrors and tiles the reason.** Two bathrooms of
+  4–5 m² came out 31 % and 78 % too big; in one the network kept 56 k points for 57 frames,
+  found one wall and its scale fell to 0.26. levanta now notices (a chunk scaled by less
+  than 0.5 or more than 2 to meet the previous one, or under 15 % of a frame kept) and
+  stamps the sheet *NOT RECONSTRUCTIBLE · mirror or glass* instead of drawing a room.
+  Stand in the doorway, keep 1.5 m from what you film, include the door frame and the
+  floor, and measure that room by hand.
 - **Keep one room to one or two minutes.** The camera track drifted 0.4–0.9 m over one
   to three minute walks; there is no loop closure yet, so a long wander degrades the
   plan more than a second, shorter clip would.

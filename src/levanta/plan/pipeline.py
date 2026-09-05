@@ -78,7 +78,7 @@ class PlanOptions:
     min_room_inside_frac: float = 0.25
     room_fallback: bool = True
     room_min_jog: float = 0.9
-    room_snap_dist: float = 1.0
+    room_snap_dist: float = 2.5  # an open room's edge reaches a detected wall this far out
     tidy: bool = True
     wall_attach_dist: float = 0.20
     wall_trim_margin: float = 0.10
@@ -270,6 +270,9 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     )
 
     plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")))
+    for key in ("chunk_scales", "mask_fraction", "views", "chunks", "views_dropped_flat", "focal_source"):
+        if key in cloud.meta:
+            plan.meta[key] = cloud.meta[key]
     if opts.tidy:
         plan = tidy_walls(plan, attach_dist=opts.wall_attach_dist, trim_margin=opts.wall_trim_margin, min_len=opts.min_wall_len)
         plan = drop_stubs(plan, max_len=opts.stub_max_len)
