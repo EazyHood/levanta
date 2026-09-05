@@ -236,23 +236,31 @@ def plan_walk(truth: dict) -> list[tuple[float, float, float]]:
 
 
 def render_walk(mesh, truth: dict, walk, out_dir: Path, res: tuple[int, int], fov_deg: float = 70.0) -> tuple[list[Path], list[np.ndarray], np.ndarray]:
-    """Frames, camera-to-world poses (OpenCV convention: x right, y down, z forward) and K."""
-    import open3d as o3d
-    from open3d.visualization import rendering
+    """Frames, camera-to-world poses (OpenCV convention: x right, y down, z forward) and K.
+
+    pyrender (flat vertex colours, no lighting) instead of Open3D's OffscreenRenderer:
+    the Open3D wheel for Windows refuses to render off-screen ("EGL Headless is not
+    supported on this platform"); pyrender opens a hidden pyglet window and works."""
+    import pyrender
+    import trimesh
+    from PIL import Image
 
     W, H = res
     out_dir.mkdir(parents=True, exist_ok=True)
-    r = rendering.OffscreenRenderer(W, H)
-    mat = rendering.MaterialRecord()
-    mat.shader = "defaultUnlit"
-    r.scene.add_geometry("mesh", mesh, mat)
-    r.scene.set_background([0.02, 0.02, 0.02, 1.0])
-    r.scene.scene.set_sun_light([0.3, -0.5, -0.8], [1.0, 1.0, 1.0], 60000)
-    r.scene.scene.enable_sun_light(False)
+    verts = np.asarray(mesh.vertices)
+    faces = np.asarray(mesh.triangles)
+    colors = (np.asarray(mesh.vertex_colors) * 255).astype(np.uint8) if mesh.has_vertex_colors() else np.full((len(verts), 3), 160, np.uint8)
+    tm = trimesh.Trimesh(vertices=verts, faces=faces, vertex_colors=np.c_[colors, np.full(len(verts), 255, np.uint8)], process=False)
+    scene = pyrender.Scene(bg_color=[0.02, 0.02, 0.02, 1.0], ambient_light=[1.0, 1.0, 1.0])
+    scene.add(pyrender.Mesh.from_trimesh(tm, smooth=False))
+    fx = (W / 2) / math.tan(math.radians(fov_deg) / 2)
+    yfov = 2 * math.atan((H / 2) / fx)
+    K = np.array([[fx, 0, W / 2], [0, fx, H / 2], [0, 0, 1.0]])
+    cam = pyrender.PerspectiveCamera(yfov=yfov, aspectRatio=W / H, znear=0.05, zfar=60.0)
+    cam_node = scene.add(cam, pose=np.eye(4))
+    r = pyrender.OffscreenRenderer(W, H)
     up, sign, horiz = truth["up"], truth["sign"], truth["horiz"]
-    fy = fx = (H / 2) / math.tan(math.radians(fov_deg) / 2) if H < W else (W / 2) / math.tan(math.radians(fov_deg) / 2)
-    K = np.array([[fx, 0, W / 2], [0, fy, H / 2], [0, 0, 1.0]])
-    r.scene.camera.set_projection(fov_deg, W / H, 0.05, 50.0, rendering.Camera.FovType.Horizontal if W >= H else rendering.Camera.FovType.Vertical)
+    flip = np.diag([1.0, -1.0, -1.0, 1.0])  # OpenCV camera -> OpenGL camera
     frames, poses = [], []
     for k, (x, y, yaw) in enumerate(walk):
         eye = np.zeros(3)
@@ -264,19 +272,19 @@ def render_walk(mesh, truth: dict, walk, out_dir: Path, res: tuple[int, int], fo
         fwd /= np.linalg.norm(fwd)
         upv = np.zeros(3)
         upv[up] = sign
-        r.scene.camera.look_at(eye + fwd, eye, upv)
-        img = np.asarray(r.render_to_image())
-        p = out_dir / f"frame_{k:05d}.png"
-        o3d.io.write_image(str(p), o3d.geometry.Image(img))
-        frames.append(p)
-        # camera-to-world in OpenCV convention
         z = fwd
         xax = np.cross(z, upv)
         xax /= np.linalg.norm(xax)
         yax = np.cross(z, xax)
         T = np.eye(4)
         T[:3, 0], T[:3, 1], T[:3, 2], T[:3, 3] = xax, yax, z, eye
+        scene.set_pose(cam_node, T @ flip)
+        color, _depth = r.render(scene, flags=pyrender.RenderFlags.FLAT)
+        p = out_dir / f"frame_{k:05d}.png"
+        Image.fromarray(color).save(p)
+        frames.append(p)
         poses.append(T)
+    r.delete()
     return frames, poses, K
 
 
@@ -361,6 +369,7 @@ def main() -> None:
     ap.add_argument("--res", default="1280x720")
     ap.add_argument("--render-only", action="store_true")
     ap.add_argument("--eval-only", action="store_true")
+    ap.add_argument("--skip-render", action="store_true", help="reuse walk.mp4 and walk_poses.json from an earlier render")
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
     W, H = (int(x) for x in args.res.split("x"))
@@ -372,7 +381,7 @@ def main() -> None:
     print(f"truth: floor {truth['area_m2']:.1f} m2, {len(truth['rooms'])} rooms {[round(r['area_m2'], 1) for r in truth['rooms']]}, {truth['doors']} doorways, up axis {truth['up']}")
     video = args.out / "walk.mp4"
     poses_file = args.out / "walk_poses.json"
-    if not args.eval_only:
+    if not args.eval_only and not args.skip_render:
         walk = plan_walk(truth)
         print(f"walk: {len(walk)} steps ({len(walk) / 60:.1f} min at 1 fps)")
         frames, poses, K = render_walk(mesh, truth, walk, args.out / "render", (W, H))
