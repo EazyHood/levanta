@@ -231,6 +231,8 @@ def build_rooms(
     min_wall_frac: float = 0.2,
     close_r: float = 0.6,
     manhattan: bool = True,
+    room_min_jog: float = 0.9,
+    room_snap_dist: float = 1.0,
 ) -> list[tuple[Polygon, bool]]:
     """Rooms are the pockets between wall bodies (doors temporarily bricked up) that the
     capture actually looked into.
@@ -298,10 +300,18 @@ def build_rooms(
                 q = p.simplify(0.02, preserve_topology=True)
                 if q.is_valid and q.area > 0 and plausible(q):
                     rooms.append((q, False))
-        # Stage 3: whatever is still open follows the seen floor.
+        # Stage 3: whatever is still open follows the seen floor.  Its outline then
+        # loses the bites furniture took out of it and snaps to the walls beside it.
+        from levanta.plan.tidy import clip_to_walls, simplify_orthogonal, snap_edges_to_walls
+
+        segs = [(np.asarray(ln.point(t0)), np.asarray(ln.point(t1)), ln.thickness) for ln in lines for t0, t1 in ln.intervals]
         for poly in _raster_rooms(solid, strict, grid, min_area=min_area):
             if manhattan:
                 poly = rectilinearize(poly)
+                poly = simplify_orthogonal(poly, min_edge=room_min_jog)
+                poly = snap_edges_to_walls(poly, segs, max_dist=room_snap_dist)
+                poly = clip_to_walls(poly, unary_union(bodies), min_area)
+                poly = simplify_orthogonal(poly.simplify(0.02, preserve_topology=True), min_edge=room_min_jog)
             if plausible(poly):
                 rooms.append((poly, False))
     rooms.sort(key=lambda r: -r[0].area)

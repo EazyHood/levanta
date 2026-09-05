@@ -138,9 +138,13 @@ export_all(plan, "out", lang="es", units="m")           # html, png, svg, dxf, g
    pero nunca dentro.
 7. **Habitaciones** (`levanta.plan.rooms`). Se tapian las puertas temporalmente y los
    huecos entre cuerpos de pared son las habitaciones. Se puentean vanos de hasta 1,2 m;
-   lo que sigue abierto sigue el suelo visto, recibe un contorno rectilíneo y la marca
-   `closed: false`.
-8. **Dibujos y 3D** (`levanta.io`). Un único modelo de dibujo genera el SVG y el PNG, así
+   lo que sigue abierto sigue el suelo visto, pierde los mordiscos que le quitaron los
+   muebles, se ajusta a las paredes de al lado y queda marcado `closed: false`.
+8. **Limpieza** (`levanta.plan.tidy`). Las paredes que no bordean ninguna habitación (vistas
+   por una puerta) se apartan, las paredes se recortan al tramo que bordea una habitación,
+   los frentes de mesa y jambas que quedan dentro de una habitación se eliminan, y un vano
+   entre dos trozos de pared por el que miró la cámara se convierte en puerta.
+9. **Dibujos y 3D** (`levanta.io`). Un único modelo de dibujo genera el SVG y el PNG, así
    que siempre coinciden. Las paredes son cajas partidas alrededor de los huecos (cajas
    de antepecho y dintel, sin booleanas); la vista 3D es una proyección axonométrica
    dibujada sin OpenGL.
@@ -163,10 +167,13 @@ primera ejecución.
 
 **Datos reales**, TUM `freiburg1_room` (una Kinect en mano recorriendo una oficina llena
 de mesas, poses de captura de movimiento, 454 fotogramas, sin GPU): aparecen tres
-paredes, la puerta (0,83 m, dintel medido a 2,54 m) y el techo (2,91 m); la habitación
-sale de 5,0 × 5,0 m. La cuarta pared es de cristal y nunca devolvió profundidad, así que
-por ese lado el contorno sigue el suelo visto y la habitación queda marcada como
-incompleta. Ver [`examples/tum_fr1_room/`](examples/tum_fr1_room/).
+paredes, dos puertas (una de 0,83 m con el dintel medido a 2,54 m y otra de 0,69 m
+hallada como un vano por el que miró la cámara) y el techo (2,91 m); la habitación sale
+de 4,44 × 5,48 m. La cuarta pared es de cristal y nunca devolvió profundidad, así que ese
+lado va a trazos y la habitación queda marcada como incompleta. Las paredes vistas por
+las puertas hacia el pasillo, y los frentes de mesa delante de las paredes, se apartan
+(`extra_walls` en el JSON) en vez de ensuciar el plano. Ver
+[`examples/tum_fr1_room/`](examples/tum_fr1_room/).
 
 <p align="center">
   <img src="examples/tum_fr1_room/plan.png" width="520" alt="Plano de la oficina TUM fr1_room: tres paredes, una puerta, un lado a trazos por no escaneado">

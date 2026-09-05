@@ -131,8 +131,13 @@ export_all(plan, "out", lang="en", units="m")           # html, png, svg, dxf, g
    Windows are stretches seen below and above a band but never inside it.
 7. **Rooms** (`levanta.plan.rooms`). Doors are bricked up temporarily and the pockets
    between wall bodies become rooms. Gaps up to 1.2 m are bridged; what is still open
-   follows the seen floor, gets a rectilinear outline and the flag `closed: false`.
-8. **Drawings and 3D** (`levanta.io`). One drawing model renders both SVG and PNG, so
+   follows the seen floor, loses the bites furniture took out of it, snaps to the walls
+   beside it, and is flagged `closed: false`.
+8. **Tidying** (`levanta.plan.tidy`). Walls that bound no room (seen through a doorway)
+   are set aside, walls are trimmed to the stretch that bounds a room, desk fronts and
+   jamb returns standing inside a room are dropped, and a gap between two wall pieces
+   that the camera looked through becomes a door.
+9. **Drawings and 3D** (`levanta.io`). One drawing model renders both SVG and PNG, so
    they always match. Walls become boxes split around openings (sill and lintel boxes,
    no booleans); the 3D preview is an axonometric projection drawn without OpenGL.
 
@@ -152,10 +157,13 @@ and rotated copy. The acceptance thresholds were written before the first run.
 | Manhattan residual after 23° yaw + 9° tilt | 0° | < 0.1° | < 1° |
 
 **Real data**, TUM `freiburg1_room` (a hand-held Kinect walked around a cluttered office,
-motion-capture poses, 454 frames, no GPU): three walls, the door (0.83 m, lintel measured
-at 2.54 m) and the ceiling (2.91 m) are found; the room comes out 5.0 × 5.0 m. The fourth
-wall is glass and never returned depth, so that side follows the seen floor and the room
-is flagged incomplete. See [`examples/tum_fr1_room/`](examples/tum_fr1_room/).
+motion-capture poses, 454 frames, no GPU): three walls, two doors (0.83 m with its lintel
+measured at 2.54 m, and 0.69 m found as a gap the camera looked through) and the ceiling
+(2.91 m); the room comes out 4.44 × 5.48 m. The fourth wall is glass and never returned
+depth, so that side is drawn dashed and the room is flagged incomplete. Walls seen
+through the doors into the corridor, and the desk fronts standing in front of the walls,
+are set aside (`extra_walls` in the JSON) instead of cluttering the plan. See
+[`examples/tum_fr1_room/`](examples/tum_fr1_room/).
 
 <p align="center">
   <img src="examples/tum_fr1_room/plan.png" width="520" alt="Plan of the TUM fr1_room office: three walls, a door, one side dashed as not scanned">

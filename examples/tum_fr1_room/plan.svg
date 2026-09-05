@@ -1,53 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="915" height="936" viewBox="0 0 915 936" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
-<rect width="915" height="936" fill="#ffffff"/>
-<path class="room" d="M 381.1,266.6 381.1,537.8 635.5,537.8 635.5,514.6 653.9,514.6 653.9,477.0 704.3,477.0 704.3,223.4 752.3,223.4 752.3,187.4 651.5,187.4 651.5,137.8 401.9,137.8 401.9,188.2 352.3,188.2 352.3,266.6 Z" fill="#f3f0ea"/>
-<path class="open-edge" d="M 635.5,537.8 L 635.5,514.6" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 635.5,514.6 L 653.9,514.6" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 704.3,477.0 L 704.3,223.4" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 704.3,223.4 L 752.3,223.4" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 752.3,223.4 L 752.3,187.4" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 752.3,187.4 L 651.5,187.4" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 651.5,187.4 L 651.5,137.8" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 401.9,137.8 L 401.9,188.2" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 401.9,188.2 L 352.3,188.2" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="wall" d="M 333.0,93.3 349.0,93.3 349.0,408.0 333.0,408.0 333.0,93.3 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 352.2,467.5 368.2,467.5 368.2,577.7 352.2,577.7 352.2,467.5 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 352.2,109.3 368.2,109.3 368.2,151.6 352.2,151.6 352.2,109.3 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 370.6,277.6 378.6,277.6 378.6,580.1 370.6,580.1 370.6,277.6 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 656.9,478.3 672.9,478.3 672.9,587.8 656.9,587.8 656.9,478.3 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 689.7,482.4 705.7,482.4 705.7,577.7 689.7,577.7 689.7,482.4 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 567.1,805.8 567.1,789.8 608.8,789.8 608.8,805.8 567.1,805.8 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 335.9,573.7 376.3,573.7 376.3,581.7 335.9,581.7 335.9,573.7 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 697.7,573.7 697.7,581.7 442.7,581.7 442.7,573.7 697.7,573.7 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 90.0,564.5 90.0,556.5 386.1,556.5 386.1,564.5 90.0,564.5 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 342.3,541.4 419.3,541.4 419.3,549.4 342.3,549.4 342.3,541.4 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 697.7,541.4 697.7,549.4 644.9,549.4 644.9,541.4 697.7,541.4 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 657.3,498.1 657.3,482.1 700.5,482.1 700.5,498.1 657.3,498.1 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 333.8,478.1 333.8,470.1 378.2,470.1 378.2,478.1 333.8,478.1 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 341.0,399.4 341.0,391.4 381.4,391.4 381.4,399.4 341.0,399.4 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 340.4,135.2 340.4,119.2 824.9,119.2 824.9,135.2 340.4,135.2 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 482.6,106.0 482.6,90.0 580.5,90.0 580.5,106.0 482.6,106.0 Z" fill="#2b2b2b"/>
-<path class="door" d="M 442.7,577.7 L 442.7,511.3" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="door" d="M 442.7,511.3 L 435.3,511.8 L 428.0,513.0 L 420.8,515.1 L 413.9,517.9 L 407.4,521.5 L 401.3,525.8 L 395.8,530.8 L 390.8,536.3 L 386.5,542.4 L 382.9,548.9 L 380.1,555.8 L 378.0,563.0 L 376.8,570.3 L 376.3,577.7" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="passage" d="M 644.9,545.4 L 419.3,545.4" fill="none" stroke="#2b2b2b" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="4 4"/>
-<text class="label" x="542.7" y="367.8" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Office (incomplete)</text>
-<text class="label" x="542.7" y="382.8" font-size="11" text-anchor="middle" fill="#555555">19.70 m² · 5.00 m × 5.00 m</text>
-<path class="dim" d="M 90.0,811.8 L 90.0,838.8" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 824.9,811.8 L 824.9,838.8" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 90.0,833.8 L 824.9,833.8" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 87.0,836.8 L 93.0,830.8" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 821.9,836.8 L 827.9,830.8" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim" x="457.4" y="829.8" font-size="11" text-anchor="middle" fill="#444444">9.19 m</text>
-<path class="dim" d="M 84.0,805.8 L 57.0,805.8" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="582" height="697" viewBox="0 0 582 697" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect width="582" height="697" fill="#ffffff"/>
+<path class="room" d="M 106.0,559.1 461.4,559.1 461.4,120.6 106.0,120.6 Z" fill="#f3f0ea"/>
+<path class="open-edge" d="M 461.4,455.8 L 461.4,132.6" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
+<path class="wall" d="M 90.0,90.0 106.0,90.0 106.0,393.4 90.0,393.4 90.0,90.0 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 109.2,452.9 125.2,452.9 125.2,563.1 109.2,563.1 109.2,452.9 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 446.7,467.8 462.7,467.8 462.7,563.1 446.7,563.1 446.7,467.8 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 93.0,559.1 133.4,559.1 133.4,567.1 93.0,567.1 93.0,559.1 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 454.7,559.1 454.7,567.1 199.8,567.1 199.8,559.1 454.7,559.1 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 97.4,120.6 97.4,104.6 492.0,104.6 492.0,120.6 97.4,120.6 Z" fill="#2b2b2b"/>
+<path class="door" d="M 199.8,563.1 L 199.8,496.7" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="door" d="M 199.8,496.7 L 192.3,497.1 L 185.0,498.4 L 177.9,500.5 L 171.0,503.3 L 164.5,506.9 L 158.4,511.2 L 152.8,516.2 L 147.9,521.7 L 143.6,527.8 L 140.0,534.3 L 137.1,541.2 L 135.0,548.4 L 133.8,555.7 L 133.4,563.1" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="door" d="M 98.0,395.8 L 153.2,395.8" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="door" d="M 153.2,395.8 L 152.9,402.0 L 151.8,408.1 L 150.1,414.0 L 147.8,419.8 L 144.8,425.2 L 141.2,430.2 L 137.0,434.8 L 132.4,439.0 L 127.4,442.6 L 122.0,445.6 L 116.2,447.9 L 110.3,449.6 L 104.2,450.7 L 98.0,451.0" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="label" x="283.7" y="335.9" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Office (incomplete)</text>
+<text class="label" x="283.7" y="350.9" font-size="11" text-anchor="middle" fill="#555555">24.35 m² · 4.44 m × 5.48 m</text>
+<path class="dim" d="M 90.0,573.1 L 90.0,600.1" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 492.0,573.1 L 492.0,600.1" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 90.0,595.1 L 492.0,595.1" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 87.0,598.1 L 93.0,592.1" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 489.0,598.1 L 495.0,592.1" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim" x="291.0" y="591.1" font-size="11" text-anchor="middle" fill="#444444">5.02 m</text>
+<path class="dim" d="M 84.0,567.1 L 57.0,567.1" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="dim" d="M 84.0,90.0 L 57.0,90.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 62.0,805.8 L 62.0,90.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 59.0,808.8 L 65.0,802.8" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 62.0,567.1 L 62.0,90.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 59.0,570.1 L 65.0,564.1" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="dim" d="M 59.0,93.0 L 65.0,87.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim" x="58.0" y="447.9" font-size="11" text-anchor="middle" fill="#444444" transform="rotate(-90 58.0 447.9)">8.95 m</text>
-<text class="title" x="90.0" y="901.8" font-size="14" text-anchor="start" fill="#111111" font-weight="700">TUM fr1_room (Kinect, mocap poses, CC BY 4.0)</text>
-<text class="meta" x="90.0" y="917.8" font-size="10.5" text-anchor="start" fill="#666666">made with levanta · 1 rooms · 19.70 m² · ceiling 2.91 m (measured) · 2026-09-04</text>
-<path d="M 744.9,909.8 784.9,909.8 784.9,915.8 744.9,915.8 Z" fill="#222"/>
-<path d="M 784.9,909.8 824.9,909.8 824.9,915.8 784.9,915.8 Z" fill="none" stroke="#222" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text x="744.9" y="905.8" font-size="10.5" text-anchor="start" fill="#666666">0</text>
-<text x="824.9" y="905.8" font-size="10.5" text-anchor="end" fill="#666666">1 m</text>
+<text class="dim" x="58.0" y="328.6" font-size="11" text-anchor="middle" fill="#444444" transform="rotate(-90 58.0 328.6)">5.96 m</text>
+<text class="title" x="90.0" y="663.1" font-size="14" text-anchor="start" fill="#111111" font-weight="700">TUM fr1_room (Kinect, mocap poses, CC BY 4.0)</text>
+<text class="meta" x="90.0" y="679.1" font-size="10.5" text-anchor="start" fill="#666666">made with levanta · 1 rooms · 24.35 m² · ceiling 2.91 m (measured) · 2026-09-04</text>
+<path d="M 412.0,635.1 452.0,635.1 452.0,641.1 412.0,641.1 Z" fill="#222"/>
+<path d="M 452.0,635.1 492.0,635.1 492.0,641.1 452.0,641.1 Z" fill="none" stroke="#222" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="412.0" y="631.1" font-size="10.5" text-anchor="start" fill="#666666">0</text>
+<text x="492.0" y="631.1" font-size="10.5" text-anchor="end" fill="#666666">1 m</text>
 </svg>

@@ -16,6 +16,7 @@ Made for people who are not going to read the source.
 - Friendlier errors (out of memory, missing extras, no rooms), step-by-step progress.
 - Docs: capture guide, FAQ, output formats (English and Spanish).
 - One drawing model renders both SVG and PNG, so they always match.
+- Tidying pass (`levanta.plan.tidy`): walls seen through doorways are set aside, walls are trimmed to the stretch that bounds a room, desk fronts and jamb returns inside rooms are dropped, open-room outlines lose furniture bites and snap to the walls beside them, and a gap between wall pieces the camera looked through becomes a door. On the TUM office this turns a cluttered sketch into a rectangle with three walls, two doors and one dashed glass side.
 
 ## 0.1.0 — 2026-09-04
 

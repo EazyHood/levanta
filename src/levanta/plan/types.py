@@ -110,6 +110,7 @@ class FloorPlan:
     transform: list[list[float]] = field(default_factory=lambda: np.eye(4).tolist())  # cloud -> plan
     units: str = "m"
     meta: dict[str, Any] = field(default_factory=dict)
+    extra_walls: list[Wall] = field(default_factory=list)  # seen, but bounding no room (not drawn)
 
     # -- derived -----------------------------------------------------------------------
 
@@ -178,6 +179,11 @@ class FloorPlan:
         for o in d["openings"]:
             for k in ("t0", "t1", "z0", "z1"):
                 o[k] *= factor
+        for w in d.get("extra_walls", []):
+            w["a"] = [v * factor for v in w["a"]]
+            w["b"] = [v * factor for v in w["b"]]
+            w["thickness"] *= factor
+            w["height"] *= factor
         d["ceiling_height"] *= factor
         T = np.array(d["transform"], dtype=float)
         T[:3, :] *= factor
@@ -218,6 +224,7 @@ class FloorPlan:
         ]
         d["walls"] = [{**asdict(w), "length_m": round(w.length, 4)} for w in self.walls]
         d["openings"] = [{**asdict(o), "width_m": round(o.width, 4)} for o in self.openings]
+        d["extra_walls"] = [{**asdict(w), "length_m": round(w.length, 4)} for w in self.extra_walls]
         return d
 
     def to_json(self, path: str | Path | None = None, indent: int = 2) -> str:
@@ -234,7 +241,8 @@ class FloorPlan:
             Opening(**{k: (tuple(v) if k == "rooms" else v) for k, v in o.items() if k in Opening.__dataclass_fields__})
             for o in d["openings"]
         ]
-        for w in walls:
+        extra = [Wall(**{k: v for k, v in w.items() if k in Wall.__dataclass_fields__}) for w in d.get("extra_walls", [])]
+        for w in walls + extra:
             w.a, w.b = tuple(w.a), tuple(w.b)
         for r in rooms:
             r.polygon = [tuple(p) for p in r.polygon]
@@ -248,6 +256,7 @@ class FloorPlan:
             transform=d.get("transform", np.eye(4).tolist()),
             units=d.get("units", "m"),
             meta=d.get("meta", {}),
+            extra_walls=extra,
         )
 
     @classmethod

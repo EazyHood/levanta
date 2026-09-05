@@ -70,9 +70,9 @@ def swing_side(plan: FloorPlan, wall: Wall, o: Opening) -> float:
 
 
 def open_edges(plan: FloorPlan, tol: float = 0.15) -> list[tuple[tuple[float, float], tuple[float, float]]]:
-    """Room outline edges that do not lie on a detected wall: the unscanned sides."""
+    """Portions of room outlines that lie on no detected wall: the unscanned sides."""
     if not plan.walls:
-        return []
+        return [(a, b) for r in plan.rooms if not r.closed for a, b in pairwise([*r.polygon, r.polygon[0]])]
     near = unary_union([w.polygon() for w in plan.walls]).buffer(tol)
     out = []
     for r in plan.rooms:
@@ -83,9 +83,14 @@ def open_edges(plan: FloorPlan, tol: float = 0.15) -> list[tuple[tuple[float, fl
             seg = LineString([a, b])
             if seg.length < 0.05:
                 continue
-            uncovered = seg.difference(near)
-            if uncovered.length > 0.5 * seg.length:
-                out.append((a, b))
+            diff = seg.difference(near)
+            if diff.is_empty:
+                continue
+            parts = list(diff.geoms) if hasattr(diff, "geoms") else [diff]
+            for p in parts:
+                if p.geom_type == "LineString" and p.length > 0.2:
+                    c = list(p.coords)
+                    out.append(((float(c[0][0]), float(c[0][1])), (float(c[-1][0]), float(c[-1][1]))))
     return out
 
 
@@ -190,8 +195,10 @@ def floor_plan_drawing(
         ceil = f"{t(lang, 'ceiling')} {fmt_len(plan.ceiling_height, units)} ({t(lang, 'measured') if plan.ceiling_measured else t(lang, 'default')})"
         d.text(margin, H - 34, ttl, size=14, weight="bold", anchor="start", color=COLORS["title"], cls="title")
         d.text(margin, H - 18, f"{t(lang, 'generated_by')} · {len(plan.rooms)} {t(lang, 'rooms')} · {fmt_area(plan.total_area, units)} · {ceil} · {_dt.date.today().isoformat()}", size=10.5, anchor="start", color=COLORS["meta"], cls="meta")
+        # scale bar: bottom right, or one row up when the title block runs under it
         sx = W - margin - scale
-        sy = H - 26
+        meta_w = 0.52 * 10.5 * len(f"{t(lang, 'generated_by')} · {len(plan.rooms)} {t(lang, 'rooms')} · {fmt_area(plan.total_area, units)} · {ceil} · {_dt.date.today().isoformat()}")
+        sy = H - 26 if margin + meta_w < sx - 20 else H - 62
         d.polygon([(sx, sy), (sx + scale / 2, sy), (sx + scale / 2, sy + 6), (sx, sy + 6)], fill="#222")
         d.polygon([(sx + scale / 2, sy), (sx + scale, sy), (sx + scale, sy + 6), (sx + scale / 2, sy + 6)], fill=None, stroke="#222", width=0.8)
         d.text(sx, sy - 4, "0", size=10.5, anchor="start", color=COLORS["meta"])

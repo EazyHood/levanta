@@ -58,6 +58,10 @@ def render_debug(result: PlanResult, scale: float = 60.0, path: str | Path | Non
     for r in plan.rooms:
         pts = [P(x, y) for x, y in r.polygon]
         draw.polygon(pts, outline=(0, 150, 0, 255), fill=(0, 200, 0, 25))
+    # walls set aside (bounding no room)
+    for w in plan.extra_walls:
+        pts = [P(x, y) for x, y in w.polygon().exterior.coords]
+        draw.polygon(pts, outline=(170, 170, 170, 255))
     # walls
     for w in plan.walls:
         poly = w.polygon()

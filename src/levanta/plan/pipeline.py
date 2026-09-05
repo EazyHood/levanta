@@ -25,6 +25,7 @@ from levanta.geometry import estimate_normals_pca, make_pose, orient_normals_tow
 from levanta.plan.gravity import GravityResult, align_to_gravity
 from levanta.plan.occupancy import Grid, count_raster, coverage_raster, dilate, free_space_raster
 from levanta.plan.rooms import LineOpening, build_rooms, detect_windows, resolve_gaps, snap_corners
+from levanta.plan.tidy import close_outline_gaps, drop_stubs, tidy_walls
 from levanta.plan.types import FloorPlan, Opening, Room, Wall
 from levanta.plan.walls import (
     Face,
@@ -76,6 +77,12 @@ class PlanOptions:
     min_room_area: float = 1.5
     min_room_inside_frac: float = 0.25
     room_fallback: bool = True
+    room_min_jog: float = 0.9
+    room_snap_dist: float = 1.0
+    tidy: bool = True
+    wall_attach_dist: float = 0.20
+    wall_trim_margin: float = 0.10
+    stub_max_len: float = 0.6
     detect_windows: bool = True
     max_rays: int = 150_000
     seed: int = 0
@@ -258,9 +265,23 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         fallback=opts.room_fallback,
         camera_xy=None if aligned.cameras is None else aligned.camera_centers[:, :2],
         manhattan=opts.manhattan,
+        room_min_jog=opts.room_min_jog,
+        room_snap_dist=opts.room_snap_dist,
     )
 
     plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug)
+    if opts.tidy:
+        plan = tidy_walls(plan, attach_dist=opts.wall_attach_dist, trim_margin=opts.wall_trim_margin, min_len=opts.min_wall_len)
+        plan = drop_stubs(plan, max_len=opts.stub_max_len)
+        plan = close_outline_gaps(
+            plan,
+            free_r,
+            grid,
+            door_range=(opts.door_min, opts.door_max),
+            free_min=opts.free_min,
+            default_thickness=opts.default_interior_thickness,
+            default_door_height=opts.default_door_height,
+        )
     return PlanResult(
         plan=plan,
         cloud=aligned,
