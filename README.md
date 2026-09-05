@@ -224,25 +224,33 @@ the mesh; levanta's cameras are fitted to ARKit's with a similarity, so the fitt
 *is* the scale error. Metrics fixed before the first run; script, method and the full
 notes in [`bench/`](bench/results/arkitscenes_2026-09-05.md).
 
-| scene | truth floor / rooms | scale, no K | scale, with K | area error, no K | floor IoU, no K | rooms | doors | camera RMS |
-|---|---|---|---|---|---|---|---|---|
-| 41069021 | 17.5 m² / 1 | **1.00** | 1.07 | −22 % | 0.61 | 2 (1) | 1 | 0.42 m |
-| 42897526 | 4.9 m² / 1 | 0.95 | 0.97 | +31 % | 0.52 | 1 (1) | 0 | 0.49 m |
-| 45260905 | 25.3 m² / 1 | 1.30 | 1.32 | −24 % | 0.69 | 1 (1) | 0 | 0.61 m |
-| 47331964 | 24.0 m² / 2 | 0.97 | 1.00 | −44 % | 0.40 | 2 (2) | 0 | 0.88 m |
-| 47430051 | 4.2 m² / 1 | 0.26 | 0.25 | +78 % | 0.07 | 1 (1) | 0 | 0.75 m |
+Two rounds, measured the same way; "before" is the first run, "after" is what the numbers
+ordered (chunk scale taken from the shared depth maps, outlines that reach the walls, a
+stamp when the reconstruction broke). Scale from the network alone:
 
-What it says, the good and the bad: the network's scale is within 5 % on three of five
-rooms, 30 % short on one and collapsed on a small bathroom; *knowing the focal length
-("with K") did not fix it* on any of the five, so the PRELIMINARY stamp stays until a
-door is measured. Room areas come out 22–44 % small even at the right scale, because the
-outline follows the floor the camera actually saw and these scans were made for
-objects, not walls. Floor shape IoU 0.5–0.7 when the reconstruction holds. Rooms counted
-right on four of five. Doors: one in five scans (the dataset scans rooms with the doors
-closed). The camera track drifts 0.4–0.9 m over one to three minutes: chunks are placed
-on the previous chunk's cameras and there is no loop closure yet.
+| scene | truth floor / rooms | scale before → after | area error before → after | floor IoU before → after | camera RMS before → after | rooms | flagged |
+|---|---|---|---|---|---|---|---|
+| 41069021 | 17.5 m² / 1 | 1.00 → **1.03** | −22 % → **−25 %** | 0.61 → **0.65** | 0.42 → **0.47** m | 1 (1) | no |
+| 42897526 | 4.9 m² / 1 | 0.95 → **1.00** | +31 % → **+8 %** | 0.52 → **0.48** | 0.49 → **0.49** m | 1 (1) | no |
+| 45260905 | 25.3 m² / 1 | 1.30 → **1.31** | −24 % → **−28 %** | 0.69 → **0.69** | 0.61 → **0.59** m | 1 (1) | no |
+| 47331964 | 24.0 m² / 2 | 0.97 → **0.90** | −44 % → **−9 %** | 0.40 → **0.46** | 0.88 → **0.82** m | 3 (2) | no |
+| 47430051 | 4.2 m² / 1 | 0.26 → **0.25** | +78 % → **+12 %** | 0.07 → **0.06** | 0.75 → **0.75** m | 1 (1) | **yes** |
 
- (16 frames of 640×480, RTX 5060 laptop
+What it says, the good and the bad. The network's scale is within 5 % on three of five
+rooms and 30 % short on one; giving it the exact focal length ("with K", in the notes)
+moved the scale by at most 7 % and not towards the truth, so the PRELIMINARY stamp stays
+until a door is measured. Two rooms now come out within 10 % of the LiDAR floor
+(−44 % → −9 %, +31 % → +8 %); the two that stay 25 % short are floor the camera never
+went near. The bathroom whose reconstruction fell apart (mirror, tiles: 5 % of each frame
+kept) is stamped *NOT RECONSTRUCTIBLE* instead of drawn. The camera track still drifts
+0.5–0.8 m: consecutive chunks now agree in scale within 14 %, but each chunk's own
+geometry fits ARKit's cameras only to 0.1–0.6 m, and no pose graph straightens a chunk.
+The largest scene the dataset has (35 m², a 301 s walk, 15 chunks) did not survive that
+chaining and is flagged; no ARKitScenes video is an apartment (one video is one room),
+and the notes say which public source would give one. Full tables, both rounds, in
+[`bench/results/`](bench/results/arkitscenes_2026-09-05_round4.md).
+
+**MapAnything from RGB only** on the same sequence (16 frames of 640×480, RTX 5060 laptop
 8 GB, 6.7 GB VRAM, 46 s once the weights are cached), compared pixel by pixel with the
 Kinect depth:
 

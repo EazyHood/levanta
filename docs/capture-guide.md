@@ -54,7 +54,7 @@ Measured on five ARKitScenes rooms (real iPhone walks with a LiDAR floor as trut
 - **Small rooms are the worst case, mirrors and tiles the reason.** Two bathrooms of
   4–5 m² came out 31 % and 78 % too big; in one the network kept 56 k points for 57 frames,
   found one wall and its scale fell to 0.26. levanta now notices (a chunk scaled by less
-  than 0.5 or more than 2 to meet the previous one, or under 15 % of a frame kept) and
+  than 0.5 or more than 2 to meet the previous one, or under 10 % of a frame kept) and
   stamps the sheet *NOT RECONSTRUCTIBLE · mirror or glass* instead of drawing a room.
   Stand in the doorway, keep 1.5 m from what you film, include the door frame and the
   floor, and measure that room by hand.

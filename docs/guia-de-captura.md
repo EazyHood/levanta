@@ -61,7 +61,7 @@ como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
   baños de 4–5 m² salieron un 31 % y un 78 % más grandes; en uno la red conservó 56 k
   puntos de 57 fotogramas, halló una sola pared y su escala cayó a 0,26. levanta ahora lo
   detecta (un tramo escalado por menos de 0,5 o más de 2 para encajar con el anterior, o
-  menos del 15 % del fotograma conservado) y sella la lámina *NO RECONSTRUIBLE · espejo o
+  menos del 10 % del fotograma conservado) y sella la lámina *NO RECONSTRUIBLE · espejo o
   cristal* en vez de dibujar una habitación. Ponte en el vano de la puerta, mantén 1,5 m
   de distancia, incluye el marco y el suelo, y mide esa habitación a mano.
 - **Una habitación, uno o dos minutos.** La trayectoria derivó 0,4–0,9 m en paseos de

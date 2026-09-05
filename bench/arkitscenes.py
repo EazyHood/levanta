@@ -240,12 +240,18 @@ def evaluate(scene: Path, out_dir: Path, truth: dict, run: Path) -> dict:
             rooms_union = unary_union(polys)
         _overlay(run / "overlay.png", truth["floor"], rooms_union, np.array([s * (R @ c) + t for c in cams])[:, truth["horiz"]] if cams is not None else None)
     lev_area = float(sum(Polygon(r["polygon"]).area for r in plan["rooms"]))
+    from levanta.plan.types import FloorPlan
+
+    flagged = FloorPlan.from_json(run / "plan.json").unreliable  # (bad chunks, chunks, coverage) or None
     res.update(
         {
             "levanta_area_m2": lev_area,
             "levanta_rooms": len(plan["rooms"]),
             "levanta_doors": sum(1 for o in plan["openings"] if o["kind"] == "door"),
             "levanta_walls": len(plan["walls"]),
+            "unreliable": list(flagged) if flagged else None,
+            "chunk_scales": plan.get("meta", {}).get("chunk_scales"),
+            "mask_fraction": plan.get("meta", {}).get("mask_fraction"),
             "scale_factor": s,
             "traj_rms_m": rms,
             "time_offset_s": best_off,

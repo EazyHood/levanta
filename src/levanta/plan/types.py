@@ -230,19 +230,25 @@ class FloorPlan:
     def unreliable(self) -> tuple[int, int, float] | None:
         """(chunks whose scale broke, chunks, median mask coverage) when the reconstruction
         cannot be trusted: a chunk had to be scaled by less than 0.5 or more than 2 to meet
-        the previous one, or the network kept less than 15 % of a typical frame.  Mirrors,
+        the previous one, or the network kept less than 10 % of a typical frame.  Mirrors,
         glass and tiles do this (ARKitScenes 47430051: scales 0.25-0.58, one wall).  None
         for a healthy reconstruction or for plans that did not come from video."""
         scales = self.meta.get("chunk_scales")
         cover = self.meta.get("mask_fraction")
         if scales is None and cover is None:
             return None
-        scales = list(scales or [])
-        bad = sum(1 for s in scales if not (0.5 <= float(s) <= 2.0))
+        scales = [float(s) for s in (scales or [])]
+        bad = sum(1 for s in scales if not (0.5 <= s <= 2.0))
         n = len(scales) + 1
         cov = float(cover) if cover is not None else 1.0
-        if bad == 0 and cov >= 0.15:
+        # a walk whose chunks needed scales spread over more than 2.5x fell apart even if
+        # no single one crossed the line (ARKitScenes 42897599: 0.53-1.73 over 15 chunks,
+        # 0 rooms); sound walks stayed within 1.4x
+        spread = (max(scales) / min(scales)) if scales and min(scales) > 0 else 1.0
+        if bad == 0 and spread <= 2.5 and cov >= 0.10:  # measured: a collapsed bathroom kept 5 %, a sound one 13 %
             return None
+        if bad == 0 and spread > 2.5:
+            bad = sum(1 for s in scales if s < 0.7 or s > 1.4)
         return bad, n, cov
 
     @property

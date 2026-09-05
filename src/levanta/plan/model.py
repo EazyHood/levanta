@@ -102,6 +102,12 @@ def floor_plan_to_scene(
             ceil.apply_translation([0.0, 0.0, plan.ceiling_height])
             ceil.visual.face_colors = CEILING_COLOR
             scene.add_geometry(ceil, geom_name=f"ceiling_{r.id}", node_name=f"ceiling_{r.name.replace(' ', '_')}")
+    if len(scene.geometry) == 0:
+        # nothing was reconstructed: trimesh refuses to export an empty scene, and the
+        # sheet that says NOT RECONSTRUCTIBLE must still come out with its GLB/OBJ
+        marker = trimesh.creation.box(extents=(0.01, 0.01, 0.01))
+        marker.metadata["name"] = "empty"
+        scene.add_geometry(marker, node_name="empty", geom_name="empty")
     return scene
 
 
