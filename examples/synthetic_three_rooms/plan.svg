@@ -1,208 +1,276 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1164" height="766" viewBox="0 0 1164 766" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
-<rect width="1164" height="766" fill="#ffffff"/>
-<path class="room" d="M 748.0,140.0 148.0,140.0 148.0,290.4 748.0,290.4 Z" fill="#f6f2ea"/>
-<path class="room" d="M 468.0,300.0 148.0,300.0 148.0,540.0 468.0,540.0 Z" fill="#f6f2ea"/>
-<path class="room" d="M 477.6,300.0 477.6,540.0 748.0,540.0 748.0,300.0 Z" fill="#f6f2ea"/>
-<path class="axis" d="M 140.0,56.0 L 140.0,572.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
-<circle class="axis" cx="140.0" cy="48.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
-<text class="axis" x="140.0" y="51.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">A</text>
-<path class="axis" d="M 472.8,56.0 L 472.8,572.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
-<circle class="axis" cx="472.8" cy="48.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
-<text class="axis" x="472.8" y="51.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">B</text>
-<path class="axis" d="M 756.0,56.0 L 756.0,572.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
-<circle class="axis" cx="756.0" cy="48.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
-<text class="axis" x="756.0" y="51.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">C</text>
-<path class="axis" d="M 116.0,132.0 L 832.0,132.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
-<circle class="axis" cx="840.0" cy="132.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
-<text class="axis" x="840.0" y="135.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">1</text>
-<path class="axis" d="M 116.0,295.2 L 832.0,295.2" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
-<circle class="axis" cx="840.0" cy="295.2" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
-<text class="axis" x="840.0" y="298.7" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">2</text>
-<path class="axis" d="M 116.0,548.0 L 832.0,548.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
-<circle class="axis" cx="840.0" cy="548.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
-<text class="axis" x="840.0" y="551.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">3</text>
-<path class="wall" d="M 132.0,132.0 148.0,132.0 148.0,548.0 132.0,548.0 132.0,132.0 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 477.6,295.2 477.6,396.5 468.0,396.5 468.0,295.2 477.6,295.2 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 477.6,548.0 468.0,548.0 468.0,466.9 477.6,466.9 477.6,548.0 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 764.0,132.0 764.0,172.0 748.0,172.0 748.0,132.0 764.0,132.0 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 764.0,548.0 748.0,548.0 748.0,251.2 764.0,251.2 764.0,548.0 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 140.0,540.0 308.0,540.0 308.0,556.0 140.0,556.0 140.0,540.0 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 756.0,540.0 756.0,556.0 403.2,556.0 403.2,540.0 756.0,540.0 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 140.0,290.4 213.1,290.4 213.1,300.0 140.0,300.0 140.0,290.4 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 589.0,290.4 589.0,300.0 282.7,300.0 282.7,290.4 589.0,290.4 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 756.0,290.4 756.0,300.0 659.4,300.0 659.4,290.4 756.0,290.4 Z" fill="#2b2b2b"/>
-<path class="wall" d="M 140.0,140.0 140.0,124.0 756.0,124.0 756.0,140.0 140.0,140.0 Z" fill="#2b2b2b"/>
-<path class="door" d="M 472.8,466.9 L 402.4,466.9" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="door" d="M 402.4,466.9 L 402.8,459.0 L 404.2,451.3 L 406.4,443.7 L 409.4,436.4 L 413.2,429.5 L 417.8,423.0 L 423.0,417.1 L 428.9,411.9 L 435.3,407.3 L 442.3,403.5 L 449.5,400.5 L 457.1,398.3 L 464.9,397.0 L 472.8,396.5" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="tag" x="420.0" y="435.2" font-size="9.5" text-anchor="middle" fill="#8a5a2b" font-weight="700">P1</text>
-<path class="window" d="M 760.8,251.2 L 760.8,172.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="window" d="M 756.0,251.2 L 756.0,172.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="window" d="M 751.2,251.2 L 751.2,172.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="tag" x="730.4" y="215.1" font-size="9.5" text-anchor="middle" fill="#2b6cb0" font-weight="700">V1</text>
-<path class="window" d="M 403.2,543.2 L 308.0,543.2" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="window" d="M 403.2,548.0 L 308.0,548.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="window" d="M 403.2,552.8 L 308.0,552.8" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="tag" x="355.6" y="525.9" font-size="9.5" text-anchor="middle" fill="#2b6cb0" font-weight="700">V2</text>
-<path class="door" d="M 659.4,295.2 L 659.4,365.6" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="door" d="M 659.4,365.6 L 651.5,365.1 L 643.7,363.8 L 636.2,361.6 L 628.9,358.6 L 621.9,354.8 L 615.5,350.2 L 609.6,345.0 L 604.4,339.1 L 599.8,332.6 L 596.0,325.7 L 593.0,318.4 L 590.8,310.9 L 589.4,303.1 L 589.0,295.2" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="tag" x="624.2" y="351.5" font-size="9.5" text-anchor="middle" fill="#8a5a2b" font-weight="700">P2</text>
-<path class="door" d="M 282.7,295.2 L 282.7,364.8" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="door" d="M 282.7,364.8 L 274.9,364.4 L 267.3,363.0 L 259.8,360.9 L 252.5,357.9 L 245.7,354.1 L 239.3,349.6 L 233.5,344.4 L 228.3,338.6 L 223.8,332.2 L 220.0,325.4 L 217.0,318.2 L 214.9,310.7 L 213.6,303.0 L 213.1,295.2" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="tag" x="247.9" y="350.9" font-size="9.5" text-anchor="middle" fill="#8a5a2b" font-weight="700">P3</text>
-<text class="label" x="448.0" y="211.2" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Living</text>
-<text class="label" x="448.0" y="226.2" font-size="11" text-anchor="middle" fill="#555555">14.10 m² · 7.50 m × 1.88 m</text>
-<text class="label" x="308.0" y="416.0" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Bedroom</text>
-<text class="label" x="308.0" y="431.0" font-size="11" text-anchor="middle" fill="#555555">12.00 m² · 4.00 m × 3.00 m</text>
-<text class="label" x="612.8" y="416.0" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Hall</text>
-<text class="label" x="612.8" y="431.0" font-size="11" text-anchor="middle" fill="#555555">10.14 m² · 3.38 m × 3.00 m</text>
-<path class="dim-chain" d="M 92.0,548.0 L 92.0,132.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 127.2,548.0 L 92.0,548.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 89.0,551.0 L 95.0,545.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 127.2,132.0 L 92.0,132.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 89.0,135.0 L 95.0,129.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim-chain" x="85.6" y="340.0" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 85.6 340.0)">5.20 m</text>
-<path class="dim-chain" d="M 804.0,548.0 L 804.0,132.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 768.8,548.0 L 804.0,548.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 801.0,551.0 L 807.0,545.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 768.8,251.2 L 804.0,251.2" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 801.0,254.2 L 807.0,248.2" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 768.8,172.0 L 804.0,172.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 801.0,175.0 L 807.0,169.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 768.8,132.0 L 804.0,132.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 801.0,135.0 L 807.0,129.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim-chain" x="810.4" y="399.6" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 810.4 399.6)">3.71 m</text>
-<text class="dim-chain" x="810.4" y="211.6" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 810.4 211.6)">0.99 m</text>
-<text class="dim-chain" x="810.4" y="152.0" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 810.4 152.0)">0.50 m</text>
-<path class="dim-chain" d="M 756.0,596.0 L 140.0,596.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 756.0,560.8 L 756.0,596.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 753.0,599.0 L 759.0,593.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 403.2,560.8 L 403.2,596.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 400.2,599.0 L 406.2,593.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 308.0,560.8 L 308.0,596.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 305.0,599.0 L 311.0,593.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 140.0,560.8 L 140.0,596.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 137.0,599.0 L 143.0,593.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim-chain" x="579.6" y="605.9" font-size="9.5" text-anchor="middle" fill="#333333">4.41 m</text>
-<text class="dim-chain" x="355.6" y="605.9" font-size="9.5" text-anchor="middle" fill="#333333">1.19 m</text>
-<text class="dim-chain" x="224.0" y="605.9" font-size="9.5" text-anchor="middle" fill="#333333">2.10 m</text>
-<path class="dim-chain" d="M 756.0,84.0 L 140.0,84.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 756.0,119.2 L 756.0,84.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 753.0,87.0 L 759.0,81.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim-chain" d="M 140.0,119.2 L 140.0,84.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 137.0,87.0 L 143.0,81.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim-chain" x="448.0" y="77.6" font-size="9.5" text-anchor="middle" fill="#333333">7.70 m</text>
-<path class="dim" d="M 132.0,640.0 L 764.0,640.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 132.0,562.0 L 132.0,640.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 764.0,562.0 L 764.0,640.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 129.0,643.0 L 135.0,637.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 761.0,643.0 L 767.0,637.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim" x="448.0" y="636.0" font-size="10.5" text-anchor="middle" fill="#333333">7.90 m</text>
-<path class="dim" d="M 48.0,556.0 L 48.0,124.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 126.0,556.0 L 48.0,556.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 126.0,124.0 L 48.0,124.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 45.0,559.0 L 51.0,553.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="dim" d="M 45.0,127.0 L 51.0,121.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="dim" x="44.0" y="340.0" font-size="10.5" text-anchor="middle" fill="#333333" transform="rotate(-90 44.0 340.0)">5.40 m</text>
-<circle class="north" cx="64.0" cy="88.0" r="16" fill="#ffffff" stroke="#444" stroke-width="0.9"/>
-<path class="north" d="M 64.0,72.8 68.5,88.0 64.0,99.2 59.5,88.0 Z" fill="#222"/>
-<text class="north" x="64.0" y="66.5" font-size="10" text-anchor="middle" fill="#222" font-weight="700">N</text>
-<text class="table" x="880.0" y="35.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Area schedule</text>
-<path class="table" d="M 880.0,40.0 L 1140.0,40.0" fill="none" stroke="#333333" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="51.0" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Name</text>
-<text class="table" x="1066.8" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Area</text>
-<text class="table" x="1137.0" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Perimeter</text>
-<path class="table" d="M 880.0,55.0 L 1140.0,55.0" fill="none" stroke="#333333" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="66.0" font-size="8.5" text-anchor="start" fill="#333333">Living</text>
-<text class="table" x="1066.8" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">14.10 m²</text>
-<text class="table" x="1137.0" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">18.76 m</text>
-<path class="table" d="M 880.0,70.0 L 1140.0,70.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="81.0" font-size="8.5" text-anchor="start" fill="#333333">Bedroom</text>
-<text class="table" x="1066.8" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">12.00 m²</text>
-<text class="table" x="1137.0" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">14.00 m</text>
-<path class="table" d="M 880.0,85.0 L 1140.0,85.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="96.0" font-size="8.5" text-anchor="start" fill="#333333">Hall</text>
-<text class="table" x="1066.8" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">10.14 m²</text>
-<text class="table" x="1137.0" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">12.76 m</text>
-<path class="table" d="M 880.0,100.0 L 1140.0,100.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="111.0" font-size="8.5" text-anchor="start" fill="#333333">Net floor area</text>
-<text class="table" x="1066.8" y="111.0" font-size="8.5" text-anchor="end" fill="#333333">36.24 m²</text>
-<text class="table" x="1137.0" y="111.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
-<path class="table" d="M 880.0,115.0 L 1140.0,115.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="126.0" font-size="8.5" text-anchor="start" fill="#333333">Wall footprint</text>
-<text class="table" x="1066.8" y="126.0" font-size="8.5" text-anchor="end" fill="#333333">6.38 m²</text>
-<text class="table" x="1137.0" y="126.0" font-size="8.5" text-anchor="end" fill="#333333">36.66 m</text>
-<path class="table" d="M 880.0,130.0 L 1140.0,130.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="141.0" font-size="8.5" text-anchor="start" fill="#333333">Gross area</text>
-<text class="table" x="1066.8" y="141.0" font-size="8.5" text-anchor="end" fill="#333333">42.62 m²</text>
-<text class="table" x="1137.0" y="141.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
-<path class="table" d="M 880.0,145.0 L 1140.0,145.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="880.0" y="174.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Door &amp; window schedule</text>
-<path class="table" d="M 880.0,179.0 L 1140.0,179.0" fill="none" stroke="#333333" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="190.0" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Tag</text>
-<text class="table" x="911.6" y="190.0" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Type</text>
-<text class="table" x="1001.8" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Width</text>
-<text class="table" x="1038.2" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">H</text>
-<text class="table" x="1098.0" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Sill</text>
-<text class="table" x="1137.0" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Wall</text>
-<path class="table" d="M 880.0,194.0 L 1140.0,194.0" fill="none" stroke="#333333" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="205.0" font-size="8.5" text-anchor="start" fill="#333333">P1</text>
-<text class="table" x="911.6" y="205.0" font-size="8.5" text-anchor="start" fill="#333333">door</text>
-<text class="table" x="1001.8" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">0.88 m</text>
-<text class="table" x="1038.2" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">2.06 m</text>
-<text class="table" x="1098.0" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">-</text>
-<text class="table" x="1137.0" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">2</text>
-<path class="table" d="M 880.0,209.0 L 1140.0,209.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="220.0" font-size="8.5" text-anchor="start" fill="#333333">P2</text>
-<text class="table" x="911.6" y="220.0" font-size="8.5" text-anchor="start" fill="#333333">door</text>
-<text class="table" x="1001.8" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">0.88 m</text>
-<text class="table" x="1038.2" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">2.06 m</text>
-<text class="table" x="1098.0" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">-</text>
-<text class="table" x="1137.0" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">5</text>
-<path class="table" d="M 880.0,224.0 L 1140.0,224.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="235.0" font-size="8.5" text-anchor="start" fill="#333333">P3</text>
-<text class="table" x="911.6" y="235.0" font-size="8.5" text-anchor="start" fill="#333333">door</text>
-<text class="table" x="1001.8" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">0.87 m</text>
-<text class="table" x="1038.2" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">2.06 m</text>
-<text class="table" x="1098.0" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">-</text>
-<text class="table" x="1137.0" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">5</text>
-<path class="table" d="M 880.0,239.0 L 1140.0,239.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="250.0" font-size="8.5" text-anchor="start" fill="#333333">V1</text>
-<text class="table" x="911.6" y="250.0" font-size="8.5" text-anchor="start" fill="#333333">window</text>
-<text class="table" x="1001.8" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">0.99 m</text>
-<text class="table" x="1038.2" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">1.16 m</text>
-<text class="table" x="1098.0" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">0.85 m</text>
-<text class="table" x="1137.0" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">3</text>
-<path class="table" d="M 880.0,254.0 L 1140.0,254.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="883.0" y="265.0" font-size="8.5" text-anchor="start" fill="#333333">V2</text>
-<text class="table" x="911.6" y="265.0" font-size="8.5" text-anchor="start" fill="#333333">window</text>
-<text class="table" x="1001.8" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">1.19 m</text>
-<text class="table" x="1038.2" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">1.16 m</text>
-<text class="table" x="1098.0" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">0.85 m</text>
-<text class="table" x="1137.0" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">4</text>
-<path class="table" d="M 880.0,269.0 L 1140.0,269.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="titleblock" d="M 24.0,664.0 1140.0,664.0 1140.0,742.0 24.0,742.0 Z" fill="#ffffff" stroke="#333" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="titleblock" d="M 403.4,664.0 L 403.4,742.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="titleblock" d="M 649.0,664.0 L 649.0,742.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="titleblock" d="M 827.5,664.0 L 827.5,742.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
-<path class="titleblock" d="M 983.8,664.0 L 983.8,742.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="titleblock" x="30.0" y="677.0" font-size="7.5" text-anchor="start" fill="#666666">PROJECT</text>
-<text class="titleblock" x="30.0" y="700.0" font-size="14" text-anchor="start" fill="#111111" font-weight="700">levanta demo</text>
-<text class="titleblock" x="30.0" y="718.0" font-size="9.5" text-anchor="start" fill="#555555">Drawing: Synthetic three-room apartment</text>
-<text class="titleblock" x="30.0" y="732.0" font-size="8.5" text-anchor="start" fill="#666666">3 rooms · 36.24 m² · ceiling 2.50 m (measured)</text>
-<text class="titleblock" x="409.4" y="677.0" font-size="7.5" text-anchor="start" fill="#666666">AUTHOR</text>
-<text class="titleblock" x="409.4" y="696.0" font-size="11" text-anchor="start" fill="#111111">—</text>
-<text class="titleblock" x="409.4" y="718.0" font-size="9.5" text-anchor="start" fill="#555555">Level: ±0.00</text>
-<text class="titleblock" x="409.4" y="732.0" font-size="8.5" text-anchor="start" fill="#666666">made with levanta</text>
-<text class="titleblock" x="655.0" y="677.0" font-size="7.5" text-anchor="start" fill="#666666">SCALE</text>
-<text class="titleblock" x="655.0" y="696.0" font-size="11" text-anchor="start" fill="#111111">—</text>
-<path class="titleblock" d="M 655.0,722.0 695.0,722.0 695.0,727.0 655.0,727.0 Z" fill="#222"/>
-<path class="titleblock" d="M 695.0,722.0 735.0,722.0 735.0,727.0 695.0,727.0 Z" fill="none" stroke="#222" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="titleblock" x="655.0" y="719.0" font-size="7.5" text-anchor="start" fill="#666666">0</text>
-<text class="titleblock" x="735.0" y="719.0" font-size="7.5" text-anchor="end" fill="#666666">1.00 m</text>
-<text class="titleblock" x="833.5" y="677.0" font-size="7.5" text-anchor="start" fill="#666666">DATE</text>
-<text class="titleblock" x="833.5" y="696.0" font-size="11" text-anchor="start" fill="#111111">2026-09-05</text>
-<text class="titleblock" x="833.5" y="718.0" font-size="9.5" text-anchor="start" fill="#555555">Rev. A</text>
-<text class="titleblock" x="989.8" y="677.0" font-size="7.5" text-anchor="start" fill="#666666">SHEET</text>
-<text class="titleblock" x="989.8" y="696.0" font-size="11" text-anchor="start" fill="#111111">A-01</text>
-<text class="titleblock" x="989.8" y="718.0" font-size="9.5" text-anchor="start" fill="#555555">N: 0°</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1208" height="802" viewBox="0 0 1208 802" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect width="1208" height="802" fill="#ffffff"/>
+<path class="room" d="M 760.0,172.0 160.0,172.0 160.0,322.4 760.0,322.4 Z" fill="#f6f2ea"/>
+<path class="room" d="M 480.0,332.0 160.0,332.0 160.0,572.0 480.0,572.0 Z" fill="#f6f2ea"/>
+<path class="room" d="M 489.6,332.0 489.6,572.0 760.0,572.0 760.0,332.0 Z" fill="#f6f2ea"/>
+<path class="axis" d="M 152.0,57.6 L 152.0,604.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
+<circle class="axis" cx="152.0" cy="48.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
+<text class="axis" x="152.0" y="51.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">A</text>
+<path class="axis" d="M 484.8,57.6 L 484.8,604.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
+<circle class="axis" cx="484.8" cy="48.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
+<text class="axis" x="484.8" y="51.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">B</text>
+<path class="axis" d="M 768.0,57.6 L 768.0,604.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
+<circle class="axis" cx="768.0" cy="48.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
+<text class="axis" x="768.0" y="51.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">C</text>
+<path class="axis" d="M 128.0,164.0 L 874.4,164.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
+<circle class="axis" cx="884.0" cy="164.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
+<text class="axis" x="884.0" y="167.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">1</text>
+<path class="axis" d="M 128.0,327.2 L 874.4,327.2" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
+<circle class="axis" cx="884.0" cy="327.2" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
+<text class="axis" x="884.0" y="330.7" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">2</text>
+<path class="axis" d="M 128.0,580.0 L 874.4,580.0" fill="none" stroke="#b04a4a" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 5"/>
+<circle class="axis" cx="884.0" cy="580.0" r="9" fill="#ffffff" stroke="#b04a4a" stroke-width="0.9"/>
+<text class="axis" x="884.0" y="583.5" font-size="10" text-anchor="middle" fill="#b04a4a" font-weight="700">3</text>
+<path class="wall" d="M 144.0,164.0 160.0,164.0 160.0,580.0 144.0,580.0 144.0,164.0 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 489.6,327.2 489.6,428.5 480.0,428.5 480.0,327.2 489.6,327.2 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 489.6,580.0 480.0,580.0 480.0,498.9 489.6,498.9 489.6,580.0 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 776.0,164.0 776.0,204.0 760.0,204.0 760.0,164.0 776.0,164.0 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 776.0,580.0 760.0,580.0 760.0,283.2 776.0,283.2 776.0,580.0 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 152.0,572.0 320.0,572.0 320.0,588.0 152.0,588.0 152.0,572.0 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 768.0,572.0 768.0,588.0 415.2,588.0 415.2,572.0 768.0,572.0 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 152.0,322.4 225.1,322.4 225.1,332.0 152.0,332.0 152.0,322.4 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 601.0,322.4 601.0,332.0 294.7,332.0 294.7,322.4 601.0,322.4 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 768.0,322.4 768.0,332.0 671.4,332.0 671.4,322.4 768.0,322.4 Z" fill="#2b2b2b"/>
+<path class="wall" d="M 152.0,172.0 152.0,156.0 768.0,156.0 768.0,172.0 152.0,172.0 Z" fill="#2b2b2b"/>
+<path class="wall-assumed" d="M 144.8,580.0 L 144.8,164.0" fill="none" stroke="#d9d4cb" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<path class="wall-assumed" d="M 775.2,580.0 L 775.2,164.0" fill="none" stroke="#d9d4cb" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<path class="wall-assumed" d="M 768.0,587.2 L 152.0,587.2" fill="none" stroke="#d9d4cb" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<path class="wall-assumed" d="M 768.0,156.8 L 152.0,156.8" fill="none" stroke="#d9d4cb" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/>
+<path class="door" d="M 484.8,498.9 L 414.4,498.9" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="door" d="M 414.4,498.9 L 414.8,491.0 L 416.2,483.3 L 418.4,475.7 L 421.4,468.4 L 425.2,461.5 L 429.8,455.0 L 435.0,449.1 L 440.9,443.9 L 447.3,439.3 L 454.3,435.5 L 461.5,432.5 L 469.1,430.3 L 476.9,429.0 L 484.8,428.5" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="tag" x="432.0" y="467.2" font-size="9.5" text-anchor="middle" fill="#8a5a2b" font-weight="700">P1</text>
+<path class="window" d="M 772.8,283.2 L 772.8,204.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="window" d="M 768.0,283.2 L 768.0,204.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="window" d="M 763.2,283.2 L 763.2,204.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="tag" x="742.4" y="247.1" font-size="9.5" text-anchor="middle" fill="#2b6cb0" font-weight="700">V1</text>
+<path class="window" d="M 415.2,575.2 L 320.0,575.2" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="window" d="M 415.2,580.0 L 320.0,580.0" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="window" d="M 415.2,584.8 L 320.0,584.8" fill="none" stroke="#2b6cb0" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="tag" x="367.6" y="557.9" font-size="9.5" text-anchor="middle" fill="#2b6cb0" font-weight="700">V2</text>
+<path class="door" d="M 671.4,327.2 L 671.4,397.6" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="door" d="M 671.4,397.6 L 663.5,397.1 L 655.7,395.8 L 648.2,393.6 L 640.9,390.6 L 633.9,386.8 L 627.5,382.2 L 621.6,377.0 L 616.4,371.1 L 611.8,364.6 L 608.0,357.7 L 605.0,350.4 L 602.8,342.9 L 601.4,335.1 L 601.0,327.2" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="tag" x="636.2" y="383.5" font-size="9.5" text-anchor="middle" fill="#8a5a2b" font-weight="700">P2</text>
+<path class="door" d="M 294.7,327.2 L 294.7,396.8" fill="none" stroke="#8a5a2b" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="door" d="M 294.7,396.8 L 286.9,396.4 L 279.3,395.0 L 271.8,392.9 L 264.5,389.9 L 257.7,386.1 L 251.3,381.6 L 245.5,376.4 L 240.3,370.6 L 235.8,364.2 L 232.0,357.4 L 229.0,350.2 L 226.9,342.7 L 225.6,335.0 L 225.1,327.2" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="tag" x="259.9" y="382.9" font-size="9.5" text-anchor="middle" fill="#8a5a2b" font-weight="700">P3</text>
+<path class="wall-tag-pointer" d="M 175.2,372.0 L 166.4,372.0" fill="none" stroke="#6b6b6f" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
+<circle class="wall-tag-circle" cx="182.4" cy="372.0" r="7" fill="#ffffff" stroke="#6b6b6f" stroke-width="0.9"/>
+<text class="wall-tag" x="182.4" y="375.0" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M1</text>
+<path class="wall-tag-pointer" d="M 464.8,377.9 L 473.6,377.9" fill="none" stroke="#6b6b6f" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
+<circle class="wall-tag-circle" cx="457.6" cy="377.9" r="7" fill="#ffffff" stroke="#6b6b6f" stroke-width="0.9"/>
+<text class="wall-tag" x="457.6" y="380.9" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M2</text>
+<path class="wall-tag-pointer" d="M 744.8,431.6 L 753.6,431.6" fill="none" stroke="#6b6b6f" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
+<circle class="wall-tag-circle" cx="737.6" cy="431.6" r="7" fill="#ffffff" stroke="#6b6b6f" stroke-width="0.9"/>
+<text class="wall-tag" x="737.6" y="434.6" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M3</text>
+<path class="wall-tag-pointer" d="M 591.6,556.8 L 591.6,565.6" fill="none" stroke="#6b6b6f" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
+<circle class="wall-tag-circle" cx="591.6" cy="549.6" r="7" fill="#ffffff" stroke="#6b6b6f" stroke-width="0.9"/>
+<text class="wall-tag" x="591.6" y="552.6" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M4</text>
+<path class="wall-tag-pointer" d="M 447.9,307.2 L 447.9,316.0" fill="none" stroke="#6b6b6f" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
+<circle class="wall-tag-circle" cx="447.9" cy="300.0" r="7" fill="#ffffff" stroke="#6b6b6f" stroke-width="0.9"/>
+<text class="wall-tag" x="447.9" y="303.0" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M5</text>
+<path class="wall-tag-pointer" d="M 460.0,187.2 L 460.0,178.4" fill="none" stroke="#6b6b6f" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
+<circle class="wall-tag-circle" cx="460.0" cy="194.4" r="7" fill="#ffffff" stroke="#6b6b6f" stroke-width="0.9"/>
+<text class="wall-tag" x="460.0" y="197.4" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M6</text>
+<text class="label" x="460.0" y="243.2" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Living</text>
+<text class="label" x="460.0" y="258.2" font-size="11" text-anchor="middle" fill="#555555">14.10 m² · 7.50 m × 1.88 m</text>
+<text class="label" x="320.0" y="448.0" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Bedroom</text>
+<text class="label" x="320.0" y="463.0" font-size="11" text-anchor="middle" fill="#555555">12.00 m² · 4.00 m × 3.00 m</text>
+<text class="label" x="624.8" y="448.0" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Hall</text>
+<text class="label" x="624.8" y="463.0" font-size="11" text-anchor="middle" fill="#555555">10.14 m² · 3.38 m × 3.00 m</text>
+<path class="dim-chain" d="M 104.0,580.0 L 104.0,164.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 139.2,580.0 L 104.0,580.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 101.0,583.0 L 107.0,577.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 139.2,164.0 L 104.0,164.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 101.0,167.0 L 107.0,161.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-chain" x="97.6" y="372.0" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 97.6 372.0)">5.20 m</text>
+<path class="dim-chain" d="M 816.0,580.0 L 816.0,164.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 780.8,580.0 L 816.0,580.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 813.0,583.0 L 819.0,577.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 780.8,283.2 L 816.0,283.2" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 813.0,286.2 L 819.0,280.2" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 780.8,204.0 L 816.0,204.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 813.0,207.0 L 819.0,201.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 780.8,164.0 L 816.0,164.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 813.0,167.0 L 819.0,161.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-chain" x="822.4" y="431.6" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 822.4 431.6)">3.71 m</text>
+<text class="dim-chain" x="822.4" y="243.6" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 822.4 243.6)">0.99 m</text>
+<text class="dim-chain" x="822.4" y="184.0" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 822.4 184.0)">0.50 m</text>
+<path class="dim-chain" d="M 768.0,628.0 L 152.0,628.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 768.0,592.8 L 768.0,628.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 765.0,631.0 L 771.0,625.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 415.2,592.8 L 415.2,628.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 412.2,631.0 L 418.2,625.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 320.0,592.8 L 320.0,628.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 317.0,631.0 L 323.0,625.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 152.0,592.8 L 152.0,628.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 149.0,631.0 L 155.0,625.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-chain" x="591.6" y="637.9" font-size="9.5" text-anchor="middle" fill="#333333">4.41 m</text>
+<text class="dim-chain" x="367.6" y="637.9" font-size="9.5" text-anchor="middle" fill="#333333">1.19 m</text>
+<text class="dim-chain" x="236.0" y="637.9" font-size="9.5" text-anchor="middle" fill="#333333">2.10 m</text>
+<path class="dim-chain" d="M 768.0,116.0 L 152.0,116.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 768.0,151.2 L 768.0,116.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 765.0,119.0 L 771.0,113.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain" d="M 152.0,151.2 L 152.0,116.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 149.0,119.0 L 155.0,113.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-chain" x="460.0" y="109.6" font-size="9.5" text-anchor="middle" fill="#333333">7.70 m</text>
+<path class="dim-chain-in" d="M 452.0,580.0 L 452.0,327.2" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 475.2,580.0 L 452.0,580.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 449.0,583.0 L 455.0,577.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 475.2,498.9 L 452.0,498.9" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 449.0,501.9 L 455.0,495.9" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 475.2,428.5 L 452.0,428.5" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 449.0,431.5 L 455.0,425.5" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 475.2,327.2 L 452.0,327.2" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 449.0,330.2 L 455.0,324.2" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-chain-in" x="445.6" y="539.5" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 445.6 539.5)">1.01 m</text>
+<text class="dim-chain-in" x="445.6" y="463.7" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 445.6 463.7)">0.88 m</text>
+<text class="dim-chain-in" x="445.6" y="377.9" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 445.6 377.9)">1.27 m</text>
+<path class="dim-chain-in" d="M 768.0,294.4 L 152.0,294.4" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 768.0,317.6 L 768.0,294.4" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 765.0,297.4 L 771.0,291.4" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 671.4,317.6 L 671.4,294.4" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 668.4,297.4 L 674.4,291.4" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 601.0,317.6 L 601.0,294.4" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 598.0,297.4 L 604.0,291.4" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 294.7,317.6 L 294.7,294.4" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 291.7,297.4 L 297.7,291.4" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 225.1,317.6 L 225.1,294.4" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 222.1,297.4 L 228.1,291.4" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim-chain-in" d="M 152.0,317.6 L 152.0,294.4" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 149.0,297.4 L 155.0,291.4" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-chain-in" x="719.7" y="288.0" font-size="9.5" text-anchor="middle" fill="#333333">1.21 m</text>
+<text class="dim-chain-in" x="636.2" y="288.0" font-size="9.5" text-anchor="middle" fill="#333333">0.88 m</text>
+<text class="dim-chain-in" x="447.9" y="288.0" font-size="9.5" text-anchor="middle" fill="#333333">3.83 m</text>
+<text class="dim-chain-in" x="259.9" y="288.0" font-size="9.5" text-anchor="middle" fill="#333333">0.87 m</text>
+<text class="dim-chain-in" x="188.6" y="288.0" font-size="9.5" text-anchor="middle" fill="#333333">0.91 m</text>
+<path class="dim-axes" d="M 152.0,80.0 L 768.0,80.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 149.0,83.0 L 155.0,77.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 481.8,83.0 L 487.8,77.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 765.0,83.0 L 771.0,77.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-axes" x="318.4" y="76.0" font-size="9.5" text-anchor="middle" fill="#333333">4.16 m</text>
+<text class="dim-axes" x="626.4" y="76.0" font-size="9.5" text-anchor="middle" fill="#333333">3.54 m</text>
+<path class="dim-axes" d="M 852.0,580.0 L 852.0,164.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 849.0,583.0 L 855.0,577.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 849.0,330.2 L 855.0,324.2" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 849.0,167.0 L 855.0,161.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim-axes" x="856.0" y="453.6" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 856.0 453.6)">3.16 m</text>
+<text class="dim-axes" x="856.0" y="245.6" font-size="9.5" text-anchor="middle" fill="#333333" transform="rotate(-90 856.0 245.6)">2.04 m</text>
+<path class="dim" d="M 144.0,672.0 L 776.0,672.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 144.0,594.0 L 144.0,672.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 776.0,594.0 L 776.0,672.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 141.0,675.0 L 147.0,669.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 773.0,675.0 L 779.0,669.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim" x="460.0" y="668.0" font-size="10.5" text-anchor="middle" fill="#333333">7.90 m</text>
+<path class="dim" d="M 60.0,588.0 L 60.0,156.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 138.0,588.0 L 60.0,588.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 138.0,156.0 L 60.0,156.0" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 57.0,591.0 L 63.0,585.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="dim" d="M 57.0,159.0 L 63.0,153.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="dim" x="56.0" y="372.0" font-size="10.5" text-anchor="middle" fill="#333333" transform="rotate(-90 56.0 372.0)">5.40 m</text>
+<circle class="north" cx="60.0" cy="120.0" r="16" fill="#ffffff" stroke="#444" stroke-width="0.9"/>
+<path class="north" d="M 65.2,105.7 64.2,121.5 56.2,130.5 55.8,118.5 Z" fill="#222"/>
+<text class="north" x="68.6" y="100.0" font-size="10" text-anchor="middle" fill="#222" font-weight="700">N</text>
+<text class="table" x="924.0" y="35.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Area schedule</text>
+<path class="table" d="M 924.0,40.0 L 1184.0,40.0" fill="none" stroke="#333333" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="51.0" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Name</text>
+<text class="table" x="1110.8" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Area</text>
+<text class="table" x="1181.0" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Perimeter</text>
+<path class="table" d="M 924.0,55.0 L 1184.0,55.0" fill="none" stroke="#333333" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="66.0" font-size="8.5" text-anchor="start" fill="#333333">Living</text>
+<text class="table" x="1110.8" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">14.10 m²</text>
+<text class="table" x="1181.0" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">18.76 m</text>
+<path class="table" d="M 924.0,70.0 L 1184.0,70.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="81.0" font-size="8.5" text-anchor="start" fill="#333333">Bedroom</text>
+<text class="table" x="1110.8" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">12.00 m²</text>
+<text class="table" x="1181.0" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">14.00 m</text>
+<path class="table" d="M 924.0,85.0 L 1184.0,85.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="96.0" font-size="8.5" text-anchor="start" fill="#333333">Hall</text>
+<text class="table" x="1110.8" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">10.14 m²</text>
+<text class="table" x="1181.0" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">12.76 m</text>
+<path class="table" d="M 924.0,100.0 L 1184.0,100.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="111.0" font-size="8.5" text-anchor="start" fill="#333333">Net floor area</text>
+<text class="table" x="1110.8" y="111.0" font-size="8.5" text-anchor="end" fill="#333333">36.24 m²</text>
+<text class="table" x="1181.0" y="111.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
+<path class="table" d="M 924.0,115.0 L 1184.0,115.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="126.0" font-size="8.5" text-anchor="start" fill="#333333">Wall footprint</text>
+<text class="table" x="1110.8" y="126.0" font-size="8.5" text-anchor="end" fill="#333333">6.38 m²</text>
+<text class="table" x="1181.0" y="126.0" font-size="8.5" text-anchor="end" fill="#333333">36.66 m</text>
+<path class="table" d="M 924.0,130.0 L 1184.0,130.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="141.0" font-size="8.5" text-anchor="start" fill="#333333">Gross area</text>
+<text class="table" x="1110.8" y="141.0" font-size="8.5" text-anchor="end" fill="#333333">42.62 m²</text>
+<text class="table" x="1181.0" y="141.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
+<path class="table" d="M 924.0,145.0 L 1184.0,145.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="924.0" y="174.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Door &amp; window schedule</text>
+<path class="table" d="M 924.0,179.0 L 1184.0,179.0" fill="none" stroke="#333333" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="190.0" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Tag</text>
+<text class="table" x="955.6" y="190.0" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Type</text>
+<text class="table" x="1045.8" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Width</text>
+<text class="table" x="1082.2" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">H</text>
+<text class="table" x="1142.0" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Sill</text>
+<text class="table" x="1181.0" y="190.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Wall</text>
+<path class="table" d="M 924.0,194.0 L 1184.0,194.0" fill="none" stroke="#333333" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="205.0" font-size="8.5" text-anchor="start" fill="#333333">P1</text>
+<text class="table" x="955.6" y="205.0" font-size="8.5" text-anchor="start" fill="#333333">door</text>
+<text class="table" x="1045.8" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">0.88 m</text>
+<text class="table" x="1082.2" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">2.06 m</text>
+<text class="table" x="1142.0" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">-</text>
+<text class="table" x="1181.0" y="205.0" font-size="8.5" text-anchor="end" fill="#333333">M2</text>
+<path class="table" d="M 924.0,209.0 L 1184.0,209.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="220.0" font-size="8.5" text-anchor="start" fill="#333333">P2</text>
+<text class="table" x="955.6" y="220.0" font-size="8.5" text-anchor="start" fill="#333333">door</text>
+<text class="table" x="1045.8" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">0.88 m</text>
+<text class="table" x="1082.2" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">2.06 m</text>
+<text class="table" x="1142.0" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">-</text>
+<text class="table" x="1181.0" y="220.0" font-size="8.5" text-anchor="end" fill="#333333">M5</text>
+<path class="table" d="M 924.0,224.0 L 1184.0,224.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="235.0" font-size="8.5" text-anchor="start" fill="#333333">P3</text>
+<text class="table" x="955.6" y="235.0" font-size="8.5" text-anchor="start" fill="#333333">door</text>
+<text class="table" x="1045.8" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">0.87 m</text>
+<text class="table" x="1082.2" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">2.06 m</text>
+<text class="table" x="1142.0" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">-</text>
+<text class="table" x="1181.0" y="235.0" font-size="8.5" text-anchor="end" fill="#333333">M5</text>
+<path class="table" d="M 924.0,239.0 L 1184.0,239.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="250.0" font-size="8.5" text-anchor="start" fill="#333333">V1</text>
+<text class="table" x="955.6" y="250.0" font-size="8.5" text-anchor="start" fill="#333333">window</text>
+<text class="table" x="1045.8" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">0.99 m</text>
+<text class="table" x="1082.2" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">1.16 m</text>
+<text class="table" x="1142.0" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">0.85 m</text>
+<text class="table" x="1181.0" y="250.0" font-size="8.5" text-anchor="end" fill="#333333">M3</text>
+<path class="table" d="M 924.0,254.0 L 1184.0,254.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="927.0" y="265.0" font-size="8.5" text-anchor="start" fill="#333333">V2</text>
+<text class="table" x="955.6" y="265.0" font-size="8.5" text-anchor="start" fill="#333333">window</text>
+<text class="table" x="1045.8" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">1.19 m</text>
+<text class="table" x="1082.2" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">1.16 m</text>
+<text class="table" x="1142.0" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">0.85 m</text>
+<text class="table" x="1181.0" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">M4</text>
+<path class="table" d="M 924.0,269.0 L 1184.0,269.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="notes" x="924.0" y="298.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Notes</text>
+<text class="notes" x="924.0" y="314.0" font-size="8.5" text-anchor="start" fill="#333333">1. Walls M1, M3, M4, M6: thickness assumed 0.20 m (seen from one side</text>
+<text class="notes" x="924.0" y="326.5" font-size="8.5" text-anchor="start" fill="#333333">    only).</text>
+<text class="notes" x="924.0" y="339.0" font-size="8.5" text-anchor="start" fill="#333333">2. Door height assumed (lintel not seen): P1, P2, P3.</text>
+<path class="titleblock" d="M 24.0,700.0 1184.0,700.0 1184.0,778.0 24.0,778.0 Z" fill="#ffffff" stroke="#333" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="titleblock" d="M 418.4,700.0 L 418.4,778.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="titleblock" d="M 673.6,700.0 L 673.6,778.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="titleblock" d="M 859.2,700.0 L 859.2,778.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
+<path class="titleblock" d="M 1021.6,700.0 L 1021.6,778.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="titleblock" x="30.0" y="713.0" font-size="7.5" text-anchor="start" fill="#666666">PROJECT</text>
+<text class="titleblock" x="30.0" y="736.0" font-size="14" text-anchor="start" fill="#111111" font-weight="700">Three rooms (synthetic)</text>
+<text class="titleblock" x="30.0" y="754.0" font-size="9.5" text-anchor="start" fill="#555555">Drawing: levanta demo</text>
+<text class="titleblock" x="30.0" y="768.0" font-size="8.5" text-anchor="start" fill="#666666">3 rooms · 36.24 m² · ceiling 2.50 m (measured)</text>
+<text class="titleblock" x="424.4" y="713.0" font-size="7.5" text-anchor="start" fill="#666666">AUTHOR</text>
+<text class="titleblock" x="424.4" y="732.0" font-size="11" text-anchor="start" fill="#111111">Jhona</text>
+<text class="titleblock" x="424.4" y="754.0" font-size="9.5" text-anchor="start" fill="#555555">Level: ±0.00</text>
+<text class="titleblock" x="424.4" y="768.0" font-size="8.5" text-anchor="start" fill="#666666">made with levanta</text>
+<text class="titleblock" x="679.6" y="713.0" font-size="7.5" text-anchor="start" fill="#666666">SCALE</text>
+<text class="titleblock" x="679.6" y="732.0" font-size="11" text-anchor="start" fill="#111111">—</text>
+<path class="titleblock" d="M 679.6,758.0 719.6,758.0 719.6,763.0 679.6,763.0 Z" fill="#222"/>
+<path class="titleblock" d="M 719.6,758.0 759.6,758.0 759.6,763.0 719.6,763.0 Z" fill="none" stroke="#222" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="titleblock" x="679.6" y="755.0" font-size="7.5" text-anchor="start" fill="#666666">0</text>
+<text class="titleblock" x="759.6" y="755.0" font-size="7.5" text-anchor="end" fill="#666666">1.00 m</text>
+<text class="titleblock" x="865.2" y="713.0" font-size="7.5" text-anchor="start" fill="#666666">DATE</text>
+<text class="titleblock" x="865.2" y="732.0" font-size="11" text-anchor="start" fill="#111111">2026-09-05</text>
+<text class="titleblock" x="865.2" y="754.0" font-size="9.5" text-anchor="start" fill="#555555">Rev. A</text>
+<text class="titleblock" x="1027.6" y="713.0" font-size="7.5" text-anchor="start" fill="#666666">SHEET</text>
+<text class="titleblock" x="1027.6" y="732.0" font-size="11" text-anchor="start" fill="#111111">A-01</text>
+<text class="titleblock" x="1027.6" y="754.0" font-size="9.5" text-anchor="start" fill="#555555">N: 20°</text>
 </svg>

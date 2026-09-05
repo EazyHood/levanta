@@ -94,6 +94,9 @@ STRINGS: dict[str, dict[str, str]] = {
         "lot_area": "Lot area",
         "closure": "Closure",
         "level_marker": "F.F.L.",
+        "notes": "Notes",
+        "note_assumed_thickness": "Walls {walls}: thickness assumed {th} (seen from one side only).",
+        "note_scale_fit": "Scale 1:{s}: 1:{next} does not fit {paper}.",
     },
     "es": {
         "room": "Habitación",
@@ -186,6 +189,9 @@ STRINGS: dict[str, dict[str, str]] = {
         "lot_area": "Área del lote",
         "closure": "Cierre",
         "level_marker": "N.P.T.",
+        "notes": "Notas",
+        "note_assumed_thickness": "Muros {walls}: grosor supuesto {th} (vistos por una sola cara).",
+        "note_scale_fit": "Escala 1:{s}: 1:{next} no cabe en {paper}.",
     },
 }
 

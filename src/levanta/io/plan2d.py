@@ -1,15 +1,17 @@
-"""The 2-D floor-plan drawing, drafted the way an architect expects it.
+"""The 2-D floor-plan sheet, drafted the way an architect expects it.
 
-Layers, from the bottom up: rooms, unscanned sides (dashed), walls (openings cut),
-openings with tags, room labels, dimension chains on the perimeter walls (corner –
-opening – opening – corner), overall dimensions, reference axes (A, B, C across the
-top; 1, 2, 3 down the right), north arrow, area schedule and door/window schedule,
-title block.  One function builds it; SVG, PNG and PDF come from the same primitives.
+Layers, from the bottom up: rooms, unscanned sides (dashed), reference axes, walls
+(openings cut; one-sided walls get a dashed outer face), openings with tags, wall tags
+(elevation markers), room labels, dimension chains (perimeter walls outside, interior
+partitions inside the larger room), axis chains (distances between axes), overall
+dimensions, north arrow, area and opening schedules, general notes, title block.  One
+function builds it; SVG, PNG and PDF come from the same primitives.
 """
 
 from __future__ import annotations
 
 import datetime as _dt
+import re
 from itertools import pairwise
 
 import numpy as np
@@ -24,21 +26,28 @@ COLORS = {
     "room": "#f6f2ea",
     "room_open": "#f3f0ea",
     "wall": "#2b2b2b",
-    "wall_int": "#3a3a3a",
     "door": "#8a5a2b",
     "window": "#2b6cb0",
     "passage": "#2b2b2b",
     "open_edge": "#9a9a9a",
+    "assumed": "#d9d4cb",
     "label": "#222222",
     "sub": "#555555",
     "dim": "#777777",
     "dim_text": "#333333",
     "axis": "#b04a4a",
+    "walltag": "#6b6b6f",
     "title": "#111111",
     "meta": "#666666",
     "table": "#333333",
     "rule": "#cfcac2",
 }
+
+# metres from the wall face / plan bounds, the way a drafter stacks them
+OFF_CHAIN = 0.5  # first chain: corner - jamb - jamb - corner
+OFF_AXES = 0.95  # axis-to-axis chain
+OFF_OVERALL = 1.05  # overall (bottom, left)
+OFF_BUBBLE = 1.35  # axis bubbles (top, right)
 
 
 # ----------------------------------------------------------------------------------------
@@ -88,6 +97,18 @@ def wall_sides(plan: FloorPlan, wall: Wall, probe: float = 0.3) -> tuple[bool, b
     return any(r.contains(plus) for r in rooms), any(r.contains(minus) for r in rooms)
 
 
+def room_side_areas(plan: FloorPlan, wall: Wall, probe: float = 0.3) -> tuple[float, float]:
+    """Area of the room touching the +normal side and the -normal side (0 if none)."""
+    mid = wall.point_at(wall.length / 2)
+    n = wall.normal
+    d = wall.thickness / 2 + probe
+    out = []
+    for sign in (1.0, -1.0):
+        p = Point(mid + n * sign * d)
+        out.append(next((r.area for r in plan.rooms if r.shapely.contains(p)), 0.0))
+    return out[0], out[1]
+
+
 def open_edges(plan: FloorPlan, tol: float = 0.15) -> list[tuple[tuple[float, float], tuple[float, float]]]:
     """Portions of room outlines that lie on no detected wall: the unscanned sides."""
     if not plan.walls:
@@ -122,25 +143,44 @@ def door_arc(hinge: np.ndarray, tip: np.ndarray, jamb: np.ndarray, n_pts: int = 
     return [(float(hinge[0] + r * np.cos(a0 + da * k / n_pts)), float(hinge[1] + r * np.sin(a0 + da * k / n_pts))) for k in range(n_pts + 1)]
 
 
+def _stations(plan: FloorPlan, w: Wall) -> list[float]:
+    st = {0.0, w.length}
+    for o in plan.openings_of(w.id):
+        st.add(max(0.0, o.t0))
+        st.add(min(w.length, o.t1))
+    return sorted(st)
+
+
 def dimension_chains(plan: FloorPlan, min_len: float = 1.0) -> list[dict]:
-    """Chains of dimensions along perimeter walls: ``{wall, side, stations}`` where
-    ``side`` is +1/-1 (which side of the wall to draw on: the one with no room) and
-    ``stations`` the sorted breakpoints along the wall (ends and opening jambs)."""
+    """Chains along perimeter walls, drawn on the side with no room:
+    ``{wall, side, stations, offset, inside}`` (``offset`` in metres from the centreline)."""
     chains = []
     for w in plan.walls:
         if w.length < min_len:
             continue
         plus, minus = wall_sides(plan, w)
         if plus and minus:
-            continue  # interior partition: dimensioned through the room sizes
+            continue  # interior partition: see interior_chains
         if not plus and not minus:
             continue  # bounds nothing
         side = 1.0 if not plus else -1.0
-        stations = {0.0, w.length}
-        for o in plan.openings_of(w.id):
-            stations.add(max(0.0, o.t0))
-            stations.add(min(w.length, o.t1))
-        chains.append({"wall": w, "side": side, "stations": sorted(stations)})
+        chains.append({"wall": w, "side": side, "stations": _stations(plan, w), "offset": w.thickness / 2 + OFF_CHAIN, "inside": False})
+    return chains
+
+
+def interior_chains(plan: FloorPlan, min_len: float = 0.8) -> list[dict]:
+    """Chains along interior partitions that carry an opening, drawn inside the larger of
+    the two rooms, so every door is positioned from the wall ends."""
+    chains = []
+    for w in plan.walls:
+        if w.length < min_len or not plan.openings_of(w.id):
+            continue
+        plus, minus = wall_sides(plan, w)
+        if not (plus and minus):
+            continue
+        a_plus, a_minus = room_side_areas(plan, w)
+        side = 1.0 if a_plus >= a_minus else -1.0
+        chains.append({"wall": w, "side": side, "stations": _stations(plan, w), "offset": w.thickness / 2 + 0.35, "inside": True})
     return chains
 
 
@@ -170,6 +210,81 @@ def reference_axes(plan: FloorPlan, merge_tol: float = 0.35) -> tuple[list[tuple
     return letters, numbers
 
 
+def axis_chains(plan: FloorPlan) -> list[dict]:
+    """Axis-to-axis dimensions: ``{orientation: 'h'|'v', positions: [...]}``.  The
+    horizontal chain (across the top) carries the x of every lettered axis, the vertical
+    one (down the right) the y of every numbered axis."""
+    letters, numbers = reference_axes(plan)
+    out = []
+    if len(letters) >= 2:
+        out.append({"orientation": "h", "positions": [x for _, x in letters]})
+    if len(numbers) >= 2:
+        out.append({"orientation": "v", "positions": sorted(y for _, y in numbers)})
+    return out
+
+
+def wall_orientation(wall: Wall, side: float, north_deg: float | None, lang: str = "en") -> str:
+    """Compass letter of the direction one faces when looking at the wall from ``side``
+    (N/NE/E/SE/S/SW/W/NW; Spanish uses O for west).  Empty when north is unknown."""
+    if north_deg is None:
+        return ""
+    look = -wall.normal * side  # from the room into the wall
+    ang_plan = np.degrees(np.arctan2(look[0], look[1]))  # clockwise from +y
+    bearing = (ang_plan - north_deg) % 360.0
+    names = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"] if lang != "es" else ["N", "NE", "E", "SE", "S", "SO", "O", "NO"]
+    return names[round(bearing / 45.0) % 8]
+
+
+def wall_tag_point(plan: FloorPlan, w: Wall) -> tuple[np.ndarray, float]:
+    """Where the wall tag / elevation marker sits: inside the larger adjoining room, at
+    the middle of the longest solid stretch (never on top of a door)."""
+    a_plus, a_minus = room_side_areas(plan, w)
+    side = 1.0 if a_plus >= a_minus else -1.0
+    if a_plus == 0 and a_minus == 0:
+        side = 1.0
+    st = _stations(plan, w)
+    ops = plan.openings_of(w.id)
+    best, best_len = w.length / 2, -1.0
+    for s0, s1 in pairwise(st):
+        if any(abs(o.t0 - s0) < 1e-6 and abs(o.t1 - s1) < 1e-6 for o in ops):
+            continue  # this stretch is an opening
+        if s1 - s0 > best_len:
+            best, best_len = (s0 + s1) / 2, s1 - s0
+    if best_len < 0.25:
+        # the wall is one opening (a door found between two wall pieces): tag it beside the jamb
+        best = -0.18 if w.length < 1.0 else w.length + 0.18
+    return w.point_at(best) + w.normal * side * (w.thickness / 2 + 0.28), side
+
+
+def next_sheet(sheet: str | None) -> str:
+    """'A-01' -> 'A-02', 'A1' -> 'A2', None -> 'A-02'."""
+    if not sheet:
+        return "A-02"
+    m = re.search(r"(\d+)(?!.*\d)", sheet)
+    if not m:
+        return sheet + "-2"
+    n = int(m.group(1)) + 1
+    return sheet[: m.start(1)] + str(n).zfill(len(m.group(1))) + sheet[m.end(1) :]
+
+
+def general_notes(plan: FloorPlan, lang: str, units: str) -> list[str]:
+    """What a reader must know before trusting the sheet: assumed thicknesses, open sides,
+    default ceiling, assumed door heights, uncalibrated scale."""
+    notes: list[str] = []
+    one = [w for w in plan.walls if w.sides_seen == 1]
+    if one:
+        by_th: dict[float, list[int]] = {}
+        for w in one:
+            by_th.setdefault(round(w.thickness, 2), []).append(w.id + 1)
+        for th, ids in sorted(by_th.items()):
+            notes.append(t(lang, "note_assumed_thickness").format(walls=", ".join(f"M{i}" for i in ids), th=fmt_len(th, units)))
+    for q in plan.quality(lang):
+        if q["level"] == "ok" or q.get("key") == "thickness":
+            continue  # the per-wall note above already covers assumed thicknesses
+        notes.append(q["text"])
+    return notes
+
+
 # ----------------------------------------------------------------------------------------
 # the drawing
 # ----------------------------------------------------------------------------------------
@@ -188,13 +303,16 @@ def floor_plan_drawing(
     show_chains: bool = True,
     show_axes: bool = True,
     show_tables: bool = True,
+    tables: str = "right",
     print_scale: int | None = None,
     font_scale: float = 1.0,
+    notes: list[str] | None = None,
 ) -> Drawing:
-    """Build the plan drawing.  ``scale`` is pixels (or points) per metre.
+    """Build the plan sheet.  ``scale`` is pixels (or points) per metre.
 
-    ``print_scale`` (e.g. 100 for 1:100) is only printed in the title block; the caller
-    picks ``scale`` accordingly.  ``font_scale`` multiplies every text size.
+    ``tables``: ``"right"`` (schedules beside the plan) or ``"below"`` (under it, side
+    by side).  ``print_scale`` (e.g. 100 for 1:100) is printed in the title block; the
+    caller picks ``scale`` accordingly.  ``notes`` are extra general notes.
     """
     fs = font_scale
     xmin, ymin, xmax, ymax = plan.bounds
@@ -202,26 +320,36 @@ def floor_plan_drawing(
         xmin, xmax = xmin - 1, xmax + 1
     if ymax - ymin < 1e-6:
         ymin, ymax = ymin - 1, ymax + 1
-    chains = dimension_chains(plan) if (show_chains and show_dimensions) else []
+    chains = (dimension_chains(plan) + interior_chains(plan)) if (show_chains and show_dimensions) else []
     letters, numbers = reference_axes(plan) if show_axes else ([], [])
+    axes_ch = axis_chains(plan) if (show_axes and show_dimensions) else []
     # space around the plan, in metres
-    m_left = 1.35 if show_dimensions else 0.4
-    m_bottom = 1.35 if show_dimensions else 0.4
-    m_top = 0.9 if letters else 0.4
-    m_right = 0.9 if numbers else 0.4
-    if chains:
-        m_top = max(m_top, 1.25)
-        m_right = max(m_right, 1.25)
+    m_left = OFF_OVERALL + 0.35 if show_dimensions else 0.4
+    m_bottom = OFF_OVERALL + 0.35 if show_dimensions else 0.4
+    m_top = (OFF_BUBBLE + 0.3) if letters else (0.9 if chains else 0.4)
+    m_right = (OFF_BUBBLE + 0.3) if numbers else (0.9 if chains else 0.4)
     if plan.north_deg is not None:
         m_top = max(m_top, 1.1)
+        m_left = max(m_left, 1.5)
     pad = 24.0 * fs if margin is None else margin
     plan_w = (xmax - xmin + m_left + m_right) * scale
     plan_h = (ymax - ymin + m_top + m_bottom) * scale
-    table_w = (260.0 * fs) if show_tables and (plan.rooms or plan.openings) else 0.0
-    ax_off = 0.95 if chains else 0.65  # axis bubbles sit beyond the dimension chains
+    have_tables = bool(show_tables and (plan.rooms or plan.openings))
+    table_w = 260.0 * fs if have_tables else 0.0
     tb_h = 78.0 * fs if show_title_block else 0.0
-    W = pad + plan_w + (16 * fs + table_w if table_w else 0) + pad
-    H = pad + plan_h + tb_h + pad
+    all_notes = general_notes(plan, lang, units) + list(notes or [])
+    notes_h = (16 + 13 * (len(all_notes) + sum(len(n) // 72 for n in all_notes))) * fs if all_notes else 0.0
+    n_rows = len(plan.rooms) + 4 + (len(plan.openings) + 3 if plan.openings else 0)
+    tables_h = (34 + 15 * n_rows + 30) * fs if have_tables else 0.0
+    below = tables == "below" and have_tables
+    if below:
+        block_h = max(tables_h, notes_h + 10 * fs) if (2 * table_w + 40 * fs + 260 * fs) <= max(plan_w, 2 * table_w + 40 * fs) else tables_h + notes_h + 10 * fs
+        W = pad + max(plan_w, 2 * table_w + 40 * fs) + pad
+        H = pad + plan_h + block_h + 10 * fs + tb_h + pad
+    else:
+        side_w = (16 * fs + table_w) if have_tables else 0.0
+        W = pad + plan_w + side_w + pad
+        H = pad + max(plan_h, tables_h + notes_h + 20 * fs) + tb_h + pad
     d = Drawing(W, H)
 
     ox = pad + m_left * scale
@@ -242,20 +370,30 @@ def floor_plan_drawing(
     for a, b in open_edges(plan):
         d.line((X(a[0]), Y(a[1])), (X(b[0]), Y(b[1])), stroke=COLORS["open_edge"], width=1.2 * fs, dash=(6 * fs, 5 * fs), cls="open-edge")
     # reference axes (behind the walls)
-    if letters or numbers:
-        for lab, x in letters:
-            d.line((X(x), Y(ymax) - (ax_off - 0.1) * scale), (X(x), Y(ymin) + 0.2 * scale), stroke=COLORS["axis"], width=0.6 * fs, dash=(9 * fs, 5 * fs), cls="axis")
-            cy = Y(ymax) - ax_off * scale
-            d.circle(X(x), cy, 9 * fs, fill="#ffffff", stroke=COLORS["axis"], width=0.9 * fs, cls="axis")
-            d.text(X(x), cy + 3.5 * fs, lab, size=10 * fs, weight="bold", color=COLORS["axis"], cls="axis")
-        for lab, y in numbers:
-            d.line((X(xmin) - 0.2 * scale, Y(y)), (X(xmax) + (ax_off - 0.1) * scale, Y(y)), stroke=COLORS["axis"], width=0.6 * fs, dash=(9 * fs, 5 * fs), cls="axis")
-            cx = X(xmax) + ax_off * scale
-            d.circle(cx, Y(y), 9 * fs, fill="#ffffff", stroke=COLORS["axis"], width=0.9 * fs, cls="axis")
-            d.text(cx, Y(y) + 3.5 * fs, lab, size=10 * fs, weight="bold", color=COLORS["axis"], cls="axis")
+    for lab, x in letters:
+        d.line((X(x), Y(ymax) - (OFF_BUBBLE - 0.12) * scale), (X(x), Y(ymin) + 0.2 * scale), stroke=COLORS["axis"], width=0.6 * fs, dash=(9 * fs, 5 * fs), cls="axis")
+        cy = Y(ymax) - OFF_BUBBLE * scale
+        d.circle(X(x), cy, 9 * fs, fill="#ffffff", stroke=COLORS["axis"], width=0.9 * fs, cls="axis")
+        d.text(X(x), cy + 3.5 * fs, lab, size=10 * fs, weight="bold", color=COLORS["axis"], cls="axis")
+    for lab, y in numbers:
+        d.line((X(xmin) - 0.2 * scale, Y(y)), (X(xmax) + (OFF_BUBBLE - 0.12) * scale, Y(y)), stroke=COLORS["axis"], width=0.6 * fs, dash=(9 * fs, 5 * fs), cls="axis")
+        cx = X(xmax) + OFF_BUBBLE * scale
+        d.circle(cx, Y(y), 9 * fs, fill="#ffffff", stroke=COLORS["axis"], width=0.9 * fs, cls="axis")
+        d.text(cx, Y(y) + 3.5 * fs, lab, size=10 * fs, weight="bold", color=COLORS["axis"], cls="axis")
     # walls (openings cut)
     for poly in wall_body_polygons(plan):
         d.polygon(P(list(poly.exterior.coords)), fill=COLORS["wall"], holes=[P(list(ring.coords)) for ring in poly.interiors], cls="wall")
+    # one-sided walls: the unseen face is drawn dashed on top of the body
+    for w in plan.walls:
+        if w.sides_seen == 2:
+            continue
+        plus, minus = wall_sides(plan, w)
+        unseen = -1.0 if plus and not minus else 1.0 if minus and not plus else None
+        if unseen is None:
+            continue
+        a = np.array(w.a) + w.normal * unseen * (w.thickness / 2 - 0.01)
+        b = np.array(w.b) + w.normal * unseen * (w.thickness / 2 - 0.01)
+        d.line((X(a[0]), Y(a[1])), (X(b[0]), Y(b[1])), stroke=COLORS["assumed"], width=1.3 * fs, dash=(5 * fs, 4 * fs), cls="wall-assumed")
     # openings
     for o in plan.openings:
         w = plan.wall_by_id(o.wall_id)
@@ -276,11 +414,25 @@ def floor_plan_drawing(
             tag_pt = (a + b) / 2 + n * (1.0 if plus else -1.0) * (w.thickness / 2 + 0.22)
         else:
             d.line((X(a[0]), Y(a[1])), (X(b[0]), Y(b[1])), stroke=COLORS["passage"], width=1.0 * fs, dash=(4 * fs, 4 * fs), cls="passage")
-            plus, _minus = wall_sides(plan, w)
+            plus, _ = wall_sides(plan, w)
             tag_pt = (a + b) / 2 + n * (1.0 if plus else -1.0) * (w.thickness / 2 + 0.22)
         if o.tag and show_labels:
             col = COLORS["door"] if o.kind == "door" else COLORS["window"] if o.kind == "window" else COLORS["label"]
             d.text(X(tag_pt[0]), Y(tag_pt[1]) + 3.5 * fs, o.tag, size=9.5 * fs, weight="bold", color=col, cls="tag")
+    # wall tags: elevation markers (circle with the wall number, pointer towards the wall)
+    if show_labels:
+        for w in plan.walls:
+            if w.length < 0.6:
+                continue
+            p, side = wall_tag_point(plan, w)
+            n = w.normal * side
+            r = 7 * fs
+            cx, cy = X(p[0]), Y(p[1])
+            edge = p - n * 0.09
+            face = p - n * 0.2
+            d.line((X(edge[0]), Y(edge[1])), (X(face[0]), Y(face[1])), stroke=COLORS["walltag"], width=0.9 * fs, cls="wall-tag-pointer")
+            d.circle(cx, cy, r, fill="#ffffff", stroke=COLORS["walltag"], width=0.9 * fs, cls="wall-tag-circle")
+            d.text(cx, cy + 3 * fs, f"M{w.id + 1}", size=7.5 * fs, weight="bold", color=COLORS["walltag"], cls="wall-tag")
     # room labels
     if show_labels:
         for r in plan.rooms:
@@ -291,27 +443,44 @@ def floor_plan_drawing(
             d.text(X(cx), Y(cy) + 11 * fs, f"{fmt_area(r.area, units)} · {fmt_len(bx1 - bx0, units)} × {fmt_len(by1 - by0, units)}", size=11 * fs, color=COLORS["sub"], cls="label")
             if plan.project.get("level"):
                 d.text(X(cx), Y(cy) + 24 * fs, f"{t(lang, 'level_marker')} {plan.project['level']}", size=9.5 * fs, color=COLORS["sub"], cls="label")
-    # dimension chains on perimeter walls
-    if chains:
-        for ch in chains:
-            _draw_chain(d, ch, X, Y, scale, units, fs)
+    # dimension chains (perimeter outside, partitions inside)
+    for ch in chains:
+        _draw_chain(d, ch, X, Y, scale, units, fs)
+    # axis chains: across the top (letters) and down the right (numbers)
+    for ac in axes_ch:
+        _draw_axis_chain(d, ac, X, Y, scale, units, fs, xmin, ymin, xmax, ymax)
     # overall dimensions (further out)
     if show_dimensions:
-        off = 1.05 * scale
+        off = OFF_OVERALL * scale
         yb = Y(ymin) + off
         _dim_line(d, (X(xmin), yb), (X(xmax), yb), fmt_len(xmax - xmin, units), fs, ext_from=((X(xmin), Y(ymin) + 6 * fs), (X(xmax), Y(ymin) + 6 * fs)))
         xl = X(xmin) - off
         _dim_line(d, (xl, Y(ymin)), (xl, Y(ymax)), fmt_len(ymax - ymin, units), fs, ext_from=((X(xmin) - 6 * fs, Y(ymin)), (X(xmin) - 6 * fs, Y(ymax))), vertical=True)
     # north arrow
     if plan.north_deg is not None:
-        _north_arrow(d, X(xmin) - 0.85 * scale, oy - 0.45 * scale, plan.north_deg, fs, lang)
-    # tables
-    if table_w:
-        tx = pad + plan_w + 16 * fs
-        ty = pad
-        ty = _areas_table(d, tx, ty, table_w, plan, lang, units, fs)
-        if plan.openings:
-            _schedule_table(d, tx, ty + 18 * fs, table_w, plan, lang, units, fs)
+        _north_arrow(d, X(xmin) - 1.05 * scale, oy - 0.45 * scale, plan.north_deg, fs, lang)
+    # tables + notes
+    if have_tables:
+        if below:
+            tx1, ty0 = pad, pad + plan_h + 8 * fs
+            ty = _areas_table(d, tx1, ty0, table_w, plan, lang, units, fs)
+            tx2 = tx1 + table_w + 40 * fs
+            ty2 = _schedule_table(d, tx2, ty0, table_w, plan, lang, units, fs) if plan.openings else ty0
+            if all_notes:
+                tx3 = tx2 + table_w + 40 * fs
+                if W - pad - tx3 >= 260 * fs:
+                    _notes_block(d, tx3, ty0, all_notes, lang, fs)
+                else:
+                    _notes_block(d, tx1, max(ty, ty2) + 12 * fs, all_notes, lang, fs)
+        else:
+            tx = pad + plan_w + 16 * fs
+            ty = _areas_table(d, tx, pad, table_w, plan, lang, units, fs)
+            if plan.openings:
+                ty = _schedule_table(d, tx, ty + 18 * fs, table_w, plan, lang, units, fs)
+            if all_notes:
+                _notes_block(d, tx, ty + 18 * fs, all_notes, lang, fs)
+    elif all_notes:
+        _notes_block(d, pad, pad + plan_h, all_notes, lang, fs)
     # title block
     if show_title_block:
         _title_block(d, pad, H - pad - tb_h, W - 2 * pad, tb_h, plan, title, lang, units, scale, print_scale, fs)
@@ -347,29 +516,47 @@ def _draw_chain(d: Drawing, ch: dict, X, Y, scale: float, units: str, fs: float)
     side = ch["side"]
     n = w.normal * side
     dvec = w.direction
-    off = w.thickness / 2 + 0.5  # metres from the centreline
+    off = ch["offset"]
+    cls = "dim-chain-in" if ch.get("inside") else "dim-chain"
     stations = ch["stations"]
     base = np.array(w.a, dtype=float)
     line_a = base + n * off
     line_b = base + dvec * w.length + n * off
-    d.line((X(line_a[0]), Y(line_a[1])), (X(line_b[0]), Y(line_b[1])), stroke=COLORS["dim"], width=0.8 * fs, cls="dim-chain")
+    d.line((X(line_a[0]), Y(line_a[1])), (X(line_b[0]), Y(line_b[1])), stroke=COLORS["dim"], width=0.8 * fs, cls=cls)
     vertical = abs(dvec[0]) < 0.5
     for s in stations:
         p_wall = base + dvec * s + n * (w.thickness / 2 + 0.06)
         p_dim = base + dvec * s + n * off
-        d.line((X(p_wall[0]), Y(p_wall[1])), (X(p_dim[0]), Y(p_dim[1])), stroke=COLORS["dim"], width=0.6 * fs, cls="dim-chain")
+        d.line((X(p_wall[0]), Y(p_wall[1])), (X(p_dim[0]), Y(p_dim[1])), stroke=COLORS["dim"], width=0.6 * fs, cls=cls)
         _tick(d, X(p_dim[0]), Y(p_dim[1]), fs)
     for s0, s1 in pairwise(stations):
         if s1 - s0 < 0.1:
             continue
         mid = base + dvec * ((s0 + s1) / 2) + n * off
         label = fmt_len(s1 - s0, units)
-        # text on the far side of the dimension line, away from the wall
-        tp = mid + n * (0.06 + 0.02)
+        tp = mid + n * 0.08
         if vertical:
-            d.text(X(tp[0]), Y(tp[1]), label, size=9.5 * fs, color=COLORS["dim_text"], rotate=90, cls="dim-chain")
+            d.text(X(tp[0]), Y(tp[1]), label, size=9.5 * fs, color=COLORS["dim_text"], rotate=90, cls=cls)
         else:
-            d.text(X(tp[0]), Y(tp[1]) + (3.5 * fs if n[1] < 0 else 0), label, size=9.5 * fs, color=COLORS["dim_text"], cls="dim-chain")
+            d.text(X(tp[0]), Y(tp[1]) + (3.5 * fs if n[1] < 0 else 0), label, size=9.5 * fs, color=COLORS["dim_text"], cls=cls)
+
+
+def _draw_axis_chain(d: Drawing, ac: dict, X, Y, scale: float, units: str, fs: float, xmin, ymin, xmax, ymax) -> None:
+    pos = ac["positions"]
+    if ac["orientation"] == "h":
+        y = Y(ymax) - OFF_AXES * scale
+        d.line((X(pos[0]), y), (X(pos[-1]), y), stroke=COLORS["dim"], width=0.8 * fs, cls="dim-axes")
+        for x in pos:
+            _tick(d, X(x), y, fs)
+        for x0, x1 in pairwise(pos):
+            d.text((X(x0) + X(x1)) / 2, y - 4 * fs, fmt_len(x1 - x0, units), size=9.5 * fs, color=COLORS["dim_text"], cls="dim-axes")
+    else:
+        x = X(xmax) + OFF_AXES * scale
+        d.line((x, Y(pos[0])), (x, Y(pos[-1])), stroke=COLORS["dim"], width=0.8 * fs, cls="dim-axes")
+        for y in pos:
+            _tick(d, x, Y(y), fs)
+        for y0, y1 in pairwise(pos):
+            d.text(x + 4 * fs, (Y(y0) + Y(y1)) / 2, fmt_len(y1 - y0, units), size=9.5 * fs, color=COLORS["dim_text"], rotate=90, cls="dim-axes")
 
 
 def _north_arrow(d: Drawing, x: float, y: float, north_deg: float, fs: float, lang: str) -> None:
@@ -423,11 +610,31 @@ def _schedule_table(d: Drawing, x: float, y: float, w: float, plan: FloorPlan, l
     rows = []
     for o in sorted(plan.openings, key=lambda o: (o.kind, o.tag)):
         h = fmt_len(o.z1 - o.z0, units)
-        rows.append([o.tag or "-", t(lang, o.kind), fmt_len(o.width, units), h, fmt_len(o.z0, units) if o.kind == "window" else "-", f"{o.wall_id + 1}"])
-    return _table(d, x, y, w, t(lang, "schedule"), [t(lang, "tag"), t(lang, "kind"), t(lang, "width"), t(lang, "height").upper() if len(t(lang, "height")) <= 2 else t(lang, "height"), t(lang, "sill"), t(lang, "wall")], rows, [0.11, 0.21, 0.16, 0.14, 0.23, 0.15], fs, ["start", "start", "end", "end", "end", "end"])
+        rows.append([o.tag or "-", t(lang, o.kind), fmt_len(o.width, units), h, fmt_len(o.z0, units) if o.kind == "window" else "-", f"M{o.wall_id + 1}"])
+    return _table(d, x, y, w, t(lang, "schedule"), [t(lang, "tag"), t(lang, "kind"), t(lang, "width"), "H", t(lang, "sill"), t(lang, "wall")], rows, [0.11, 0.21, 0.16, 0.14, 0.23, 0.15], fs, ["start", "start", "end", "end", "end", "end"])
 
 
-def _title_block(d: Drawing, x: float, y: float, w: float, h: float, plan: FloorPlan, title: str | None, lang: str, units: str, scale: float, print_scale: int | None, fs: float) -> None:
+def _notes_block(d: Drawing, x: float, y: float, notes: list[str], lang: str, fs: float) -> float:
+    d.text(x, y + 11 * fs, t(lang, "notes"), size=11 * fs, weight="bold", anchor="start", color=COLORS["table"], cls="notes")
+    y += 16 * fs
+    for i, n in enumerate(notes):
+        words = n.split()
+        lines, cur = [], ""
+        for wd in words:
+            if len(cur) + len(wd) + 1 > 72:
+                lines.append(cur)
+                cur = wd
+            else:
+                cur = (cur + " " + wd).strip()
+        if cur:
+            lines.append(cur)
+        for k, ln in enumerate(lines):
+            d.text(x, y + 11 * fs, (f"{i + 1}. " if k == 0 else "    ") + ln, size=8.5 * fs, anchor="start", color=COLORS["table"], cls="notes")
+            y += 12.5 * fs
+    return y
+
+
+def _title_block(d: Drawing, x: float, y: float, w: float, h: float, plan: FloorPlan, title: str | None, lang: str, units: str, scale: float, print_scale: int | None, fs: float, sheet: str | None = None, subtitle: str | None = None) -> None:
     pr = plan.project
     d.polygon([(x, y), (x + w, y), (x + w, y + h), (x, y + h)], fill="#ffffff", stroke="#333", width=1.0 * fs, cls="titleblock")
     cols = [0.0, 0.34, 0.56, 0.72, 0.86, 1.0]
@@ -440,17 +647,16 @@ def _title_block(d: Drawing, x: float, y: float, w: float, h: float, plan: Floor
         d.text(cx, y + (36 if big else 32) * fs, value, size=(14 if big else 11) * fs, weight="bold" if big else "normal", anchor="start", color=COLORS["title"], cls="titleblock")
 
     cell(0, t(lang, "project"), pr.get("name") or (title or t(lang, "floor_plan")), big=True)
-    d.text(x + 6 * fs, y + 54 * fs, f"{t(lang, 'plan_title')}: {title or t(lang, 'floor_plan')}", size=9.5 * fs, anchor="start", color=COLORS["sub"], cls="titleblock")
+    d.text(x + 6 * fs, y + 54 * fs, f"{t(lang, 'plan_title')}: {subtitle or title or t(lang, 'floor_plan')}", size=9.5 * fs, anchor="start", color=COLORS["sub"], cls="titleblock")
     ceil = f"{t(lang, 'ceiling')} {fmt_len(plan.ceiling_height, units)} ({t(lang, 'measured') if plan.ceiling_measured else t(lang, 'default')})"
     d.text(x + 6 * fs, y + 68 * fs, f"{len(plan.rooms)} {t(lang, 'rooms')} · {fmt_area(plan.total_area, units)} · {ceil}", size=8.5 * fs, anchor="start", color=COLORS["meta"], cls="titleblock")
     cell(1, t(lang, "author"), pr.get("author") or "—")
     d.text(x + cols[1] * w + 6 * fs, y + 54 * fs, f"{t(lang, 'level')}: {pr.get('level') or '±0.00'}", size=9.5 * fs, anchor="start", color=COLORS["sub"], cls="titleblock")
     d.text(x + cols[1] * w + 6 * fs, y + 68 * fs, t(lang, "generated_by"), size=8.5 * fs, anchor="start", color=COLORS["meta"], cls="titleblock")
     cell(2, t(lang, "scale"), f"1:{print_scale}" if print_scale else "—")
-    # scale bar under the scale text
     sx = x + cols[2] * w + 6 * fs
     sy = y + 58 * fs
-    bar = scale  # 1 m
+    bar = scale
     avail = (cols[3] - cols[2]) * w - 12 * fs
     n_units = 1.0
     if bar > avail:
@@ -462,5 +668,5 @@ def _title_block(d: Drawing, x: float, y: float, w: float, h: float, plan: Floor
     d.text(sx + bar, sy - 3 * fs, fmt_len(n_units, units), size=7.5 * fs, anchor="end", color=COLORS["meta"], cls="titleblock")
     cell(3, t(lang, "date"), pr.get("date") or _dt.date.today().isoformat())
     d.text(x + cols[3] * w + 6 * fs, y + 54 * fs, f"{t(lang, 'revision')} {pr.get('revision') or 'A'}", size=9.5 * fs, anchor="start", color=COLORS["sub"], cls="titleblock")
-    cell(4, t(lang, "sheet"), pr.get("sheet") or "A-01")
+    cell(4, t(lang, "sheet"), sheet or pr.get("sheet") or "A-01")
     d.text(x + cols[4] * w + 6 * fs, y + 54 * fs, f"{t(lang, 'north')}: {(f'{plan.north_deg:.0f}°') if plan.north_deg is not None else '—'}", size=9.5 * fs, anchor="start", color=COLORS["sub"], cls="titleblock")

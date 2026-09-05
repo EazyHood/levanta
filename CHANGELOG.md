@@ -18,6 +18,16 @@ What a drafter expects on a sheet.
 - Site plan: numbered vertices, coordinate table (local, WGS84, UTM with zone and EPSG), boundary table with azimuth (D°M'S") and length, area in m² and ha, perimeter, traverse closure; PDF and DXF tables too.
 - `--project`, `--author`, `--sheet`, `--revision`, `--level`, `--north`, `--paper`, `--dxf-units`.
 
+Drafter's review of the first 0.3.0 sheet (tests in `tests/test_drafter_review.py`, thresholds written before the fixes):
+
+- Axis chains: every interior partition is positioned by a dimension between reference axes (A-B-C / 1-2-3), on both sides of the plan.
+- Interior chains: openings on interior partitions are dimensioned inside the larger room (jamb - jamb - corner), not only on the perimeter.
+- Every wall carries a tag on the plan (M1, M2 ...) that matches the schedule and the elevations; each elevation says which rooms it faces and its orientation (N, NE, E ...) from the north arrow.
+- "assumed" is printed on the sheet: the unseen face of a one-sided wall is dashed and a general note lists those walls and the assumed thickness.
+- Every PDF page has its own title block, sheet number (A-01, A-02 ...) and scale.
+- The sheet is filled to at least 60 % of the usable page, or the note says which larger scale did not fit.
+- `python -m levanta` works.
+
 
 ## 0.2.0 — 2026-09-05
 

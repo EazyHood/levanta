@@ -14,7 +14,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 0,
-      "exterior": false,
+      "exterior": true,
       "length_m": 5.1998
     },
     {
@@ -48,7 +48,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 2,
-      "exterior": false,
+      "exterior": true,
       "length_m": 5.1998
     },
     {
@@ -65,7 +65,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 3,
-      "exterior": false,
+      "exterior": true,
       "length_m": 7.7002
     },
     {
@@ -99,7 +99,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 5,
-      "exterior": false,
+      "exterior": true,
       "length_m": 7.7002
     }
   ],
@@ -360,9 +360,11 @@
     "source": "synthetic"
   },
   "extra_walls": [],
-  "north_deg": 0.0,
+  "north_deg": 20.0,
   "project": {
-    "name": "levanta demo"
+    "name": "Three rooms (synthetic)",
+    "author": "Jhona",
+    "sheet": "A-01"
   },
   "version": 1
 }

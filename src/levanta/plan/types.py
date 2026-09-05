@@ -187,24 +187,24 @@ class FloorPlan:
         out: list[dict[str, str]] = []
         open_rooms = [r.name for r in self.rooms if not r.closed]
         if open_rooms:
-            out.append({"level": "warn", "text": t(lang, "qa_open_room").format(rooms=", ".join(open_rooms))})
+            out.append({"key": "open_room", "level": "warn", "text": t(lang, "qa_open_room").format(rooms=", ".join(open_rooms))})
         if not self.rooms:
-            out.append({"level": "warn", "text": t(lang, "qa_no_rooms")})
+            out.append({"key": "no_rooms", "level": "warn", "text": t(lang, "qa_no_rooms")})
         one_sided = sum(1 for w in self.walls if w.sides_seen == 1)
         if self.walls:
-            out.append({"level": "info" if one_sided else "ok", "text": t(lang, "qa_thickness_assumed").format(n=one_sided, m=len(self.walls))})
+            out.append({"key": "thickness", "level": "info" if one_sided else "ok", "text": t(lang, "qa_thickness_assumed").format(n=one_sided, m=len(self.walls))})
         if not self.ceiling_measured:
-            out.append({"level": "warn", "text": t(lang, "qa_ceiling_default")})
+            out.append({"key": "ceiling", "level": "warn", "text": t(lang, "qa_ceiling_default")})
         src = str(self.meta.get("source", ""))
         if src == "mapanything" and "scale_factor" not in self.meta:
-            out.append({"level": "warn", "text": t(lang, "qa_scale_uncalibrated")})
+            out.append({"key": "scale", "level": "warn", "text": t(lang, "qa_scale_uncalibrated")})
         unmeasured = [o.tag or o.kind for o in self.openings if o.kind == "door" and not o.height_measured]
         if unmeasured:
-            out.append({"level": "info", "text": t(lang, "qa_height_assumed").format(tags=", ".join(unmeasured))})
+            out.append({"key": "door_height", "level": "info", "text": t(lang, "qa_height_assumed").format(tags=", ".join(unmeasured))})
         if self.rooms and not any(o.kind == "window" for o in self.openings):
-            out.append({"level": "info", "text": t(lang, "qa_no_windows")})
+            out.append({"key": "no_windows", "level": "info", "text": t(lang, "qa_no_windows")})
         if all(x["level"] == "ok" for x in out):
-            out.append({"level": "ok", "text": t(lang, "qa_ok")})
+            out.append({"key": "ok", "level": "ok", "text": t(lang, "qa_ok")})
         return out
 
     # -- editing -----------------------------------------------------------------------

@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 
 from levanta.i18n import fmt_area, fmt_len, t
+from levanta.io.draw import Drawing
 from levanta.io.elevations import elevations_drawing
 from levanta.io.iso import isometric_drawing, model_faces
 from levanta.io.pdf import PT_PER_MM, page_size_pt, write_pdf
@@ -60,32 +61,77 @@ def export_png(plan: FloorPlan, path: str | Path, scale: float = 80.0, title: st
 
 
 def fit_print_scale(plan: FloorPlan, paper: str = "A4", orientation: str = "landscape", margin_mm: float = 10.0, lang: str = "en", units: str = "m", title: str | None = None, scale: int | None = None, **kw):
-    """Pick the largest standard scale (1:20 ... 1:500) at which the sheet fits the page.
-    Returns ``(drawing, page_w_pt, page_h_pt, offset_x, offset_y, print_scale)``."""
+    """Pick the largest standard scale (1:20 ... 1:500) and the table layout (beside or
+    below the plan) at which the whole sheet fits the page, preferring the layout that
+    fills the page best.  When the next larger scale does not fit, the sheet says so in
+    its notes.
+
+    Returns ``(drawing, page_w_pt, page_h_pt, offset_x, offset_y, print_scale, info)`` with
+    ``info = {scale, layout, fill, next_scale, next_scale_fits}``; ``fill`` is the share
+    of the usable page taken by the plan itself (walls plus dimensions).
+    """
     pw, ph = page_size_pt(paper, orientation)
-    avail_w, avail_h = pw - 2 * margin_mm * PT_PER_MM, ph - 2 * margin_mm * PT_PER_MM
+    usable_w, usable_h = pw - 2 * margin_mm * PT_PER_MM, ph - 2 * margin_mm * PT_PER_MM
     candidates = [scale] if scale else list(PRINT_SCALES)
-    chosen = None
+    fits_at: dict[int, list[tuple[float, str, Drawing]]] = {}
+    last = None
     for s in candidates:
         pt_per_m = 1000.0 / s * PT_PER_MM  # 1 m on paper = 1000/s mm
-        d = floor_plan_drawing(plan, scale=pt_per_m, margin=margin_mm * PT_PER_MM, lang=lang, units=units, title=title, print_scale=s, font_scale=0.78, **kw)
-        chosen = (d, s)
-        if d.width <= avail_w + 2 * margin_mm * PT_PER_MM and d.height <= avail_h + 2 * margin_mm * PT_PER_MM:
+        for layout in ("below", "right"):
+            d = floor_plan_drawing(plan, scale=pt_per_m, margin=margin_mm * PT_PER_MM, lang=lang, units=units, title=title, print_scale=s, font_scale=0.78, tables=layout, **kw)
+            last = (d, s, layout)
+            if d.width <= pw and d.height <= ph:
+                xmin, ymin, xmax, ymax = plan.bounds
+                plan_area = ((xmax - xmin) + 2.7) * ((ymax - ymin) + 2.7) * pt_per_m * pt_per_m
+                fill = min(1.0, plan_area / (usable_w * usable_h))
+                fits_at.setdefault(s, []).append((fill, layout, d))
+        if s in fits_at:
             break
-    d, s = chosen
+    if fits_at:
+        s = min(fits_at)
+        fill, layout, d = max(fits_at[s], key=lambda x: x[0])
+    else:  # nothing fits even at 1:500: use the last drawing scaled down by the caller
+        d, s, layout = last
+        fill = 0.0
+    idx = PRINT_SCALES.index(s) if s in PRINT_SCALES else 0
+    next_scale = PRINT_SCALES[idx - 1] if idx > 0 else None
+    next_fits = None
+    if next_scale is not None:
+        pt_next = 1000.0 / next_scale * PT_PER_MM
+        next_fits = any(
+            (dd := floor_plan_drawing(plan, scale=pt_next, margin=margin_mm * PT_PER_MM, lang=lang, units=units, title=title, print_scale=next_scale, font_scale=0.78, tables=lay, **kw)).width <= pw and dd.height <= ph
+            for lay in ("below", "right")
+        )
+    info = {"scale": s, "layout": layout, "fill": float(fill), "next_scale": next_scale, "next_scale_fits": next_fits}
+    if next_scale is not None and next_fits is False and fill < 0.6:
+        note = t(lang, "note_scale_fit").format(s=s, next=next_scale, paper=paper)
+        pt_per_m = 1000.0 / s * PT_PER_MM
+        d = floor_plan_drawing(plan, scale=pt_per_m, margin=margin_mm * PT_PER_MM, lang=lang, units=units, title=title, print_scale=s, font_scale=0.78, tables=layout, notes=[note], **kw)
     ox = max(0.0, (pw - d.width) / 2)
     oy = max(0.0, (ph - d.height) / 2)
-    return d, pw, ph, ox, oy, s
+    return d, pw, ph, ox, oy, s, info
+
+
+def fit_elevations_scale(plan: FloorPlan, pw: float, ph: float, start: int, lang: str, units: str, title: str | None, margin_mm: float = 10.0) -> tuple[Drawing, int]:
+    """Largest standard scale at which the elevations sheet fits the page unscaled."""
+    scales = [s for s in PRINT_SCALES if s >= start] or [PRINT_SCALES[-1]]
+    last = None
+    for s in scales:
+        pt_per_m = 1000.0 / s * PT_PER_MM
+        e = elevations_drawing(plan, scale=pt_per_m, lang=lang, units=units, max_row_px=pw - 2 * margin_mm * PT_PER_MM - 100, print_scale=s, font_scale=0.78, title=title)
+        last = (e, s)
+        if e.width <= pw and e.height <= ph:
+            return e, s
+    return last
 
 
 def export_pdf(plan: FloorPlan, path: str | Path, paper: str = "A4", orientation: str = "landscape", title: str | None = None, lang: str = "en", units: str = "m", scale: int | None = None, with_elevations: bool = True, **kw) -> Path:
     """Vector PDF at a standard scale (1:50, 1:100 ...) on a standard page, plus a second
     page with the interior elevations."""
-    d, pw, ph, ox, oy, s = fit_print_scale(plan, paper, orientation, lang=lang, units=units, title=title, scale=scale, **kw)
+    d, pw, ph, ox, oy, s, _info = fit_print_scale(plan, paper, orientation, lang=lang, units=units, title=title, scale=scale, **kw)
     pages = [(d, pw, ph, ox, oy, 1.0)]
     if with_elevations and plan.walls:
-        pt_per_m = 1000.0 / max(s, 50) * PT_PER_MM
-        e = elevations_drawing(plan, scale=pt_per_m, lang=lang, units=units, max_row_px=pw - 2 * 12 * PT_PER_MM)
+        e, _se = fit_elevations_scale(plan, pw, ph, max(s, 25), lang, units, title)
         sc = min(1.0, (pw - 20 * PT_PER_MM) / e.width, (ph - 20 * PT_PER_MM) / e.height)
         pages.append((e, pw, ph, (pw - e.width * sc) / 2, (ph - e.height * sc) / 2, sc))
     return write_pdf(path, pages, title=title or t(lang, "floor_plan"))

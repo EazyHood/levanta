@@ -249,6 +249,7 @@ def tidy_walls(plan: FloorPlan, attach_dist: float = 0.25, trim_margin: float = 
                 thickness=w.thickness,
                 height=w.height,
                 sides_seen=w.sides_seen,
+                exterior=w.exterior,
                 line_id=w.line_id,
             )
             walls.append(nw)
