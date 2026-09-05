@@ -47,11 +47,37 @@ STEP = 0.30
 
 
 def load_mesh(path: Path):
+    """Replica's mesh.ply is a *quad* mesh (list uint8 int vertex_indices, four per face)
+    with per-vertex normals and colours; Open3D's reader gives up on it, so it is read
+    here with numpy and every quad split into two triangles."""
     import open3d as o3d
 
-    mesh = o3d.io.read_triangle_mesh(str(path), enable_post_processing=False)
-    if not mesh.has_vertex_normals():
-        mesh.compute_vertex_normals()
+    with path.open("rb") as fh:
+        header = []
+        while True:
+            line = fh.readline().decode("ascii", "replace").strip()
+            header.append(line)
+            if line == "end_header":
+                break
+        nv = int(next(ln for ln in header if ln.startswith("element vertex")).split()[-1])
+        nf = int(next(ln for ln in header if ln.startswith("element face")).split()[-1])
+        props = [ln.split()[1:] for ln in header[header.index(next(ln for ln in header if ln.startswith("element vertex"))) + 1 :] if ln.startswith("property") and not ln.startswith("property list")]
+        types = {"float": "<f4", "uchar": "u1", "double": "<f8", "int": "<i4", "uint": "<u4"}
+        vdt = np.dtype([(name, types[t]) for t, name in props])
+        verts = np.frombuffer(fh.read(nv * vdt.itemsize), dtype=vdt)
+        raw = fh.read()
+    for k in (4, 3):
+        fdt = np.dtype([("n", "u1"), ("i", "<i4", (k,))])
+        if len(raw) >= nf * fdt.itemsize and np.frombuffer(raw[: fdt.itemsize], dtype=fdt)["n"][0] == k:
+            faces = np.frombuffer(raw[: nf * fdt.itemsize], dtype=fdt)["i"]
+            break
+    else:
+        raise ValueError("faces are neither quads nor triangles")
+    tris = np.vstack([faces[:, [0, 1, 2]], faces[:, [0, 2, 3]]]) if faces.shape[1] == 4 else faces
+    mesh = o3d.geometry.TriangleMesh(o3d.utility.Vector3dVector(np.c_[verts["x"], verts["y"], verts["z"]].astype(np.float64)), o3d.utility.Vector3iVector(tris.astype(np.int32)))
+    if "red" in verts.dtype.names:
+        mesh.vertex_colors = o3d.utility.Vector3dVector(np.c_[verts["red"], verts["green"], verts["blue"]].astype(np.float64) / 255.0)
+    mesh.compute_vertex_normals()
     return mesh
 
 
@@ -77,13 +103,18 @@ def floor_truth(mesh) -> dict:
     ij = np.floor((pts - lo) / CELL).astype(int)
     grid = np.zeros(ij.max(axis=0) + 12, dtype=bool)
     grid[ij[:, 0], ij[:, 1]] = True
-    grid = ndimage.binary_closing(grid, iterations=2)
     filled = ndimage.binary_fill_holes(grid)
+    holes = filled & ~grid
+    lab, k = ndimage.label(holes)
+    for i in range(1, k + 1):  # furniture footprints are filled; anything over 1 m2 is not floor
+        m = lab == i
+        if m.sum() * CELL * CELL > 1.0:
+            filled &= ~m
     lab, k = ndimage.label(filled)
     if k > 1:
         sizes = ndimage.sum(filled, lab, range(1, k + 1))
         filled = lab == (int(np.argmax(sizes)) + 1)
-    er = ndimage.binary_erosion(filled, iterations=int(round(0.40 / CELL)))
+    er = ndimage.binary_erosion(filled, iterations=int(round(0.50 / CELL)))  # doorways under 1.0 m separate rooms
     lab, k = ndimage.label(er)
     rooms = []
     for i in range(1, k + 1):
@@ -91,7 +122,7 @@ def floor_truth(mesh) -> dict:
         if m.sum() * CELL * CELL < 1.5:
             continue
         # grow the part back (within the floor) to get the room's own area
-        grown = ndimage.binary_dilation(m, iterations=int(round(0.40 / CELL))) & filled
+        grown = ndimage.binary_dilation(m, iterations=int(round(0.50 / CELL))) & filled
         cy, cx = ndimage.center_of_mass(m)
         rooms.append({"id": len(rooms), "area_m2": float(grown.sum() * CELL * CELL), "centre": (float(lo[0] + cy * CELL), float(lo[1] + cx * CELL)), "mask": grown})
     # doorways: pairs of rooms whose regions touch once grown by one more step
@@ -141,8 +172,16 @@ def plan_walk(truth: dict) -> list[tuple[float, float, float]]:
     """(x, y, yaw) per step along the floor, room by room, with a full turn in each."""
     free = ndimage.binary_erosion(truth["filled"], iterations=int(round(0.35 / CELL)))
     lo = truth["lo"]
+    # waypoints: every room centre plus a 2 m grid over the free floor, so a big open room
+    # is walked through and not just visited at its middle
     centres = [(int((r["centre"][0] - lo[0]) / CELL), int((r["centre"][1] - lo[1]) / CELL)) for r in truth["rooms"]]
+    step = int(round(2.0 / CELL))
+    for i in range(step // 2, free.shape[0], step):
+        for j in range(step // 2, free.shape[1], step):
+            if free[i, j]:
+                centres.append((i, j))
     centres = [_nearest_free(free, c) for c in centres]
+    n_rooms = len(truth["rooms"])
     order = [0]
     left = set(range(1, len(centres)))
     while left:
@@ -158,7 +197,8 @@ def plan_walk(truth: dict) -> list[tuple[float, float, float]]:
         else:
             seg = _bfs_path(free, cells[-1], centres[i])
             cells += seg[1:] if seg else [centres[i]]
-        turns.add(len(cells) - 1)
+        if i < n_rooms:
+            turns.add(len(cells) - 1)  # a full turn only at room centres
     # resample to STEP metres, keep a marker where a room centre is reached
     pts = np.array([(lo[0] + c[0] * CELL, lo[1] + c[1] * CELL) for c in cells])
     turn_pts = {tuple(pts[i]) for i in turns}

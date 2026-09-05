@@ -186,8 +186,8 @@ def umeyama(src: np.ndarray, dst: np.ndarray) -> tuple[float, np.ndarray, np.nda
 # -- one scene ---------------------------------------------------------------------------------
 
 
-def run_levanta(mov: Path, out: Path, max_views: int, focal_px: float | None, extra: list[str] | None = None) -> Path:
-    cmd = [sys.executable, "-m", "levanta.cli", "video", str(mov), "-o", str(out), "--fps", "1", "--max-views", str(max_views), "--lang", "en", "--paper", "A3"] + list(extra or [])
+def run_levanta(mov: Path, out: Path, max_views: int, focal_px: float | None, extra: list[str] | None = None, fps: float = 1.0) -> Path:
+    cmd = [sys.executable, "-m", "levanta.cli", "video", str(mov), "-o", str(out), "--fps", f"{fps:g}", "--max-views", str(max_views), "--lang", "en", "--paper", "A3"] + list(extra or [])
     if focal_px:
         cmd += ["--focal-px", f"{focal_px:.2f}"]
     log = out.parent / f"{out.name}.log"
@@ -306,6 +306,8 @@ def main() -> None:
     ap.add_argument("--runs", nargs="*", default=["noK", "withK"], help="which runs to (re)do; the others are read from disk")
     ap.add_argument("--eval-only", action="store_true", help="do not run levanta, evaluate what is on disk")
     ap.add_argument("--keep-views", action="store_true", help="pass --keep-views to levanta (per-view depths for refinement)")
+    ap.add_argument("--fps", type=float, default=1.0, help="frames per second given to levanta")
+    ap.add_argument("--overlap", type=int, default=None, help="chunk overlap passed to levanta")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     results = []
@@ -337,7 +339,8 @@ def main() -> None:
         for name, focal in (("noK", None), ("withK", f_frame)):
             run = args.out / vid / name
             if name in args.runs and not args.eval_only:
-                run = run_levanta(mov, run, args.max_views, focal, extra=["--keep-views"] if args.keep_views else None)
+                extra = (["--keep-views"] if args.keep_views else []) + (["--overlap", str(args.overlap)] if args.overlap is not None else [])
+                run = run_levanta(mov, run, args.max_views, focal, extra=extra or None, fps=args.fps)
             r = evaluate(scene, args.out, truth, run) if run.exists() else {"run": name, "ok": False}
             rows[name] = r
             print(f"  {name}: {json.dumps(r)}")

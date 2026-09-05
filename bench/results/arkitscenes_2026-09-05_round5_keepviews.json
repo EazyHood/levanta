@@ -1,0 +1,177 @@
+[
+ {
+  "video_id": "41069021",
+  "truth_area_m2": 17.47803263710867,
+  "truth_rooms": 1,
+  "mov": "1920x1440",
+  "focal_px_frame": 854.376,
+  "noK": {
+   "run": "noK",
+   "ok": true,
+   "levanta_area_m2": 13.055565164349723,
+   "levanta_rooms": 1,
+   "levanta_doors": 0,
+   "levanta_walls": 13,
+   "unreliable": null,
+   "chunk_scales": [
+    1.00839501619339,
+    0.8556135892868042,
+    0.9527218639850616,
+    0.8768366575241089,
+    0.8957141637802124,
+    0.9379965960979462,
+    1.0222246646881104,
+    1.0584807991981506
+   ],
+   "mask_fraction": 0.8796194153337011,
+   "scale_factor": 1.0269836314330958,
+   "traj_rms_m": 0.46515898490033825,
+   "time_offset_s": -0.5,
+   "matched_cams": 183,
+   "area_error_pct": -25.30300500394614,
+   "area_error_scaled_pct": -21.217424535182865,
+   "floor_iou": 0.6542928561010213
+  },
+  "withK": {
+   "run": "withK",
+   "ok": false
+  }
+ },
+ {
+  "video_id": "42897526",
+  "truth_area_m2": 4.8766598593520705,
+  "truth_rooms": 1,
+  "mov": "1920x1440",
+  "focal_px_frame": 850.5200000000001,
+  "noK": {
+   "run": "noK",
+   "ok": true,
+   "levanta_area_m2": 5.246363432496565,
+   "levanta_rooms": 1,
+   "levanta_doors": 0,
+   "levanta_walls": 4,
+   "unreliable": null,
+   "chunk_scales": [
+    0.8858256340026855,
+    0.9414712488651276
+   ],
+   "mask_fraction": 0.1337094200614609,
+   "scale_factor": 0.9956356216747385,
+   "traj_rms_m": 0.4851730210727617,
+   "time_offset_s": -1.5,
+   "matched_cams": 44,
+   "area_error_pct": 7.581081802035193,
+   "area_error_scaled_pct": 6.64408190151787,
+   "floor_iou": 0.4760579064405578
+  },
+  "withK": {
+   "run": "withK",
+   "ok": false
+  }
+ },
+ {
+  "video_id": "45260905",
+  "truth_area_m2": 25.32099772909725,
+  "truth_rooms": 1,
+  "mov": "1920x1440",
+  "focal_px_frame": 848.832,
+  "noK": {
+   "run": "noK",
+   "ok": true,
+   "levanta_area_m2": 18.355474134711994,
+   "levanta_rooms": 1,
+   "levanta_doors": 0,
+   "levanta_walls": 7,
+   "unreliable": null,
+   "chunk_scales": [
+    0.9457604289054871,
+    0.9653886258602142,
+    0.9508339166641235
+   ],
+   "mask_fraction": 0.8796144905838783,
+   "scale_factor": 1.3125859967782245,
+   "traj_rms_m": 0.5939517265891845,
+   "time_offset_s": -0.25,
+   "matched_cams": 78,
+   "area_error_pct": -27.508882820920316,
+   "area_error_scaled_pct": 24.893640870762272,
+   "floor_iou": 0.6883789258926477
+  },
+  "withK": {
+   "run": "withK",
+   "ok": false
+  }
+ },
+ {
+  "video_id": "47331964",
+  "truth_area_m2": 24.03633192636517,
+  "truth_rooms": 2,
+  "mov": "1920x1440",
+  "focal_px_frame": 855.8224,
+  "noK": {
+   "run": "noK",
+   "ok": true,
+   "levanta_area_m2": 21.860654474971675,
+   "levanta_rooms": 3,
+   "levanta_doors": 0,
+   "levanta_walls": 8,
+   "unreliable": null,
+   "chunk_scales": [
+    0.988183468580246,
+    1.039811909198761,
+    1.0214667916297913,
+    0.9931502640247345,
+    1.038929045200348,
+    1.3803606033325195
+   ],
+   "mask_fraction": 0.7645403238515484,
+   "scale_factor": 0.8959758086840058,
+   "traj_rms_m": 0.8174360813009804,
+   "time_offset_s": -1.0,
+   "matched_cams": 127,
+   "area_error_pct": -9.051620097686447,
+   "area_error_scaled_pct": -26.989128075626763,
+   "floor_iou": 0.46325675611751604
+  },
+  "withK": {
+   "run": "withK",
+   "ok": false
+  }
+ },
+ {
+  "video_id": "47430051",
+  "truth_area_m2": 4.178226986067832,
+  "truth_rooms": 1,
+  "mov": "1920x1440",
+  "focal_px_frame": 851.7248,
+  "noK": {
+   "run": "noK",
+   "ok": true,
+   "levanta_area_m2": 4.663200000000001,
+   "levanta_rooms": 1,
+   "levanta_doors": 0,
+   "levanta_walls": 1,
+   "unreliable": [
+    0,
+    3,
+    0.047292372547474586
+   ],
+   "chunk_scales": [
+    0.9812548756599426,
+    0.7838174700737
+   ],
+   "mask_fraction": 0.047292372547474586,
+   "scale_factor": 0.2528201764505982,
+   "traj_rms_m": 0.7541347847744682,
+   "time_offset_s": -2.75,
+   "matched_cams": 54,
+   "area_error_pct": 11.607148571614127,
+   "area_error_scaled_pct": -92.86628963245295,
+   "floor_iou": 0.05765716608587889
+  },
+  "withK": {
+   "run": "withK",
+   "ok": false
+  }
+ }
+]
