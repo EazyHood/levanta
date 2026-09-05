@@ -42,10 +42,15 @@ measurement. No GPU, no data, no internet needed except for `pip`.
    share 4 frames (`--overlap`), and each chunk is placed onto the previous one, so a
    three-minute walk is one metric model. `out/house/frames/index.json` lists which
    second each frame came from; title cards and blank frames are skipped.
-4. **Fix the scale** if the doors come out narrow. Measure one door and:
+4. **The scale.** levanta reads which phone filmed the clip from the file itself
+   (`levanta check` prints it) and uses that camera's published focal length, which
+   removes most of the metric error. Until the plan is calibrated against something
+   measured, every sheet carries a diagonal *PRELIMINARY · scale not calibrated* stamp.
+   Measure one door and the stamp goes away:
    ```bash
    levanta render out/house/plan.json --door-width 0.90
    ```
+   (`--focal-px` if you know the focal length, `--scale 1.07` for a bare factor.)
 
 You get, in `out/house/`: `plan.pdf` (a sheet at 1:50 or 1:100 on A4/A3 with dimension
 chains, reference axes, door and window schedule, area schedule and title block, plus a
