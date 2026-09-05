@@ -275,6 +275,19 @@ class MapAnythingBackend:
             )
         return out
 
+    def _dump(self, frames: Sequence[Frame], solved: dict[int, dict], n: int) -> None:
+        """Every view's depth, mask, intrinsics and world pose to ``dump_dir`` (npz per
+        view + views.json), for refinement experiments that need the raw network output."""
+        import json
+
+        self.dump_dir.mkdir(parents=True, exist_ok=True)
+        index = []
+        for i in range(n):
+            v = solved[i]
+            np.savez_compressed(self.dump_dir / f"view_{i:04d}.npz", depth=v["depth"].astype(np.float16), mask=v["mask"], K=v["K"], T=v["T"])
+            index.append({"i": i, "path": str(frames[i].path), "npz": f"view_{i:04d}.npz"})
+        (self.dump_dir / "views.json").write_text(json.dumps({"max_views": self.max_views, "overlap": self.overlap, "views": index}, indent=1), encoding="utf-8")
+
     def reconstruct(self, frames: Sequence[Frame]) -> PointCloud:
         """Every frame through the network, ``max_views`` at a time.
 
@@ -360,20 +373,6 @@ def is_flat_picture(depth: np.ndarray, K: np.ndarray, min_cover: float = 0.5, ma
     _, sv, _ = np.linalg.svd(pts, full_matrices=False)
     rms = sv[-1] / np.sqrt(len(pts))
     return bool(rms < max_rel_rms * np.median(z))
-
-
-    def _dump(self, frames: Sequence[Frame], solved: dict[int, dict], n: int) -> None:
-        """Every view's depth, mask, intrinsics and world pose to ``dump_dir`` (npz per
-        view + views.json), for refinement experiments that need the raw network output."""
-        import json
-
-        self.dump_dir.mkdir(parents=True, exist_ok=True)
-        index = []
-        for i in range(n):
-            v = solved[i]
-            np.savez_compressed(self.dump_dir / f"view_{i:04d}.npz", depth=v["depth"].astype(np.float16), mask=v["mask"], K=v["K"], T=v["T"])
-            index.append({"i": i, "path": str(frames[i].path), "npz": f"view_{i:04d}.npz"})
-        (self.dump_dir / "views.json").write_text(json.dumps({"max_views": self.max_views, "overlap": self.overlap, "views": index}, indent=1), encoding="utf-8")
 
 
 class Similarity:
