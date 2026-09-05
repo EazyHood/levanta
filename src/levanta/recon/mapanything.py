@@ -67,7 +67,13 @@ class MapAnythingBackend:
         except ImportError as e:  # pragma: no cover - depends on optional install
             raise ImportError(MISSING) from e
         device = self.device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self._model = MapAnything.from_pretrained(self.model_name).to(device)
+        # Stream the 4.6 GB checkpoint straight to the GPU (map_location) instead of
+        # materialising it in host memory next to the freshly built network: measured
+        # host peak 6.2 GB instead of ~10 GB, which is the difference between working and
+        # "OS error 1455: the paging file is too small" on a 32 GB laptop with other
+        # applications open.
+        model = MapAnything.from_pretrained(self.model_name, map_location=device)
+        self._model = model.to(device)
         self._model.eval()
         self._device = device
         return self._model

@@ -145,9 +145,11 @@ with the Kinect depth:
 | images + known intrinsics | **0.93** | **0.095** | 0.97 |
 
 So the scale from video alone is short by ~7–14 %: pass the intrinsics when you have them
-(EXIF focal length, ARCore/ARKit), or measure one door and rescale. Sixteen frames of a
-640×480 Kinect stream are a hard case for the planner (two walls and an open room came
-out); a phone at 1080p with 30+ frames is the intended input.
+(EXIF focal length, ARCore/ARKit), or measure one door and rescale. The whole video
+path was exercised by re-encoding the sequence as an mp4 and running
+`levanta video tum_room.mp4 --max-views 20`: 20 sharp frames picked, 83 k points, two
+walls and an open room. Twenty frames of a 640×480 Kinect stream are a hard case for the
+planner; a phone at 1080p with 30+ frames is the intended input.
 
 ## Limits you should know
 

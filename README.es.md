@@ -153,10 +153,12 @@ caché), comparado píxel a píxel con la profundidad de la Kinect:
 | imágenes + intrínsecos conocidos | **0,93** | **0,095** | 0,97 |
 
 Es decir, la escala desde vídeo a secas se queda corta un 7–14 %: pasa los intrínsecos
-cuando los tengas (focal del EXIF, ARCore/ARKit) o mide una puerta y reescala. Dieciséis
-fotogramas de una Kinect a 640×480 son un caso duro para el planificador (salieron dos
-paredes y una habitación abierta); la entrada prevista es un móvil a 1080p con más de
-30 fotogramas.
+cuando los tengas (focal del EXIF, ARCore/ARKit) o mide una puerta y reescala. La ruta
+de vídeo completa se probó reconvirtiendo la secuencia a mp4 y ejecutando
+`levanta video tum_room.mp4 --max-views 20`: 20 fotogramas nítidos elegidos, 83 k
+puntos, dos paredes y una habitación abierta. Veinte fotogramas de una Kinect a 640×480
+son un caso duro para el planificador; la entrada prevista es un móvil a 1080p con más
+de 30 fotogramas.
 
 ## Límites que conviene saber
 
