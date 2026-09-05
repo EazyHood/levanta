@@ -132,7 +132,7 @@ def floor_truth(vertices: np.ndarray, faces: np.ndarray) -> dict:
     floor = Polygon(floor.exterior.coords, [h.coords for h in floor.interiors if Polygon(h.coords).area > 4.0]).buffer(0)
     rooms = floor.buffer(-0.40)
     parts = [g for g in (rooms.geoms if hasattr(rooms, "geoms") else [rooms]) if g.area > 1.0]  # a 2 x 2 m bathroom survives the erosion
-    return {"up": up, "sign": sign, "floor_h": floor_h, "horiz": horiz, "floor": floor, "area": float(floor.area), "seen_area": seen, "rooms": len(parts)}
+    return {"up": up, "sign": sign, "floor_h": floor_h, "horiz": horiz, "floor": floor, "area": float(floor.area), "seen_area": seen, "rooms": max(1, len(parts))}  # a scanned space is at least one room
 
 
 # -- ARKit trajectory and intrinsics ------------------------------------------------------------
