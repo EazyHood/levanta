@@ -80,6 +80,70 @@ def extract_frames(
     return kept
 
 
+def inspect_video(video_path: str | Path, fps: float = 1.0, min_sharpness: float = 20.0, max_probe: int = 600) -> dict:
+    """Quick quality report without writing anything: size, length, sharpness, usable frames.
+
+    Up to ``max_probe`` frames spread over the clip are scored; the estimate of usable
+    frames assumes one frame per ``1/fps`` window.
+    """
+    import cv2
+
+    video_path = Path(video_path)
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        raise FileNotFoundError(f"cannot open video {video_path}")
+    src_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
+    h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
+    duration = n / src_fps if src_fps else 0.0
+    step = max(1, n // max_probe) if n else 1
+    scores: list[float] = []
+    idx = 0
+    while True:
+        ok = cap.grab()
+        if not ok:
+            break
+        if idx % step == 0:
+            ok, bgr = cap.retrieve()
+            if ok:
+                gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+                if gray.shape[1] > 640:
+                    s = 640 / gray.shape[1]
+                    gray = cv2.resize(gray, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
+                scores.append(_sharpness(gray))
+        idx += 1
+    cap.release()
+    scores_arr = np.asarray(scores) if scores else np.zeros(1)
+    window = max(1, round(src_fps / fps))
+    n_windows = max(1, n // window)
+    # usable windows: those whose best probe is sharp
+    per_window = max(1, len(scores) // n_windows)
+    best = [scores_arr[i : i + per_window].max() for i in range(0, len(scores_arr), per_window)] if len(scores_arr) else []
+    usable = int(sum(1 for b in best if b >= min_sharpness))
+    warnings: list[str] = []
+    if duration < 20:
+        warnings.append("shorter than 20 s: walk slowly through every room, 30-60 s per room")
+    if min(w, h) < 700:
+        warnings.append(f"low resolution ({w}x{h}): 1080p gives noticeably better walls")
+    if len(scores_arr) and np.median(scores_arr) < 40:
+        warnings.append("mostly blurry: move slower, more light, no zoom")
+    if usable < 12:
+        warnings.append(f"only ~{usable} usable frames at {fps:g} fps: film longer or raise --fps")
+    return {
+        "width": w,
+        "height": h,
+        "fps": float(src_fps),
+        "frames": n,
+        "duration_s": float(duration),
+        "sharpness_median": float(np.median(scores_arr)),
+        "sharpness_p10": float(np.percentile(scores_arr, 10)),
+        "usable_frames": usable,
+        "blurry_windows": int(len(best) - usable),
+        "warnings": warnings,
+    }
+
+
 def _save(
     best: tuple[float, np.ndarray, int], out_dir: Path, src_fps: float, max_side: int | None, q: int, n: int
 ) -> ExtractedFrame:

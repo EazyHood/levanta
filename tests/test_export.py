@@ -60,8 +60,12 @@ def test_export_all_writes_valid_files(tmp_path):
         assert p.exists() and p.stat().st_size > 200
     root = ET.parse(paths["svg"]).getroot()
     assert root.tag.endswith("svg")
-    ids = {g.get("id") for g in root.iter() if g.get("id")}
-    assert {"rooms", "walls", "openings", "labels", "dimensions"} <= ids
+    classes = {c for g in root.iter() for c in (g.get("class") or "").split()}
+    assert {"room", "wall", "door", "window", "label", "dim", "title"} <= classes
+    for k in ("png", "iso_png", "html"):
+        assert paths[k].exists() and paths[k].stat().st_size > 1000
+    html_text = paths["html"].read_text(encoding="utf-8")
+    assert "<svg" in html_text and "glbB64" in html_text and "Room 1" in html_text
     import ezdxf
 
     doc = ezdxf.readfile(paths["dxf"])

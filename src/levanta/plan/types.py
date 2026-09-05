@@ -143,6 +143,59 @@ class FloorPlan:
     def openings_of(self, wall_id: int) -> list[Opening]:
         return sorted((o for o in self.openings if o.wall_id == wall_id), key=lambda o: o.t0)
 
+    # -- editing -----------------------------------------------------------------------
+
+    def rename_rooms(self, names: list[str] | dict[int, str] | dict[str, str]) -> FloorPlan:
+        """Rename rooms in place.  A list applies in room order (largest first, as
+        numbered); a dict maps room id or current name to the new name."""
+        if isinstance(names, dict):
+            for r in self.rooms:
+                if r.id in names:
+                    r.name = str(names[r.id])  # type: ignore[index]
+                elif r.name in names:
+                    r.name = str(names[r.name])  # type: ignore[index]
+        else:
+            for r, n in zip(self.rooms, names, strict=False):
+                if n:
+                    r.name = str(n)
+        return self
+
+    def scaled(self, factor: float) -> FloorPlan:
+        """A copy with every length multiplied by ``factor`` (areas by ``factor**2``).
+
+        Use it to fix the global scale of a video reconstruction once one real length is
+        known; see :meth:`calibrated_to_door_width`.
+        """
+        d = self.to_dict()
+        for w in d["walls"]:
+            w["a"] = [v * factor for v in w["a"]]
+            w["b"] = [v * factor for v in w["b"]]
+            w["thickness"] *= factor
+            w["height"] *= factor
+        for r in d["rooms"]:
+            r["polygon"] = [[v * factor for v in p] for p in r["polygon"]]
+            r["holes"] = [[[v * factor for v in p] for p in h] for h in r["holes"]]
+        for o in d["openings"]:
+            for k in ("t0", "t1", "z0", "z1"):
+                o[k] *= factor
+        d["ceiling_height"] *= factor
+        T = np.array(d["transform"], dtype=float)
+        T[:3, :] *= factor
+        d["transform"] = T.tolist()
+        d.setdefault("meta", {})["scale_factor"] = float(d.get("meta", {}).get("scale_factor", 1.0) * factor)
+        return FloorPlan.from_dict(d)
+
+    def calibrated_to_door_width(self, true_width: float = 0.90) -> tuple[FloorPlan, float]:
+        """Rescale so that the median detected door width equals ``true_width``.
+
+        Returns ``(plan, factor)``; the factor is 1.0 when no door was detected.
+        """
+        widths = [o.width for o in self.openings if o.kind == "door"]
+        if not widths:
+            return self, 1.0
+        factor = float(true_width / float(np.median(widths)))
+        return self.scaled(factor), factor
+
     def summary(self) -> str:
         lines = [
             f"walls: {len(self.walls)}  rooms: {len(self.rooms)}  openings: {len(self.openings)}",

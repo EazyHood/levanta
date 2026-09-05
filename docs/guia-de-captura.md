@@ -1,0 +1,68 @@
+# Cómo grabar una casa para que el plano salga bien
+
+*(English version: [capture-guide.md](capture-guide.md))*
+
+levanta reconstruye lo que la cámara **vio**. Nada más, nada inventado. Así que todo
+consiste en cubrir: cada pared, del suelo al techo, desde dentro de la habitación, y una
+mirada a través de cada puerta. Diez minutos de cuidado aquí ahorran una hora
+preguntándote por qué falta una pared.
+
+## Antes de empezar
+
+- **Puertas abiertas, armarios cerrados.** La puerta abierta de un armario, o un
+  ropero, parecen una pared.
+- **Luces encendidas, cortinas abiertas.** El desenfoque y la oscuridad son el enemigo;
+  la red necesita textura.
+- **Despeja el borde del suelo** si puedes. El planificador encuentra las habitaciones por
+  el suelo que ve.
+- Móvil en **horizontal**, 1080p o más, lente normal (ni gran angular ni zoom).
+- Limpia la lente.
+
+## El recorrido
+
+1. Ponte en el centro de la habitación. **Gira despacio** (una vuelta completa en unos
+   20 segundos), con el móvil nivelado, de modo que cada pared pase por el encuadre.
+2. **Inclina arriba y abajo** una vez por pared: la unión con el techo y el zócalo con el
+   suelo son lo que distingue una pared de un armario.
+3. Ve a cada **esquina** y graba las dos paredes que se juntan desde 1,5 m.
+4. Párate en cada **puerta** y graba hacia la habitación siguiente, luego pasa. El
+   planificador marca un hueco como puerta solo si miró a través de él.
+5. Ventanas: grábalas desde dentro, incluyendo la pared bajo y sobre ellas.
+6. Repite en cada habitación. Sin prisa: **30–60 segundos por habitación**, nunca un
+   barrido rápido.
+
+## Qué no hacer
+
+- No corras, no balancees el móvil, no camines girando rápido: desenfoque de movimiento.
+- No grabes espejos, televisores ni paredes de cristal como si fueran paredes; no
+  devuelven nada útil. levanta mostrará ese lado como «sin escanear» en vez de
+  inventarlo.
+- No cambies de lente ni hagas zoom a mitad del vídeo; la focal tiene que ser constante.
+- No pares y vuelvas a grabar; un clip continuo por planta.
+
+## Comprueba antes de gastar GPU
+
+```bash
+levanta check recorrido.mp4
+```
+
+Informa de duración, resolución, nitidez y cuántos fotogramas aprovechables hay, con
+avisos sobre los que puedes actuar. Después:
+
+```bash
+levanta video recorrido.mp4 -o out/casa --lang es --names "Sala,Cocina,Dormitorio,Baño"
+```
+
+## Escala
+
+Desde vídeo a secas el tamaño puede salir un 5–15 % pequeño (ver las medidas del
+README). Dos arreglos, el mejor primero:
+
+- `--focal-px 1500` (o la focal en píxeles de tu móvil al tamaño de fotograma que usa
+  levanta; los móviles a 1080p suelen estar entre 1400 y 1700 px). Permite a la red
+  resolver la geometría con la focal fija.
+- `--door-width 0.90` reescala el plano para que la puerta mediana detectada mida
+  0,90 m. Mide una de tus puertas con un metro y pasa su ancho.
+
+Los dos se pueden aplicar después con `levanta render plan.json --door-width 0.85`, sin
+volver a reconstruir.

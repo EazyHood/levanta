@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "levanta"
-version = "0.1.0"
+version = "0.2.0"
 description = "Turn a phone video (or public satellite-derived building data) into a 3D model and 2D/3D floor plans of a house."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -70,7 +70,7 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "NPY", "RUF"]
-ignore = ["E501", "RUF001", "RUF012"]
+ignore = ["E501", "RUF001", "RUF002", "RUF012"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/levanta/cli.py" = ["B008"]

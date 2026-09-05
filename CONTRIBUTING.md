@@ -27,6 +27,15 @@ ruff check src tests
 - **Public data only** in examples and tests, with its license named.
 - Keep functions small and importable on their own; the CLI is a thin wrapper.
 
+## Releasing
+
+1. Bump the version in `pyproject.toml`, `src/levanta/__init__.py` and `CITATION.cff`;
+   add a section to `CHANGELOG.md`.
+2. `python -m build && python -m twine check dist/*` must pass.
+3. Tag and push: `git tag v0.2.0 && git push origin v0.2.0`. The `publish` workflow builds
+   and uploads to PyPI through Trusted Publishing (one-time setup on pypi.org: add a
+   pending publisher for `EazyHood/levanta`, workflow `publish.yml`, environment `pypi`).
+
 ## Reporting a bad plan
 
 Run `levanta plan your_cloud.ply -o out --debug-png` and attach `out/plan_debug.png`

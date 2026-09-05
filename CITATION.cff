@@ -4,7 +4,7 @@ title: "levanta: floor plans and 3D models of a house from a phone video or publ
 type: software
 authors:
   - name: "Jhona (EazyHood)"
-version: 0.1.0
+version: 0.2.0
 date-released: 2026-09-05
 license: MIT
 repository-code: "https://github.com/EazyHood/levanta"

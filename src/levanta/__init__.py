@@ -16,7 +16,7 @@ from levanta.plan.pipeline import PlanOptions, extract_floor_plan
 from levanta.plan.types import FloorPlan, Opening, Room, Wall
 from levanta.scene import PointCloud
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "FloorPlan",

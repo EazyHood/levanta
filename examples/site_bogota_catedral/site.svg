@@ -1,61 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2219" height="1353" viewBox="0 0 2219 1353" font-family="Inter, Helvetica, Arial, sans-serif">
-<style>.tgt{fill:#d9c7a9;stroke:#5a4a33;stroke-width:1.5}.nb{fill:#ececec;stroke:#999;stroke-width:1}.edge{fill:#333;font-size:11px}.lbl{fill:#222;font-size:13px;font-weight:600}.meta{fill:#666;font-size:10.5px}.dim{stroke:#777;stroke-width:0.8;fill:none}.pt{fill:#c0392b}</style>
-<rect width="2219" height="1353" fill="#fff"/>
-<path class="tgt" fill-rule="evenodd" d="M 1011.3,120.1 1006.4,117.2 1004.0,121.0 1000.7,119.1 992.0,133.1 994.4,134.6 991.4,139.5 993.6,140.8 989.1,148.1 985.5,153.7 982.0,159.4 978.1,165.9 975.8,164.4 972.6,169.6 970.1,168.0 946.8,205.6 931.7,229.9 916.7,254.3 896.0,287.4 873.1,324.1 850.2,360.7 829.6,394.0 814.4,418.2 799.4,442.4 776.5,479.3 765.5,497.0 754.6,514.6 745.3,529.5 749.0,531.7 746.8,535.3 751.4,538.2 748.9,542.4 669.5,670.4 667.7,669.2 667.3,669.9 642.2,710.1 639.8,708.6 637.4,712.5 627.9,727.9 620.3,740.2 618.3,743.4 620.7,744.9 595.2,786.0 647.8,818.1 884.2,962.2 874.2,978.4 870.3,984.6 866.5,990.7 843.2,1028.6 1046.2,1152.4 1052.0,1143.1 1050.5,1142.2 1052.5,1138.8 1054.6,1135.4 1056.7,1131.9 1057.9,1130.1 1083.9,1088.3 1085.8,1085.4 1093.1,1089.7 1155.2,989.9 1394.3,1136.8 1478.9,1000.8 1482.5,995.0 1486.2,989.3 1488.2,986.0 1579.5,1041.7 1594.0,1050.6 1608.7,1059.6 1848.1,1206.5 1869.5,1172.0 1875.1,1162.9 1880.9,1153.8 1914.4,1099.8 1920.0,1090.7 1925.7,1081.5 2075.8,840.3 2079.1,834.8 2082.3,829.5 2103.5,795.5 2042.8,758.3 2037.4,754.9 2032.1,751.6 1985.5,723.2 1979.1,719.2 1972.9,715.4 1948.5,700.3 1944.1,697.6 1939.8,695.0 1912.5,678.2 1908.0,675.5 1903.6,672.8 1370.1,345.4 1372.1,342.2 1363.9,337.3 1350.5,329.1 1336.9,320.9 1329.2,316.2 1327.3,319.2 1123.1,193.6 1117.7,190.3 1110.9,186.2 1104.2,182.0 1082.6,168.9 1085.1,164.8 1080.7,162.2 1083.1,158.2 1067.0,148.4 1064.2,152.9 1026.0,129.7 1028.8,125.2 1013.9,116.0 1011.3,120.1 Z"/>
-<text class="edge" x="984.1" y="122.5" text-anchor="middle">1.38 m</text>
-<text class="edge" x="946.2" y="183.2" text-anchor="middle">3.68 m</text>
-<text class="edge" x="927.0" y="214.1" text-anchor="middle">2.38 m</text>
-<text class="edge" x="911.9" y="238.5" text-anchor="middle">2.39 m</text>
-<text class="edge" x="894.1" y="267.3" text-anchor="middle">3.26 m</text>
-<text class="edge" x="872.4" y="302.1" text-anchor="middle">3.60 m</text>
-<text class="edge" x="849.5" y="338.7" text-anchor="middle">3.60 m</text>
-<text class="edge" x="827.7" y="373.8" text-anchor="middle">3.27 m</text>
-<text class="edge" x="809.8" y="402.4" text-anchor="middle">2.38 m</text>
-<text class="edge" x="794.6" y="426.7" text-anchor="middle">2.38 m</text>
-<text class="edge" x="775.7" y="457.3" text-anchor="middle">3.62 m</text>
-<text class="edge" x="758.8" y="484.6" text-anchor="middle">1.73 m</text>
-<text class="edge" x="747.8" y="502.2" text-anchor="middle">1.73 m</text>
-<text class="edge" x="737.8" y="518.4" text-anchor="middle">1.46 m</text>
-<text class="edge" x="697.0" y="602.8" text-anchor="middle">12.55 m</text>
-<text class="edge" x="642.5" y="686.4" text-anchor="middle">3.95 m</text>
-<text class="edge" x="620.4" y="716.6" text-anchor="middle">1.51 m</text>
-<text class="edge" x="611.8" y="730.5" text-anchor="middle">1.21 m</text>
-<text class="edge" x="595.7" y="761.8" text-anchor="middle">4.03 m</text>
-<text class="edge" x="614.0" y="818.3" text-anchor="middle">5.14 m</text>
-<text class="edge" x="758.5" y="906.5" text-anchor="middle">23.07 m</text>
-<text class="edge" x="866.9" y="966.7" text-anchor="middle">1.59 m</text>
-<text class="edge" x="842.6" y="1006.1" text-anchor="middle">3.70 m</text>
-<text class="edge" x="937.2" y="1106.8" text-anchor="middle">19.82 m</text>
-<text class="edge" x="1083.2" y="1120.8" text-anchor="middle">4.10 m</text>
-<text class="edge" x="1136.4" y="1051.4" text-anchor="middle">9.79 m</text>
-<text class="edge" x="1267.2" y="1079.7" text-anchor="middle">23.39 m</text>
-<text class="edge" x="1448.8" y="1080.4" text-anchor="middle">13.35 m</text>
-<text class="edge" x="1526.3" y="1030.1" text-anchor="middle">8.92 m</text>
-<text class="edge" x="1579.3" y="1062.4" text-anchor="middle">1.42 m</text>
-<text class="edge" x="1593.8" y="1071.4" text-anchor="middle">1.43 m</text>
-<text class="edge" x="1720.9" y="1149.3" text-anchor="middle">23.41 m</text>
-<text class="edge" x="1871.0" y="1200.9" text-anchor="middle">3.38 m</text>
-<text class="edge" x="1909.9" y="1138.4" text-anchor="middle">5.30 m</text>
-<text class="edge" x="2013.0" y="972.5" text-anchor="middle">23.68 m</text>
-<text class="edge" x="2105.1" y="824.1" text-anchor="middle">3.34 m</text>
-<text class="edge" x="2080.7" y="768.6" text-anchor="middle">5.94 m</text>
-<text class="edge" x="2016.3" y="729.1" text-anchor="middle">4.55 m</text>
-<text class="edge" x="1968.3" y="699.6" text-anchor="middle">2.39 m</text>
-<text class="edge" x="1933.7" y="678.3" text-anchor="middle">2.67 m</text>
-<text class="edge" x="1644.4" y="500.8" text-anchor="middle">52.17 m</text>
-<text class="edge" x="1364.7" y="324.9" text-anchor="middle">1.31 m</text>
-<text class="edge" x="1351.2" y="316.7" text-anchor="middle">1.32 m</text>
-<text class="edge" x="1232.7" y="248.1" text-anchor="middle">19.98 m</text>
-<text class="edge" x="1100.8" y="167.1" text-anchor="middle">2.10 m</text>
-<text class="edge" x="1082.6" y="145.0" text-anchor="middle">1.57 m</text>
-<text class="edge" x="1052.6" y="133.0" text-anchor="middle">3.73 m</text>
-<text class="edge" x="1028.9" y="112.3" text-anchor="middle">1.46 m</text>
-<text class="lbl" x="1308.7" y="719.2" text-anchor="middle">Catedral Primada de Bogotá</text>
-<text class="meta" x="1308.7" y="733.2" text-anchor="middle">6025.1 m² · h 12.0 m (levels)</text>
-<circle class="pt" cx="116.0" cy="263.6" r="3.5"/>
-<line class="dim" x1="2159.491234692498" y1="120.0" x2="2159.491234692498" y2="80.0"/><polygon points="2154.491234692498,92.0 2159.491234692498,80.0 2164.491234692498,92.0" fill="#333"/>
-<text class="meta" x="2159.491234692498" y="134.0" text-anchor="middle">N</text>
-<rect x="2019.5" y="1326.5" width="60.0" height="6" fill="#222"/><rect x="2079.5" y="1326.5" width="60.0" height="6" fill="none" stroke="#222" stroke-width="0.8"/>
-<text class="meta" x="2019.5" y="1322.5">0</text><text class="meta" x="2139.5" y="1322.5" text-anchor="end">10 m</text>
-<text class="meta" x="80" y="1335">levanta site plan · © OpenStreetMap contributors · ODbL 1.0 · 2026-09-04</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="2219" height="1353" viewBox="0 0 2219 1353" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect width="2219" height="1353" fill="#ffffff"/>
+<path class="building" d="M 1011.3,120.1 1006.4,117.2 1004.0,121.0 1000.7,119.1 992.0,133.1 994.4,134.6 991.4,139.5 993.6,140.8 989.1,148.1 985.5,153.7 982.0,159.4 978.1,165.9 975.8,164.4 972.6,169.6 970.1,168.0 946.8,205.6 931.7,229.9 916.7,254.3 896.0,287.4 873.1,324.1 850.2,360.7 829.6,394.0 814.4,418.2 799.4,442.4 776.5,479.3 765.5,497.0 754.6,514.6 745.3,529.5 749.0,531.7 746.8,535.3 751.4,538.2 748.9,542.4 669.5,670.4 667.7,669.2 667.3,669.9 642.2,710.1 639.8,708.6 637.4,712.5 627.9,727.9 620.3,740.2 618.3,743.4 620.7,744.9 595.2,786.0 647.8,818.1 884.2,962.2 874.2,978.4 870.3,984.6 866.5,990.7 843.2,1028.6 1046.2,1152.4 1052.0,1143.1 1050.5,1142.2 1052.5,1138.8 1054.6,1135.4 1056.7,1131.9 1057.9,1130.1 1083.9,1088.3 1085.8,1085.4 1093.1,1089.7 1155.2,989.9 1394.3,1136.8 1478.9,1000.8 1482.5,995.0 1486.2,989.3 1488.2,986.0 1579.5,1041.7 1594.0,1050.6 1608.7,1059.6 1848.1,1206.5 1869.5,1172.0 1875.1,1162.9 1880.9,1153.8 1914.4,1099.8 1920.0,1090.7 1925.7,1081.5 2075.8,840.3 2079.1,834.8 2082.3,829.5 2103.5,795.5 2042.8,758.3 2037.4,754.9 2032.1,751.6 1985.5,723.2 1979.1,719.2 1972.9,715.4 1948.5,700.3 1944.1,697.6 1939.8,695.0 1912.5,678.2 1908.0,675.5 1903.6,672.8 1370.1,345.4 1372.1,342.2 1363.9,337.3 1350.5,329.1 1336.9,320.9 1329.2,316.2 1327.3,319.2 1123.1,193.6 1117.7,190.3 1110.9,186.2 1104.2,182.0 1082.6,168.9 1085.1,164.8 1080.7,162.2 1083.1,158.2 1067.0,148.4 1064.2,152.9 1026.0,129.7 1028.8,125.2 1013.9,116.0 1011.3,120.1 Z" fill="#d9c7a9" stroke="#5a4a33" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="edge" x="697.0" y="602.8" font-size="11" text-anchor="middle" fill="#333">12.55 m</text>
+<text class="edge" x="614.0" y="818.3" font-size="11" text-anchor="middle" fill="#333">5.14 m</text>
+<text class="edge" x="758.5" y="906.5" font-size="11" text-anchor="middle" fill="#333">23.07 m</text>
+<text class="edge" x="937.2" y="1106.8" font-size="11" text-anchor="middle" fill="#333">19.82 m</text>
+<text class="edge" x="1083.2" y="1120.8" font-size="11" text-anchor="middle" fill="#333">4.10 m</text>
+<text class="edge" x="1136.4" y="1051.4" font-size="11" text-anchor="middle" fill="#333">9.79 m</text>
+<text class="edge" x="1267.2" y="1079.7" font-size="11" text-anchor="middle" fill="#333">23.39 m</text>
+<text class="edge" x="1448.8" y="1080.4" font-size="11" text-anchor="middle" fill="#333">13.35 m</text>
+<text class="edge" x="1526.3" y="1030.1" font-size="11" text-anchor="middle" fill="#333">8.92 m</text>
+<text class="edge" x="1720.9" y="1149.3" font-size="11" text-anchor="middle" fill="#333">23.41 m</text>
+<text class="edge" x="1909.9" y="1138.4" font-size="11" text-anchor="middle" fill="#333">5.30 m</text>
+<text class="edge" x="2013.0" y="972.5" font-size="11" text-anchor="middle" fill="#333">23.68 m</text>
+<text class="edge" x="2080.7" y="768.6" font-size="11" text-anchor="middle" fill="#333">5.94 m</text>
+<text class="edge" x="2016.3" y="729.1" font-size="11" text-anchor="middle" fill="#333">4.55 m</text>
+<text class="edge" x="1644.4" y="500.8" font-size="11" text-anchor="middle" fill="#333">52.17 m</text>
+<text class="edge" x="1232.7" y="248.1" font-size="11" text-anchor="middle" fill="#333">19.98 m</text>
+<text class="label" x="1308.7" y="719.2" font-size="13" text-anchor="middle" fill="#222" font-weight="700">Catedral Primada de Bogotá</text>
+<text class="label" x="1308.7" y="733.2" font-size="10.5" text-anchor="middle" fill="#666">6025.14 m² · h 12.00 m (plantas)</text>
+<circle class="query" cx="116.0" cy="263.6" r="3.5" fill="#c0392b"/>
+<path d="M 2159.5,120.0 L 2159.5,80.0" fill="none" stroke="#777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 2154.5,92.0 2159.5,80.0 2164.5,92.0 Z" fill="#333"/>
+<text x="2159.5" y="134.0" font-size="10.5" text-anchor="middle" fill="#666">N</text>
+<path d="M 2019.5,1326.5 2079.5,1326.5 2079.5,1332.5 2019.5,1332.5 Z" fill="#222"/>
+<path d="M 2079.5,1326.5 2139.5,1326.5 2139.5,1332.5 2079.5,1332.5 Z" fill="none" stroke="#222" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="2019.5" y="1322.5" font-size="10.5" text-anchor="start" fill="#666">0</text>
+<text x="2139.5" y="1322.5" font-size="10.5" text-anchor="end" fill="#666">10 m</text>
+<text x="80.0" y="1334.5" font-size="10.5" text-anchor="start" fill="#666">Plano de sitio · hecho con levanta · © OpenStreetMap contributors · ODbL 1.0 · 2026-09-04</text>
 </svg>
