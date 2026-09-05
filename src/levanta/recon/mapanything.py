@@ -161,8 +161,10 @@ class MapAnythingBackend:
         depth_max: float = 12.0,
         memory_efficient: bool = True,
         overlap: int = 4,
+        dump_dir: Path | None = None,
     ) -> None:
         self.model_name = model_name
+        self.dump_dir = Path(dump_dir) if dump_dir else None
         self.device = device
         self.max_views = max_views
         self.overlap = overlap
@@ -320,6 +322,8 @@ class MapAnythingBackend:
                     solved[i] = views[j]
             prev = idx
             start = idx[-1] + 1
+        if self.dump_dir is not None:
+            self._dump(frames, solved, n)
         out_frames = []
         dropped = 0
         for i in range(n):
@@ -356,6 +360,20 @@ def is_flat_picture(depth: np.ndarray, K: np.ndarray, min_cover: float = 0.5, ma
     _, sv, _ = np.linalg.svd(pts, full_matrices=False)
     rms = sv[-1] / np.sqrt(len(pts))
     return bool(rms < max_rel_rms * np.median(z))
+
+
+    def _dump(self, frames: Sequence[Frame], solved: dict[int, dict], n: int) -> None:
+        """Every view's depth, mask, intrinsics and world pose to ``dump_dir`` (npz per
+        view + views.json), for refinement experiments that need the raw network output."""
+        import json
+
+        self.dump_dir.mkdir(parents=True, exist_ok=True)
+        index = []
+        for i in range(n):
+            v = solved[i]
+            np.savez_compressed(self.dump_dir / f"view_{i:04d}.npz", depth=v["depth"].astype(np.float16), mask=v["mask"], K=v["K"], T=v["T"])
+            index.append({"i": i, "path": str(frames[i].path), "npz": f"view_{i:04d}.npz"})
+        (self.dump_dir / "views.json").write_text(json.dumps({"max_views": self.max_views, "overlap": self.overlap, "views": index}, indent=1), encoding="utf-8")
 
 
 class Similarity:

@@ -222,6 +222,7 @@ def video(
     max_views: int = typer.Option(24, help="Frames the network takes at once (VRAM bound: 8 GB ~ 24). A longer walk goes in chunks of this size that overlap."),
     overlap: int = typer.Option(4, help="Frames shared by consecutive chunks; they carry the pose from one chunk to the next."),
     max_frames: int | None = typer.Option(None, help="Cap on the frames used, spread over the clip (default: every sharp frame at --fps)."),
+    keep_views: bool = typer.Option(False, "--keep-views", help="Write every view's depth, mask, intrinsics and pose to out/views (for refinement experiments)."),
     model: str = typer.Option("facebook/map-anything-apache", help="HuggingFace checkpoint (Apache-2.0 by default)."),
     focal_px: float | None = typer.Option(None, "--focal-px", help="Focal length in pixels of the (downscaled) frames, if known; improves the metric scale."),
     manhattan: bool = typer.Option(True, "--manhattan/--free", help="Snap walls to two orthogonal directions."),
@@ -294,7 +295,7 @@ def video(
     n_chunks = 1 if len(frames) <= max_views else 1 + -(-(len(frames) - max_views) // max(1, max_views - overlap))
     _step(f"reconstructing with MapAnything ({model}), {len(frames)} frames in {n_chunks} chunk{'s' if n_chunks > 1 else ''} of {max_views}; the first run downloads ~4.6 GB of weights")
     t1 = time.time()
-    be = MapAnythingBackend(model_name=model, max_views=max_views, overlap=overlap)
+    be = MapAnythingBackend(model_name=model, max_views=max_views, overlap=overlap, dump_dir=(out / "views") if keep_views else None)
     try:
         cloud = be.reconstruct(frames)
     except Exception as e:
