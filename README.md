@@ -217,7 +217,32 @@ JSON and the diagnostic image.
   <img src="examples/video_u2apartment/plan.png" width="720" alt="Plan from a real-estate walkthrough video: five rooms, four flagged incomplete, two doors and a passage">
 </p>
 
-**MapAnything from RGB only** on the same sequence (16 frames of 640×480, RTX 5060 laptop
+**Against ground truth: ARKitScenes.** Five validation scenes from Apple's
+[ARKitScenes](https://github.com/apple/ARKitScenes): real iPhone videos (1920×1440, 60 fps,
+46–188 s) with the LiDAR mesh and the ARKit trajectory. The truth is the floor polygon of
+the mesh; levanta's cameras are fitted to ARKit's with a similarity, so the fitted scale
+*is* the scale error. Metrics fixed before the first run; script, method and the full
+notes in [`bench/`](bench/results/arkitscenes_2026-09-05.md).
+
+| scene | truth floor / rooms | scale, no K | scale, with K | area error, no K | floor IoU, no K | rooms | doors | camera RMS |
+|---|---|---|---|---|---|---|---|---|
+| 41069021 | 17.5 m² / 1 | **1.00** | 1.07 | −22 % | 0.61 | 2 (1) | 1 | 0.42 m |
+| 42897526 | 4.9 m² / 1 | 0.95 | 0.97 | +31 % | 0.52 | 1 (1) | 0 | 0.49 m |
+| 45260905 | 25.3 m² / 1 | 1.30 | 1.32 | −24 % | 0.69 | 1 (1) | 0 | 0.61 m |
+| 47331964 | 24.0 m² / 2 | 0.97 | 1.00 | −44 % | 0.40 | 2 (2) | 0 | 0.88 m |
+| 47430051 | 4.2 m² / 1 | 0.26 | 0.25 | +78 % | 0.07 | 1 (1) | 0 | 0.75 m |
+
+What it says, the good and the bad: the network's scale is within 5 % on three of five
+rooms, 30 % short on one and collapsed on a small bathroom; *knowing the focal length
+("with K") did not fix it* on any of the five, so the PRELIMINARY stamp stays until a
+door is measured. Room areas come out 22–44 % small even at the right scale, because the
+outline follows the floor the camera actually saw and these scans were made for
+objects, not walls. Floor shape IoU 0.5–0.7 when the reconstruction holds. Rooms counted
+right on four of five. Doors: one in five scans (the dataset scans rooms with the doors
+closed). The camera track drifts 0.4–0.9 m over one to three minutes: chunks are placed
+on the previous chunk's cameras and there is no loop closure yet.
+
+ (16 frames of 640×480, RTX 5060 laptop
 8 GB, 6.7 GB VRAM, 46 s once the weights are cached), compared pixel by pixel with the
 Kinect depth:
 

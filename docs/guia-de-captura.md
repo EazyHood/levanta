@@ -44,6 +44,29 @@ preguntándote por qué falta una pared.
   corte rompe el solape entre fotogramas seguidos del que depende la reconstrucción. El
   clip en bruto siempre es mejor.
 
+## Lo que enseñó el banco de pruebas
+
+Medido en cinco habitaciones de ARKitScenes (paseos reales de iPhone con el suelo LiDAR
+como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
+
+- **Mide una puerta. Nada más arregla la escala.** La escala de la red quedó dentro del
+  5 % en tres habitaciones, un 30 % corta en una y 4× desviada en un baño pequeño; darle
+  la focal exacta cambió el resultado como mucho un 7 %, y no hacia la verdad. Hasta que
+  pases `--door-width`, cada lámina lleva el sello PRELIMINAR a propósito.
+- **Graba el suelo donde toca la pared, a lo largo de cada pared.** Las áreas salieron
+  un 22–44 % por debajo del suelo LiDAR incluso con la escala bien: el contorno sigue
+  el suelo que la cámara vio, y esos escaneos miraban objetos, no el zócalo. Recorre el
+  perímetro con el móvil apuntando a la arista pared–suelo, no solo al centro.
+- **Las habitaciones pequeñas son el peor caso.** Dos baños de 4–5 m² salieron un 31 %
+  y un 78 % más grandes, uno con una sola pared. Ponte en el vano de la puerta, mantén
+  1,5 m de distancia a lo que grabas, incluye el marco y el suelo, y cuenta con
+  corregirlos a mano.
+- **Una habitación, uno o dos minutos.** La trayectoria derivó 0,4–0,9 m en paseos de
+  uno a tres minutos; todavía no hay cierre de bucle, así que deambular largo degrada
+  el plano más de lo que lo haría un segundo clip corto.
+- Las puertas se encuentran donde la cámara miró a través de ellas: en el banco estaban
+  cerradas y levanta halló una en cinco. Abre las puertas antes de grabar.
+
 ## Comprueba antes de gastar GPU
 
 ```bash

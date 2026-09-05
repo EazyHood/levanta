@@ -38,6 +38,28 @@ missing.
   looks *sharper* than any room to a computer) but every cut breaks the overlap between
   consecutive frames that the reconstruction depends on. The raw clip is always better.
 
+## What the benchmark taught
+
+Measured on five ARKitScenes rooms (real iPhone walks with a LiDAR floor as truth,
+[numbers here](../bench/results/arkitscenes_2026-09-05.md)):
+
+- **Measure one door. Nothing else fixes the scale.** The network's scale was within 5 %
+  on three rooms, 30 % short on one and 4× off on a small bathroom; giving it the exact
+  focal length changed the result by at most 7 %, and not towards the truth. Until you
+  pass `--door-width`, every sheet is stamped PRELIMINARY on purpose.
+- **Film the floor where it meets the wall, along every wall.** Room areas came out
+  22–44 % below the LiDAR floor even at the right scale: the outline follows the floor
+  the camera saw, and those scans looked at objects, not at the skirting. Walk the
+  perimeter with the phone pointing at the wall–floor edge, not only at the middle.
+- **Small rooms are the worst case.** Two bathrooms of 4–5 m² came out 31 % and 78 %
+  too big, one of them with a single wall. Stand in the doorway, keep 1.5 m from what
+  you film, include the door frame and the floor, and expect to correct them by hand.
+- **Keep one room to one or two minutes.** The camera track drifted 0.4–0.9 m over one
+  to three minute walks; there is no loop closure yet, so a long wander degrades the
+  plan more than a second, shorter clip would.
+- Doors are found where the camera looked through them: in the benchmark rooms the
+  doors were closed and levanta found one in five. Open the doors before you film.
+
 ## Check before spending GPU time
 
 ```bash
