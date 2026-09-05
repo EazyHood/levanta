@@ -5,10 +5,13 @@ Every run writes these into the output folder (`-o`), all from the same plan:
 | File | What it is | Open it with |
 |---|---|---|
 | `plan.html` | Self-contained viewer: 2D plan, interactive 3D, measurements table, download buttons | any browser (double-click). The 3D view loads a small library from a CDN the first time; offline it shows the static 3D drawing |
-| `plan.png` | The 2D plan at 2× resolution | anything; good for messaging |
+| `plan.pdf` | Vector sheet at a standard scale (1:50, 1:100 ...) on the paper you chose (`--paper`), page 2 with the interior elevations | any PDF viewer; print at 100 % |
+| `plan.png` | The sheet at 2× resolution: plan, dimension chains, axes, tags, schedules, title block | anything; good for messaging |
+| `plan_elevations.png` | Interior elevations: every wall face-on with doors and windows, widths and heights | anything |
 | `plan.svg` | The same plan as vectors | browser, Inkscape, Illustrator, Figma |
 | `plan_3d.png` | Static 3D view (axonometric) | anything |
-| `plan.dxf` | CAD drawing in metres, layers `WALLS`, `WALL-FILL`, `ROOMS`, `DOORS`, `WINDOWS`, `PASSAGES`, `TEXT`, `DIMENSIONS` | AutoCAD, LibreCAD, QCAD, SketchUp (import), Revit (link) |
+| `plan.dxf` | CAD drawing (m, cm or mm with `--dxf-units`), AIA-style layers `A-WALL`, `A-WALL-PATT`, `A-AREA`, `A-DOOR`, `A-GLAZ`, `A-ANNO-DIMS`, `A-ANNO-TEXT`, `A-GRID`, `A-ANNO-TTLB`, `A-ANNO-TABL` with lineweights; doors and windows as blocks (`LEVANTA_DOOR`, `LEVANTA_WINDOW`); dimension chains, axes, schedules, title block | AutoCAD, LibreCAD, QCAD, SketchUp (import), Revit (link) |
+| `plan_3d.dxf` | The 3D model as `3DFACE` meshes on `A-WALL-3D`, `A-DOOR-3D`, `A-GLAZ-3D`, `A-FLOR-3D` | AutoCAD 3D, SketchUp, Rhino |
 | `plan.glb` | 3D model: walls with openings, door leaves, window panes, floor slabs (materials per element) | Blender, Windows 3D Viewer, three.js, Unity/Unreal, any glTF viewer |
 | `plan.obj` | Same model as OBJ | anything that reads OBJ |
 | `plan.json` | The data: walls, rooms, openings, ceiling, transform, options; editable | your own code; `levanta render plan.json` |
@@ -39,6 +42,9 @@ Every run writes these into the output folder (`-o`), all from the same plan:
 
 ## Site outputs (`levanta site`)
 
-`site.html`, `site.png`/`site.svg` (site plan with edge lengths, north arrow, scale bar,
-attribution), `site_3d.png`, `site.dxf`, `site.glb`/`site.obj` (LOD1 block on a ground
-slab), `site.json` (building, height and its source, local footprint in metres).
+`site.html`, `site.png`/`site.svg`/`site.pdf` (site plan with numbered vertices, side
+lengths, north arrow, scale bar, attribution, plus a coordinate table in local metres and
+UTM with zone and EPSG code, and a boundary table with azimuth and length per side),
+`site_3d.png`, `site.dxf` (footprint, vertex numbers and both tables), `site.glb`/`site.obj`
+(LOD1 block on a ground slab), `site.json` (building, height and its source, and `lot`:
+vertices with lat/lon/UTM, sides with azimuth, area in m² and ha, perimeter, closure).

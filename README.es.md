@@ -43,9 +43,13 @@ medida. Sin GPU, sin datos y sin internet salvo para el `pip`.
    levanta render out/casa/plan.json --lang es --door-width 0.90
    ```
 
-Obtienes, en `out/casa/`: `plan.html` · `plan.png` · `plan.svg` · `plan_3d.png` ·
-`plan.dxf` (CAD) · `plan.glb` / `plan.obj` (3D) · `plan.json` (datos) · `plan_debug.png`
-(lo que vio el planificador). [Qué es cada archivo y con qué se abre.](docs/formats.md)
+Obtienes, en `out/casa/`: `plan.pdf` (una lámina a 1:50 o 1:100 en A4/A3 con cadenas de
+cotas, ejes, cuadro de carpinterías, cuadro de áreas y cajetín, más una página de alzados
+interiores) · `plan.html` (visor con medidor y comprobaciones) · `plan.png` · `plan.svg` ·
+`plan_3d.png` · `plan_elevations.png` · `plan.dxf` (capas AIA, bloques, grosores de línea;
+m/cm/mm) · `plan_3d.dxf` · `plan.glb` / `plan.obj` (3D) · `plan.json` (datos) ·
+`plan_debug.png` (lo que vio el planificador).
+[Qué es cada archivo y con qué se abre.](docs/formats.md)
 
 ## Qué hace, sin adornos
 
@@ -54,7 +58,7 @@ Obtienes, en `out/casa/`: `plan.html` · `plan.png` · `plan.svg` · `plan_3d.pn
 | **Vídeo del móvil** | Nube de puntos métrica, paredes con grosor, puertas, ventanas, habitaciones con áreas, altura de techo, plano 2D, modelo 3D | MapAnything (Meta, 3DV 2026) predice profundidad métrica y cámaras a partir de RGB; `levanta.plan` convierte la nube en arquitectura |
 | **Fotogramas RGB-D con poses** (exportaciones de ARCore/ARKit/Record3D, datasets) | Lo mismo, sin GPU, escala exacta | retroproyección en numpy |
 | **Nube de puntos** en metros (`.ply`) | Lo mismo | `levanta plan` |
-| **Una latitud/longitud** | Huella del edificio, altura, modelo de bloque LOD1, plano de sitio con la longitud de cada lado | OpenStreetMap u Overture Maps, ambos derivados de imágenes cenitales |
+| **Una latitud/longitud** | Huella del edificio, altura, modelo de bloque LOD1, plano de sitio con vértices numerados, tabla de coordenadas (locales, WGS84, UTM con zona y EPSG), cuadro de linderos con azimut y longitud, área en m² y ha | OpenStreetMap u Overture Maps, ambos derivados de imágenes cenitales |
 
 Lo que un satélite **no puede** darte es el interior: ningún sensor ve a través del
 techo. Por eso `levanta site` se detiene en huella + altura, y su salida lo dice. El
@@ -93,8 +97,9 @@ levanta doctor                     instalado / falta / qué escribir
 ```
 
 Opciones comunes: `--lang es`, `--units ft`, `--names "A,B,C"`, `--title "..."`,
-`--open`, `--door-width 0.90`, `--scale 1.07`, `--ceiling`. Cada comando escribe un
-`*_debug.png`.
+`--open`, `--door-width 0.90`, `--scale 1.07`, `--ceiling`; cajetín y lámina:
+`--project`, `--author`, `--sheet A-01`, `--revision B`, `--level +3.20`, `--north 35`,
+`--paper A3`, `--dxf-units cm`. Cada comando escribe un `*_debug.png`.
 
 Como librería:
 
@@ -144,10 +149,17 @@ export_all(plan, "out", lang="es", units="m")           # html, png, svg, dxf, g
    por una puerta) se apartan, las paredes se recortan al tramo que bordea una habitación,
    los frentes de mesa y jambas que quedan dentro de una habitación se eliminan, y un vano
    entre dos trozos de pared por el que miró la cámara se convierte en puerta.
-9. **Dibujos y 3D** (`levanta.io`). Un único modelo de dibujo genera el SVG y el PNG, así
-   que siempre coinciden. Las paredes son cajas partidas alrededor de los huecos (cajas
-   de antepecho y dintel, sin booleanas); la vista 3D es una proyección axonométrica
-   dibujada sin OpenGL.
+9. **Láminas y 3D** (`levanta.io`). Un único modelo de dibujo genera el SVG, el PNG y un
+   PDF vectorial, así que siempre coinciden. La lámina lleva lo que espera un delineante:
+   cadenas de cotas en los muros perimetrales, cotas generales, ejes de referencia,
+   norte, etiquetas de carpintería, cuadros de áreas y de carpinterías, cajetín, y una
+   segunda página de alzados interiores. Las paredes son cajas partidas alrededor de los
+   huecos (cajas de antepecho y dintel, sin booleanas); la vista 3D es una proyección
+   axonométrica dibujada sin OpenGL; el DXF usa capas tipo AIA, bloques para puertas y
+   ventanas, grosores de línea y entidades de cota.
+10. **Comprobaciones** (`FloorPlan.quality`). Habitaciones abiertas, grosores supuestos,
+   techo por defecto, escala de vídeo sin calibrar y alturas de puerta supuestas salen en
+   la consola y en el visor, y cada tabla dice *medido* o *supuesto* por elemento.
 
 ## Cómo sabemos que funciona
 

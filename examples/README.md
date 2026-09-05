@@ -1,8 +1,9 @@
 # Examples
 
 Outputs you can open without installing anything. Double-click any `*.html` for the
-viewer (2D plan, 3D view, measurements); the `*.png` files are the same drawings as
-images.
+viewer (2D plan with a measuring tool, 3D view, elevations, measurements, checks); the
+`*.pdf` is the printable sheet at a standard scale; the `*.png` files are the same
+drawings as images.
 
 | Folder | Input | Notes |
 |---|---|---|

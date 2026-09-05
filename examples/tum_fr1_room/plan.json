@@ -14,6 +14,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 0,
+      "exterior": false,
       "length_m": 3.7925
     },
     {
@@ -30,6 +31,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 1,
+      "exterior": false,
       "length_m": 1.3784
     },
     {
@@ -46,6 +48,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 4,
+      "exterior": false,
       "length_m": 1.1914
     },
     {
@@ -62,6 +65,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 6,
+      "exterior": false,
       "length_m": 4.5222
     },
     {
@@ -78,6 +82,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 12,
+      "exterior": false,
       "length_m": 4.9316
     },
     {
@@ -94,6 +99,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": -1,
+      "exterior": false,
       "length_m": 0.6903
     }
   ],
@@ -137,6 +143,8 @@
       "rooms": [
         0
       ],
+      "tag": "P1",
+      "height_measured": false,
       "width_m": 0.83
     },
     {
@@ -150,6 +158,8 @@
       "rooms": [
         0
       ],
+      "tag": "P2",
+      "height_measured": false,
       "width_m": 0.6903
     }
   ],
@@ -246,7 +256,8 @@
       "faces": 19,
       "wall_lines": 14,
       "walls_set_aside": 10
-    }
+    },
+    "source": ""
   },
   "extra_walls": [
     {
@@ -263,6 +274,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 1,
+      "exterior": true,
       "length_m": 0.5291
     },
     {
@@ -279,6 +291,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 2,
+      "exterior": false,
       "length_m": 3.7804
     },
     {
@@ -295,6 +308,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 3,
+      "exterior": true,
       "length_m": 1.3687
     },
     {
@@ -311,6 +325,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 5,
+      "exterior": true,
       "length_m": 0.521
     },
     {
@@ -327,6 +342,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 7,
+      "exterior": false,
       "length_m": 3.7007
     },
     {
@@ -343,6 +359,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 8,
+      "exterior": false,
       "length_m": 4.4421
     },
     {
@@ -359,6 +376,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 9,
+      "exterior": true,
       "length_m": 0.5399
     },
     {
@@ -375,6 +393,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 10,
+      "exterior": false,
       "length_m": 0.5556
     },
     {
@@ -391,6 +410,7 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 11,
+      "exterior": false,
       "length_m": 0.506
     },
     {
@@ -407,8 +427,14 @@
       "height": 2.909560065865518,
       "sides_seen": 1,
       "line_id": 13,
+      "exterior": true,
       "length_m": 1.2242
     }
   ],
+  "north_deg": null,
+  "project": {
+    "name": "TUM fr1_room",
+    "author": "levanta demo"
+  },
   "version": 1
 }

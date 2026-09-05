@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2219" height="1353" viewBox="0 0 2219 1353" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
-<rect width="2219" height="1353" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2219" height="1981" viewBox="0 0 2219 1981" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect width="2219" height="1981" fill="#ffffff"/>
 <path class="building" d="M 1011.3,120.1 1006.4,117.2 1004.0,121.0 1000.7,119.1 992.0,133.1 994.4,134.6 991.4,139.5 993.6,140.8 989.1,148.1 985.5,153.7 982.0,159.4 978.1,165.9 975.8,164.4 972.6,169.6 970.1,168.0 946.8,205.6 931.7,229.9 916.7,254.3 896.0,287.4 873.1,324.1 850.2,360.7 829.6,394.0 814.4,418.2 799.4,442.4 776.5,479.3 765.5,497.0 754.6,514.6 745.3,529.5 749.0,531.7 746.8,535.3 751.4,538.2 748.9,542.4 669.5,670.4 667.7,669.2 667.3,669.9 642.2,710.1 639.8,708.6 637.4,712.5 627.9,727.9 620.3,740.2 618.3,743.4 620.7,744.9 595.2,786.0 647.8,818.1 884.2,962.2 874.2,978.4 870.3,984.6 866.5,990.7 843.2,1028.6 1046.2,1152.4 1052.0,1143.1 1050.5,1142.2 1052.5,1138.8 1054.6,1135.4 1056.7,1131.9 1057.9,1130.1 1083.9,1088.3 1085.8,1085.4 1093.1,1089.7 1155.2,989.9 1394.3,1136.8 1478.9,1000.8 1482.5,995.0 1486.2,989.3 1488.2,986.0 1579.5,1041.7 1594.0,1050.6 1608.7,1059.6 1848.1,1206.5 1869.5,1172.0 1875.1,1162.9 1880.9,1153.8 1914.4,1099.8 1920.0,1090.7 1925.7,1081.5 2075.8,840.3 2079.1,834.8 2082.3,829.5 2103.5,795.5 2042.8,758.3 2037.4,754.9 2032.1,751.6 1985.5,723.2 1979.1,719.2 1972.9,715.4 1948.5,700.3 1944.1,697.6 1939.8,695.0 1912.5,678.2 1908.0,675.5 1903.6,672.8 1370.1,345.4 1372.1,342.2 1363.9,337.3 1350.5,329.1 1336.9,320.9 1329.2,316.2 1327.3,319.2 1123.1,193.6 1117.7,190.3 1110.9,186.2 1104.2,182.0 1082.6,168.9 1085.1,164.8 1080.7,162.2 1083.1,158.2 1067.0,148.4 1064.2,152.9 1026.0,129.7 1028.8,125.2 1013.9,116.0 1011.3,120.1 Z" fill="#d9c7a9" stroke="#5a4a33" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="edge" x="697.0" y="602.8" font-size="11" text-anchor="middle" fill="#333">12.55 m</text>
 <text class="edge" x="614.0" y="818.3" font-size="11" text-anchor="middle" fill="#333">5.14 m</text>
@@ -17,15 +17,327 @@
 <text class="edge" x="2016.3" y="729.1" font-size="11" text-anchor="middle" fill="#333">4.55 m</text>
 <text class="edge" x="1644.4" y="500.8" font-size="11" text-anchor="middle" fill="#333">52.17 m</text>
 <text class="edge" x="1232.7" y="248.1" font-size="11" text-anchor="middle" fill="#333">19.98 m</text>
+<circle class="vertex" cx="748.9" cy="542.4" r="3" fill="#5a4a33"/>
+<text class="vertex" x="754.9" y="537.4" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">29</text>
+<circle class="vertex" cx="669.5" cy="670.4" r="3" fill="#5a4a33"/>
+<text class="vertex" x="675.5" y="665.4" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">30</text>
+<circle class="vertex" cx="595.2" cy="786.0" r="3" fill="#5a4a33"/>
+<text class="vertex" x="601.2" y="781.0" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">40</text>
+<circle class="vertex" cx="647.8" cy="818.1" r="3" fill="#5a4a33"/>
+<text class="vertex" x="653.8" y="813.1" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">41</text>
+<circle class="vertex" cx="884.2" cy="962.2" r="3" fill="#5a4a33"/>
+<text class="vertex" x="890.2" y="957.2" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">42</text>
+<circle class="vertex" cx="843.2" cy="1028.6" r="3" fill="#5a4a33"/>
+<text class="vertex" x="849.2" y="1023.6" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">46</text>
+<circle class="vertex" cx="1046.2" cy="1152.4" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1052.2" y="1147.4" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">47</text>
+<circle class="vertex" cx="1057.9" cy="1130.1" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1063.9" y="1125.1" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">53</text>
+<circle class="vertex" cx="1083.9" cy="1088.3" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1089.9" y="1083.3" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">54</text>
+<circle class="vertex" cx="1093.1" cy="1089.7" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1099.1" y="1084.7" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">56</text>
+<circle class="vertex" cx="1155.2" cy="989.9" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1161.2" y="984.9" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">57</text>
+<circle class="vertex" cx="1394.3" cy="1136.8" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1400.3" y="1131.8" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">58</text>
+<circle class="vertex" cx="1478.9" cy="1000.8" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1484.9" y="995.8" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">59</text>
+<circle class="vertex" cx="1488.2" cy="986.0" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1494.2" y="981.0" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">62</text>
+<circle class="vertex" cx="1579.5" cy="1041.7" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1585.5" y="1036.7" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">63</text>
+<circle class="vertex" cx="1608.7" cy="1059.6" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1614.7" y="1054.6" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">65</text>
+<circle class="vertex" cx="1848.1" cy="1206.5" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1854.1" y="1201.5" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">66</text>
+<circle class="vertex" cx="1880.9" cy="1153.8" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1886.9" y="1148.8" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">69</text>
+<circle class="vertex" cx="1914.4" cy="1099.8" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1920.4" y="1094.8" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">70</text>
+<circle class="vertex" cx="1925.7" cy="1081.5" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1931.7" y="1076.5" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">72</text>
+<circle class="vertex" cx="2075.8" cy="840.3" r="3" fill="#5a4a33"/>
+<text class="vertex" x="2081.8" y="835.3" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">73</text>
+<circle class="vertex" cx="2103.5" cy="795.5" r="3" fill="#5a4a33"/>
+<text class="vertex" x="2109.5" y="790.5" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">76</text>
+<circle class="vertex" cx="2042.8" cy="758.3" r="3" fill="#5a4a33"/>
+<text class="vertex" x="2048.8" y="753.3" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">77</text>
+<circle class="vertex" cx="2032.1" cy="751.6" r="3" fill="#5a4a33"/>
+<text class="vertex" x="2038.1" y="746.6" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">79</text>
+<circle class="vertex" cx="1985.5" cy="723.2" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1991.5" y="718.2" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">80</text>
+<circle class="vertex" cx="1903.6" cy="672.8" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1909.6" y="667.8" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">88</text>
+<circle class="vertex" cx="1370.1" cy="345.4" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1376.1" y="340.4" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">89</text>
+<circle class="vertex" cx="1327.3" cy="319.2" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1333.3" y="314.2" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">95</text>
+<circle class="vertex" cx="1123.1" cy="193.6" r="3" fill="#5a4a33"/>
+<text class="vertex" x="1129.1" y="188.6" font-size="10" text-anchor="start" fill="#5a4a33" font-weight="700">96</text>
 <text class="label" x="1308.7" y="719.2" font-size="13" text-anchor="middle" fill="#222" font-weight="700">Catedral Primada de Bogotá</text>
 <text class="label" x="1308.7" y="733.2" font-size="10.5" text-anchor="middle" fill="#666">6025.14 m² · h 12.00 m (plantas)</text>
 <circle class="query" cx="116.0" cy="263.6" r="3.5" fill="#c0392b"/>
-<path d="M 2159.5,120.0 L 2159.5,80.0" fill="none" stroke="#777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
-<path d="M 2154.5,92.0 2159.5,80.0 2164.5,92.0 Z" fill="#333"/>
-<text x="2159.5" y="134.0" font-size="10.5" text-anchor="middle" fill="#666">N</text>
+<path d="M 2163.5,120.0 L 2163.5,80.0" fill="none" stroke="#777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M 2158.5,92.0 2163.5,80.0 2168.5,92.0 Z" fill="#333"/>
+<text x="2163.5" y="134.0" font-size="10.5" text-anchor="middle" fill="#666">N</text>
 <path d="M 2019.5,1326.5 2079.5,1326.5 2079.5,1332.5 2019.5,1332.5 Z" fill="#222"/>
 <path d="M 2079.5,1326.5 2139.5,1326.5 2139.5,1332.5 2079.5,1332.5 Z" fill="none" stroke="#222" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
 <text x="2019.5" y="1322.5" font-size="10.5" text-anchor="start" fill="#666">0</text>
 <text x="2139.5" y="1322.5" font-size="10.5" text-anchor="end" fill="#666">10 m</text>
-<text x="80.0" y="1334.5" font-size="10.5" text-anchor="start" fill="#666">Plano de sitio · hecho con levanta · © OpenStreetMap contributors · ODbL 1.0 · 2026-09-04</text>
+<text x="80.0" y="1334.5" font-size="10.5" text-anchor="start" fill="#666">Plano de sitio · hecho con levanta · © OpenStreetMap contributors · ODbL 1.0 · 2026-09-05</text>
+<text class="table" x="80.0" y="1373.5" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Coordenadas de vértices · UTM 18N (EPSG:32618)</text>
+<path class="table" d="M 80.0,1378.5 L 380.0,1378.5" fill="none" stroke="#333333" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1389.5" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Vértice</text>
+<text class="table" x="173.0" y="1389.5" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">E (m)</text>
+<text class="table" x="233.0" y="1389.5" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">N (m)</text>
+<text class="table" x="305.0" y="1389.5" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">UTM E</text>
+<text class="table" x="377.0" y="1389.5" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">UTM N</text>
+<path class="table" d="M 80.0,1393.5 L 380.0,1393.5" fill="none" stroke="#333333" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1404.5" font-size="8.5" text-anchor="start" fill="#333333">29</text>
+<text class="table" x="173.0" y="1404.5" font-size="8.5" text-anchor="end" fill="#333333">52.74</text>
+<text class="table" x="233.0" y="1404.5" font-size="8.5" text-anchor="end" fill="#333333">-23.23</text>
+<text class="table" x="305.0" y="1404.5" font-size="8.5" text-anchor="end" fill="#333333">602546.5</text>
+<text class="table" x="377.0" y="1404.5" font-size="8.5" text-anchor="end" fill="#333333">508282.2</text>
+<path class="table" d="M 80.0,1408.5 L 380.0,1408.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1419.5" font-size="8.5" text-anchor="start" fill="#333333">30</text>
+<text class="table" x="173.0" y="1419.5" font-size="8.5" text-anchor="end" fill="#333333">46.13</text>
+<text class="table" x="233.0" y="1419.5" font-size="8.5" text-anchor="end" fill="#333333">-33.90</text>
+<text class="table" x="305.0" y="1419.5" font-size="8.5" text-anchor="end" fill="#333333">602539.9</text>
+<text class="table" x="377.0" y="1419.5" font-size="8.5" text-anchor="end" fill="#333333">508271.6</text>
+<path class="table" d="M 80.0,1423.5 L 380.0,1423.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1434.5" font-size="8.5" text-anchor="start" fill="#333333">40</text>
+<text class="table" x="173.0" y="1434.5" font-size="8.5" text-anchor="end" fill="#333333">39.94</text>
+<text class="table" x="233.0" y="1434.5" font-size="8.5" text-anchor="end" fill="#333333">-43.54</text>
+<text class="table" x="305.0" y="1434.5" font-size="8.5" text-anchor="end" fill="#333333">602533.8</text>
+<text class="table" x="377.0" y="1434.5" font-size="8.5" text-anchor="end" fill="#333333">508261.9</text>
+<path class="table" d="M 80.0,1438.5 L 380.0,1438.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1449.5" font-size="8.5" text-anchor="start" fill="#333333">41</text>
+<text class="table" x="173.0" y="1449.5" font-size="8.5" text-anchor="end" fill="#333333">44.32</text>
+<text class="table" x="233.0" y="1449.5" font-size="8.5" text-anchor="end" fill="#333333">-46.21</text>
+<text class="table" x="305.0" y="1449.5" font-size="8.5" text-anchor="end" fill="#333333">602538.1</text>
+<text class="table" x="377.0" y="1449.5" font-size="8.5" text-anchor="end" fill="#333333">508259.3</text>
+<path class="table" d="M 80.0,1453.5 L 380.0,1453.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1464.5" font-size="8.5" text-anchor="start" fill="#333333">42</text>
+<text class="table" x="173.0" y="1464.5" font-size="8.5" text-anchor="end" fill="#333333">64.01</text>
+<text class="table" x="233.0" y="1464.5" font-size="8.5" text-anchor="end" fill="#333333">-58.22</text>
+<text class="table" x="305.0" y="1464.5" font-size="8.5" text-anchor="end" fill="#333333">602557.8</text>
+<text class="table" x="377.0" y="1464.5" font-size="8.5" text-anchor="end" fill="#333333">508247.3</text>
+<path class="table" d="M 80.0,1468.5 L 380.0,1468.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1479.5" font-size="8.5" text-anchor="start" fill="#333333">46</text>
+<text class="table" x="173.0" y="1479.5" font-size="8.5" text-anchor="end" fill="#333333">60.60</text>
+<text class="table" x="233.0" y="1479.5" font-size="8.5" text-anchor="end" fill="#333333">-63.75</text>
+<text class="table" x="305.0" y="1479.5" font-size="8.5" text-anchor="end" fill="#333333">602554.4</text>
+<text class="table" x="377.0" y="1479.5" font-size="8.5" text-anchor="end" fill="#333333">508241.8</text>
+<path class="table" d="M 80.0,1483.5 L 380.0,1483.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1494.5" font-size="8.5" text-anchor="start" fill="#333333">47</text>
+<text class="table" x="173.0" y="1494.5" font-size="8.5" text-anchor="end" fill="#333333">77.52</text>
+<text class="table" x="233.0" y="1494.5" font-size="8.5" text-anchor="end" fill="#333333">-74.07</text>
+<text class="table" x="305.0" y="1494.5" font-size="8.5" text-anchor="end" fill="#333333">602571.4</text>
+<text class="table" x="377.0" y="1494.5" font-size="8.5" text-anchor="end" fill="#333333">508231.5</text>
+<path class="table" d="M 80.0,1498.5 L 380.0,1498.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1509.5" font-size="8.5" text-anchor="start" fill="#333333">53</text>
+<text class="table" x="173.0" y="1509.5" font-size="8.5" text-anchor="end" fill="#333333">78.50</text>
+<text class="table" x="233.0" y="1509.5" font-size="8.5" text-anchor="end" fill="#333333">-72.21</text>
+<text class="table" x="305.0" y="1509.5" font-size="8.5" text-anchor="end" fill="#333333">602572.3</text>
+<text class="table" x="377.0" y="1509.5" font-size="8.5" text-anchor="end" fill="#333333">508233.3</text>
+<path class="table" d="M 80.0,1513.5 L 380.0,1513.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1524.5" font-size="8.5" text-anchor="start" fill="#333333">54</text>
+<text class="table" x="173.0" y="1524.5" font-size="8.5" text-anchor="end" fill="#333333">80.66</text>
+<text class="table" x="233.0" y="1524.5" font-size="8.5" text-anchor="end" fill="#333333">-68.73</text>
+<text class="table" x="305.0" y="1524.5" font-size="8.5" text-anchor="end" fill="#333333">602574.5</text>
+<text class="table" x="377.0" y="1524.5" font-size="8.5" text-anchor="end" fill="#333333">508236.8</text>
+<path class="table" d="M 80.0,1528.5 L 380.0,1528.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1539.5" font-size="8.5" text-anchor="start" fill="#333333">56</text>
+<text class="table" x="173.0" y="1539.5" font-size="8.5" text-anchor="end" fill="#333333">81.43</text>
+<text class="table" x="233.0" y="1539.5" font-size="8.5" text-anchor="end" fill="#333333">-68.85</text>
+<text class="table" x="305.0" y="1539.5" font-size="8.5" text-anchor="end" fill="#333333">602575.3</text>
+<text class="table" x="377.0" y="1539.5" font-size="8.5" text-anchor="end" fill="#333333">508236.7</text>
+<path class="table" d="M 80.0,1543.5 L 380.0,1543.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1554.5" font-size="8.5" text-anchor="start" fill="#333333">57</text>
+<text class="table" x="173.0" y="1554.5" font-size="8.5" text-anchor="end" fill="#333333">86.60</text>
+<text class="table" x="233.0" y="1554.5" font-size="8.5" text-anchor="end" fill="#333333">-60.53</text>
+<text class="table" x="305.0" y="1554.5" font-size="8.5" text-anchor="end" fill="#333333">602580.4</text>
+<text class="table" x="377.0" y="1554.5" font-size="8.5" text-anchor="end" fill="#333333">508245.0</text>
+<path class="table" d="M 80.0,1558.5 L 380.0,1558.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1569.5" font-size="8.5" text-anchor="start" fill="#333333">58</text>
+<text class="table" x="173.0" y="1569.5" font-size="8.5" text-anchor="end" fill="#333333">106.53</text>
+<text class="table" x="233.0" y="1569.5" font-size="8.5" text-anchor="end" fill="#333333">-72.77</text>
+<text class="table" x="305.0" y="1569.5" font-size="8.5" text-anchor="end" fill="#333333">602600.4</text>
+<text class="table" x="377.0" y="1569.5" font-size="8.5" text-anchor="end" fill="#333333">508232.8</text>
+<path class="table" d="M 80.0,1573.5 L 380.0,1573.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1584.5" font-size="8.5" text-anchor="start" fill="#333333">59</text>
+<text class="table" x="173.0" y="1584.5" font-size="8.5" text-anchor="end" fill="#333333">113.57</text>
+<text class="table" x="233.0" y="1584.5" font-size="8.5" text-anchor="end" fill="#333333">-61.44</text>
+<text class="table" x="305.0" y="1584.5" font-size="8.5" text-anchor="end" fill="#333333">602607.4</text>
+<text class="table" x="377.0" y="1584.5" font-size="8.5" text-anchor="end" fill="#333333">508244.1</text>
+<path class="table" d="M 80.0,1588.5 L 380.0,1588.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1599.5" font-size="8.5" text-anchor="start" fill="#333333">62</text>
+<text class="table" x="173.0" y="1599.5" font-size="8.5" text-anchor="end" fill="#333333">114.35</text>
+<text class="table" x="233.0" y="1599.5" font-size="8.5" text-anchor="end" fill="#333333">-60.20</text>
+<text class="table" x="305.0" y="1599.5" font-size="8.5" text-anchor="end" fill="#333333">602608.2</text>
+<text class="table" x="377.0" y="1599.5" font-size="8.5" text-anchor="end" fill="#333333">508245.4</text>
+<path class="table" d="M 80.0,1603.5 L 380.0,1603.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1614.5" font-size="8.5" text-anchor="start" fill="#333333">63</text>
+<text class="table" x="173.0" y="1614.5" font-size="8.5" text-anchor="end" fill="#333333">121.96</text>
+<text class="table" x="233.0" y="1614.5" font-size="8.5" text-anchor="end" fill="#333333">-64.84</text>
+<text class="table" x="305.0" y="1614.5" font-size="8.5" text-anchor="end" fill="#333333">602615.8</text>
+<text class="table" x="377.0" y="1614.5" font-size="8.5" text-anchor="end" fill="#333333">508240.7</text>
+<path class="table" d="M 80.0,1618.5 L 380.0,1618.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1629.5" font-size="8.5" text-anchor="start" fill="#333333">65</text>
+<text class="table" x="173.0" y="1629.5" font-size="8.5" text-anchor="end" fill="#333333">124.39</text>
+<text class="table" x="233.0" y="1629.5" font-size="8.5" text-anchor="end" fill="#333333">-66.34</text>
+<text class="table" x="305.0" y="1629.5" font-size="8.5" text-anchor="end" fill="#333333">602618.2</text>
+<text class="table" x="377.0" y="1629.5" font-size="8.5" text-anchor="end" fill="#333333">508239.2</text>
+<path class="table" d="M 80.0,1633.5 L 380.0,1633.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1644.5" font-size="8.5" text-anchor="start" fill="#333333">66</text>
+<text class="table" x="173.0" y="1644.5" font-size="8.5" text-anchor="end" fill="#333333">144.34</text>
+<text class="table" x="233.0" y="1644.5" font-size="8.5" text-anchor="end" fill="#333333">-78.58</text>
+<text class="table" x="305.0" y="1644.5" font-size="8.5" text-anchor="end" fill="#333333">602638.2</text>
+<text class="table" x="377.0" y="1644.5" font-size="8.5" text-anchor="end" fill="#333333">508227.0</text>
+<path class="table" d="M 80.0,1648.5 L 380.0,1648.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1659.5" font-size="8.5" text-anchor="start" fill="#333333">69</text>
+<text class="table" x="173.0" y="1659.5" font-size="8.5" text-anchor="end" fill="#333333">147.07</text>
+<text class="table" x="233.0" y="1659.5" font-size="8.5" text-anchor="end" fill="#333333">-74.19</text>
+<text class="table" x="305.0" y="1659.5" font-size="8.5" text-anchor="end" fill="#333333">602640.9</text>
+<text class="table" x="377.0" y="1659.5" font-size="8.5" text-anchor="end" fill="#333333">508231.4</text>
+<path class="table" d="M 80.0,1663.5 L 380.0,1663.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1674.5" font-size="8.5" text-anchor="start" fill="#333333">70</text>
+<text class="table" x="173.0" y="1674.5" font-size="8.5" text-anchor="end" fill="#333333">149.87</text>
+<text class="table" x="233.0" y="1674.5" font-size="8.5" text-anchor="end" fill="#333333">-69.69</text>
+<text class="table" x="305.0" y="1674.5" font-size="8.5" text-anchor="end" fill="#333333">602643.7</text>
+<text class="table" x="377.0" y="1674.5" font-size="8.5" text-anchor="end" fill="#333333">508235.9</text>
+<path class="table" d="M 80.0,1678.5 L 380.0,1678.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1689.5" font-size="8.5" text-anchor="start" fill="#333333">72</text>
+<text class="table" x="173.0" y="1689.5" font-size="8.5" text-anchor="end" fill="#333333">150.81</text>
+<text class="table" x="233.0" y="1689.5" font-size="8.5" text-anchor="end" fill="#333333">-68.16</text>
+<text class="table" x="305.0" y="1689.5" font-size="8.5" text-anchor="end" fill="#333333">602644.6</text>
+<text class="table" x="377.0" y="1689.5" font-size="8.5" text-anchor="end" fill="#333333">508237.5</text>
+<path class="table" d="M 80.0,1693.5 L 380.0,1693.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1704.5" font-size="8.5" text-anchor="start" fill="#333333">73</text>
+<text class="table" x="173.0" y="1704.5" font-size="8.5" text-anchor="end" fill="#333333">163.32</text>
+<text class="table" x="233.0" y="1704.5" font-size="8.5" text-anchor="end" fill="#333333">-48.06</text>
+<text class="table" x="305.0" y="1704.5" font-size="8.5" text-anchor="end" fill="#333333">602657.1</text>
+<text class="table" x="377.0" y="1704.5" font-size="8.5" text-anchor="end" fill="#333333">508257.6</text>
+<path class="table" d="M 80.0,1708.5 L 380.0,1708.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1719.5" font-size="8.5" text-anchor="start" fill="#333333">76</text>
+<text class="table" x="173.0" y="1719.5" font-size="8.5" text-anchor="end" fill="#333333">165.62</text>
+<text class="table" x="233.0" y="1719.5" font-size="8.5" text-anchor="end" fill="#333333">-44.33</text>
+<text class="table" x="305.0" y="1719.5" font-size="8.5" text-anchor="end" fill="#333333">602659.4</text>
+<text class="table" x="377.0" y="1719.5" font-size="8.5" text-anchor="end" fill="#333333">508261.3</text>
+<path class="table" d="M 80.0,1723.5 L 380.0,1723.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1734.5" font-size="8.5" text-anchor="start" fill="#333333">77</text>
+<text class="table" x="173.0" y="1734.5" font-size="8.5" text-anchor="end" fill="#333333">160.56</text>
+<text class="table" x="233.0" y="1734.5" font-size="8.5" text-anchor="end" fill="#333333">-41.22</text>
+<text class="table" x="305.0" y="1734.5" font-size="8.5" text-anchor="end" fill="#333333">602654.3</text>
+<text class="table" x="377.0" y="1734.5" font-size="8.5" text-anchor="end" fill="#333333">508264.4</text>
+<path class="table" d="M 80.0,1738.5 L 380.0,1738.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1749.5" font-size="8.5" text-anchor="start" fill="#333333">79</text>
+<text class="table" x="173.0" y="1749.5" font-size="8.5" text-anchor="end" fill="#333333">159.68</text>
+<text class="table" x="233.0" y="1749.5" font-size="8.5" text-anchor="end" fill="#333333">-40.67</text>
+<text class="table" x="305.0" y="1749.5" font-size="8.5" text-anchor="end" fill="#333333">602653.5</text>
+<text class="table" x="377.0" y="1749.5" font-size="8.5" text-anchor="end" fill="#333333">508265.0</text>
+<path class="table" d="M 80.0,1753.5 L 380.0,1753.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1764.5" font-size="8.5" text-anchor="start" fill="#333333">80</text>
+<text class="table" x="173.0" y="1764.5" font-size="8.5" text-anchor="end" fill="#333333">155.79</text>
+<text class="table" x="233.0" y="1764.5" font-size="8.5" text-anchor="end" fill="#333333">-38.31</text>
+<text class="table" x="305.0" y="1764.5" font-size="8.5" text-anchor="end" fill="#333333">602649.6</text>
+<text class="table" x="377.0" y="1764.5" font-size="8.5" text-anchor="end" fill="#333333">508267.3</text>
+<path class="table" d="M 80.0,1768.5 L 380.0,1768.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1779.5" font-size="8.5" text-anchor="start" fill="#333333">88</text>
+<text class="table" x="173.0" y="1779.5" font-size="8.5" text-anchor="end" fill="#333333">148.97</text>
+<text class="table" x="233.0" y="1779.5" font-size="8.5" text-anchor="end" fill="#333333">-34.10</text>
+<text class="table" x="305.0" y="1779.5" font-size="8.5" text-anchor="end" fill="#333333">602642.7</text>
+<text class="table" x="377.0" y="1779.5" font-size="8.5" text-anchor="end" fill="#333333">508271.5</text>
+<path class="table" d="M 80.0,1783.5 L 380.0,1783.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1794.5" font-size="8.5" text-anchor="start" fill="#333333">89</text>
+<text class="table" x="173.0" y="1794.5" font-size="8.5" text-anchor="end" fill="#333333">104.51</text>
+<text class="table" x="233.0" y="1794.5" font-size="8.5" text-anchor="end" fill="#333333">-6.82</text>
+<text class="table" x="305.0" y="1794.5" font-size="8.5" text-anchor="end" fill="#333333">602598.3</text>
+<text class="table" x="377.0" y="1794.5" font-size="8.5" text-anchor="end" fill="#333333">508298.7</text>
+<path class="table" d="M 80.0,1798.5 L 380.0,1798.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1809.5" font-size="8.5" text-anchor="start" fill="#333333">95</text>
+<text class="table" x="173.0" y="1809.5" font-size="8.5" text-anchor="end" fill="#333333">100.94</text>
+<text class="table" x="233.0" y="1809.5" font-size="8.5" text-anchor="end" fill="#333333">-4.63</text>
+<text class="table" x="305.0" y="1809.5" font-size="8.5" text-anchor="end" fill="#333333">602594.7</text>
+<text class="table" x="377.0" y="1809.5" font-size="8.5" text-anchor="end" fill="#333333">508300.9</text>
+<path class="table" d="M 80.0,1813.5 L 380.0,1813.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="83.0" y="1824.5" font-size="8.5" text-anchor="start" fill="#333333">96</text>
+<text class="table" x="173.0" y="1824.5" font-size="8.5" text-anchor="end" fill="#333333">83.92</text>
+<text class="table" x="233.0" y="1824.5" font-size="8.5" text-anchor="end" fill="#333333">5.83</text>
+<text class="table" x="305.0" y="1824.5" font-size="8.5" text-anchor="end" fill="#333333">602577.7</text>
+<text class="table" x="377.0" y="1824.5" font-size="8.5" text-anchor="end" fill="#333333">508311.3</text>
+<path class="table" d="M 80.0,1828.5 L 380.0,1828.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="440.0" y="1373.5" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Linderos</text>
+<path class="table" d="M 440.0,1378.5 L 740.0,1378.5" fill="none" stroke="#333333" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1389.5" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Lado</text>
+<text class="table" x="647.0" y="1389.5" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Azimut</text>
+<text class="table" x="737.0" y="1389.5" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Longitud</text>
+<path class="table" d="M 440.0,1393.5 L 740.0,1393.5" fill="none" stroke="#333333" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1404.5" font-size="8.5" text-anchor="start" fill="#333333">29–30</text>
+<text class="table" x="647.0" y="1404.5" font-size="8.5" text-anchor="end" fill="#333333">211°47'19&quot;</text>
+<text class="table" x="737.0" y="1404.5" font-size="8.5" text-anchor="end" fill="#333333">12.55 m</text>
+<path class="table" d="M 440.0,1408.5 L 740.0,1408.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1419.5" font-size="8.5" text-anchor="start" fill="#333333">40–41</text>
+<text class="table" x="647.0" y="1419.5" font-size="8.5" text-anchor="end" fill="#333333">121°24'22&quot;</text>
+<text class="table" x="737.0" y="1419.5" font-size="8.5" text-anchor="end" fill="#333333">5.14 m</text>
+<path class="table" d="M 440.0,1423.5 L 740.0,1423.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1434.5" font-size="8.5" text-anchor="start" fill="#333333">41–42</text>
+<text class="table" x="647.0" y="1434.5" font-size="8.5" text-anchor="end" fill="#333333">121°22'18&quot;</text>
+<text class="table" x="737.0" y="1434.5" font-size="8.5" text-anchor="end" fill="#333333">23.07 m</text>
+<path class="table" d="M 440.0,1438.5 L 740.0,1438.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1449.5" font-size="8.5" text-anchor="start" fill="#333333">46–47</text>
+<text class="table" x="647.0" y="1449.5" font-size="8.5" text-anchor="end" fill="#333333">121°22'14&quot;</text>
+<text class="table" x="737.0" y="1449.5" font-size="8.5" text-anchor="end" fill="#333333">19.82 m</text>
+<path class="table" d="M 440.0,1453.5 L 740.0,1453.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1464.5" font-size="8.5" text-anchor="start" fill="#333333">53–54</text>
+<text class="table" x="647.0" y="1464.5" font-size="8.5" text-anchor="end" fill="#333333">31°50'53&quot;</text>
+<text class="table" x="737.0" y="1464.5" font-size="8.5" text-anchor="end" fill="#333333">4.10 m</text>
+<path class="table" d="M 440.0,1468.5 L 740.0,1468.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1479.5" font-size="8.5" text-anchor="start" fill="#333333">56–57</text>
+<text class="table" x="647.0" y="1479.5" font-size="8.5" text-anchor="end" fill="#333333">31°52'27&quot;</text>
+<text class="table" x="737.0" y="1479.5" font-size="8.5" text-anchor="end" fill="#333333">9.79 m</text>
+<path class="table" d="M 440.0,1483.5 L 740.0,1483.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1494.5" font-size="8.5" text-anchor="start" fill="#333333">57–58</text>
+<text class="table" x="647.0" y="1494.5" font-size="8.5" text-anchor="end" fill="#333333">121°33'37&quot;</text>
+<text class="table" x="737.0" y="1494.5" font-size="8.5" text-anchor="end" fill="#333333">23.39 m</text>
+<path class="table" d="M 440.0,1498.5 L 740.0,1498.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1509.5" font-size="8.5" text-anchor="start" fill="#333333">58–59</text>
+<text class="table" x="647.0" y="1509.5" font-size="8.5" text-anchor="end" fill="#333333">31°52'02&quot;</text>
+<text class="table" x="737.0" y="1509.5" font-size="8.5" text-anchor="end" fill="#333333">13.35 m</text>
+<path class="table" d="M 440.0,1513.5 L 740.0,1513.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1524.5" font-size="8.5" text-anchor="start" fill="#333333">62–63</text>
+<text class="table" x="647.0" y="1524.5" font-size="8.5" text-anchor="end" fill="#333333">121°23'20&quot;</text>
+<text class="table" x="737.0" y="1524.5" font-size="8.5" text-anchor="end" fill="#333333">8.92 m</text>
+<path class="table" d="M 440.0,1528.5 L 740.0,1528.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1539.5" font-size="8.5" text-anchor="start" fill="#333333">65–66</text>
+<text class="table" x="647.0" y="1539.5" font-size="8.5" text-anchor="end" fill="#333333">121°31'54&quot;</text>
+<text class="table" x="737.0" y="1539.5" font-size="8.5" text-anchor="end" fill="#333333">23.41 m</text>
+<path class="table" d="M 440.0,1543.5 L 740.0,1543.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1554.5" font-size="8.5" text-anchor="start" fill="#333333">69–70</text>
+<text class="table" x="647.0" y="1554.5" font-size="8.5" text-anchor="end" fill="#333333">31°51'10&quot;</text>
+<text class="table" x="737.0" y="1554.5" font-size="8.5" text-anchor="end" fill="#333333">5.30 m</text>
+<path class="table" d="M 440.0,1558.5 L 740.0,1558.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1569.5" font-size="8.5" text-anchor="start" fill="#333333">72–73</text>
+<text class="table" x="647.0" y="1569.5" font-size="8.5" text-anchor="end" fill="#333333">31°53'02&quot;</text>
+<text class="table" x="737.0" y="1569.5" font-size="8.5" text-anchor="end" fill="#333333">23.68 m</text>
+<path class="table" d="M 440.0,1573.5 L 740.0,1573.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1584.5" font-size="8.5" text-anchor="start" fill="#333333">76–77</text>
+<text class="table" x="647.0" y="1584.5" font-size="8.5" text-anchor="end" fill="#333333">301°33'16&quot;</text>
+<text class="table" x="737.0" y="1584.5" font-size="8.5" text-anchor="end" fill="#333333">5.94 m</text>
+<path class="table" d="M 440.0,1588.5 L 740.0,1588.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1599.5" font-size="8.5" text-anchor="start" fill="#333333">79–80</text>
+<text class="table" x="647.0" y="1599.5" font-size="8.5" text-anchor="end" fill="#333333">301°21'18&quot;</text>
+<text class="table" x="737.0" y="1599.5" font-size="8.5" text-anchor="end" fill="#333333">4.55 m</text>
+<path class="table" d="M 440.0,1603.5 L 740.0,1603.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1614.5" font-size="8.5" text-anchor="start" fill="#333333">88–89</text>
+<text class="table" x="647.0" y="1614.5" font-size="8.5" text-anchor="end" fill="#333333">301°31'53&quot;</text>
+<text class="table" x="737.0" y="1614.5" font-size="8.5" text-anchor="end" fill="#333333">52.17 m</text>
+<path class="table" d="M 440.0,1618.5 L 740.0,1618.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text class="table" x="443.0" y="1629.5" font-size="8.5" text-anchor="start" fill="#333333">95–96</text>
+<text class="table" x="647.0" y="1629.5" font-size="8.5" text-anchor="end" fill="#333333">301°34'24&quot;</text>
+<text class="table" x="737.0" y="1629.5" font-size="8.5" text-anchor="end" fill="#333333">19.98 m</text>
+<path class="table" d="M 440.0,1633.5 L 740.0,1633.5" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="440.0" y="1649.5" font-size="9.5" text-anchor="start" fill="#333">Área del lote: 6025.14 m² (0.6025 ha)</text>
+<text x="440.0" y="1663.5" font-size="9.5" text-anchor="start" fill="#333">Perímetro 363.67 m · Cierre 0 mm</text>
 </svg>

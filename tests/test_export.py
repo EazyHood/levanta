@@ -61,7 +61,7 @@ def test_export_all_writes_valid_files(tmp_path):
     root = ET.parse(paths["svg"]).getroot()
     assert root.tag.endswith("svg")
     classes = {c for g in root.iter() for c in (g.get("class") or "").split()}
-    assert {"room", "wall", "door", "window", "label", "dim", "title"} <= classes
+    assert {"room", "wall", "door", "window", "label", "dim", "titleblock"} <= classes
     for k in ("png", "iso_png", "html"):
         assert paths[k].exists() and paths[k].stat().st_size > 1000
     html_text = paths["html"].read_text(encoding="utf-8")
@@ -70,7 +70,7 @@ def test_export_all_writes_valid_files(tmp_path):
 
     doc = ezdxf.readfile(paths["dxf"])
     layers = {e.dxf.layer for e in doc.modelspace()}
-    assert {"WALLS", "ROOMS", "DOORS", "WINDOWS", "DIMENSIONS", "TEXT"} <= layers
+    assert {"A-WALL", "A-AREA", "A-DOOR", "A-GLAZ", "A-ANNO-DIMS", "A-ANNO-TEXT"} <= layers
     assert doc.header["$INSUNITS"] == 6
     import trimesh
 

@@ -39,6 +39,14 @@ OPEN_OPT = typer.Option(False, "--open", help="Open the HTML viewer when done.")
 CEILING_OPT = typer.Option(False, "--ceiling", help="Include a ceiling slab in the 3D model.")
 SCALE_OPT = typer.Option(None, "--scale", help="Multiply every length by this factor (fix the global scale of a video reconstruction).")
 DOOR_OPT = typer.Option(None, "--door-width", help="Rescale so that the median detected door is this wide (e.g. 0.90). A good fix when the video scale is off.")
+PROJECT_OPT = typer.Option(None, "--project", help="Project name for the title block.")
+AUTHOR_OPT = typer.Option(None, "--author", help="Author for the title block.")
+SHEET_OPT = typer.Option(None, "--sheet", help="Sheet number for the title block (e.g. A-01).")
+REV_OPT = typer.Option(None, "--revision", help="Revision letter/number for the title block.")
+LEVEL_OPT = typer.Option(None, "--level", help="Finished floor level label, e.g. '+0.00' or '+3.20'.")
+NORTH_OPT = typer.Option(None, "--north", help="Where north points: degrees clockwise from the plan's up direction (0 = north is up).")
+PAPER_OPT = typer.Option("A4", "--paper", help="Paper for the PDF: A4 | A3 | A2 | A1 | Letter | Tabloid (landscape).")
+DXF_UNITS_OPT = typer.Option("m", "--dxf-units", help="Units of the DXF: m | cm | mm.")
 
 
 # ----------------------------------------------------------------------------------------
@@ -72,7 +80,7 @@ def _parse_vec(s: str | None) -> tuple[float, float, float] | None:
     return (parts[0], parts[1], parts[2])
 
 
-def _finish(plan, out: Path, stem: str, title: str | None, lang: str, units: str, ceiling: bool, names: str | None, scale: float | None, door_width: float | None, open_html: bool):
+def _finish(plan, out: Path, stem: str, title: str | None, lang: str, units: str, ceiling: bool, names: str | None, scale: float | None, door_width: float | None, open_html: bool, project: dict | None = None, north: float | None = None, paper: str = "A4", dxf_units: str = "m"):
     """Apply edits (names, scale), write every output, print a human summary."""
     from levanta.i18n import fmt_area, fmt_len, t
     from levanta.io.export import export_all
@@ -88,8 +96,13 @@ def _finish(plan, out: Path, stem: str, title: str | None, lang: str, units: str
         _step(f"scale x{scale:.3f}")
     if names:
         plan.rename_rooms([n.strip() for n in names.split(",")])
+    if project:
+        plan.project.update({k: v for k, v in project.items() if v})
+    if north is not None:
+        plan.north_deg = float(north)
+    plan.label_openings()
     out.mkdir(parents=True, exist_ok=True)
-    paths = export_all(plan, out, stem=stem, title=title, include_ceiling=ceiling, lang=lang, units=units)
+    paths = export_all(plan, out, stem=stem, title=title, include_ceiling=ceiling, lang=lang, units=units, paper=paper, dxf_units=dxf_units)
     typer.echo("")
     typer.secho(f"{len(plan.rooms)} {t(lang, 'rooms')} · {fmt_area(plan.total_area, units)} · {t(lang, 'ceiling')} {fmt_len(plan.ceiling_height, units)} ({t(lang, 'measured') if plan.ceiling_measured else t(lang, 'default')})", bold=True)
     for r in plan.rooms:
@@ -97,7 +110,10 @@ def _finish(plan, out: Path, stem: str, title: str | None, lang: str, units: str
         flag = "" if r.closed else f"  ({t(lang, 'incomplete')})"
         typer.echo(f"  {r.name:<14} {fmt_area(r.area, units):>10}   {fmt_len(b[2] - b[0], units)} × {fmt_len(b[3] - b[1], units)}{flag}")
     for o in plan.openings:
-        typer.echo(f"  {t(lang, o.kind):<14} {fmt_len(o.width, units):>10}   z {o.z0:.2f}–{o.z1:.2f} m")
+        typer.echo(f"  {o.tag:<4}{t(lang, o.kind):<10} {fmt_len(o.width, units):>10}   z {o.z0:.2f}–{o.z1:.2f} m")
+    typer.echo("")
+    for q in plan.quality(lang):
+        typer.secho(f"  {'!' if q['level'] == 'warn' else '·'} {q['text']}", fg=typer.colors.YELLOW if q["level"] == "warn" else None)
     if not plan.rooms:
         _warn("no room was closed by walls; open the debug PNG to see what was scanned (walls need floor-to-ceiling coverage on at least three sides).")
     typer.echo("")
@@ -138,6 +154,14 @@ def demo(
     lang: str = LANG_OPT,
     units: str = UNITS_OPT,
     open_html: bool = OPEN_OPT,
+    project: str | None = PROJECT_OPT,
+    author: str | None = AUTHOR_OPT,
+    sheet: str | None = SHEET_OPT,
+    revision: str | None = REV_OPT,
+    level: str | None = LEVEL_OPT,
+    north: float | None = NORTH_OPT,
+    paper: str = PAPER_OPT,
+    dxf_units: str = DXF_UNITS_OPT,
     names: str | None = NAMES_OPT,
     title: str | None = TITLE_OPT,
     scene: str = typer.Option("three_rooms", help="two_rooms | three_rooms"),
@@ -153,7 +177,7 @@ def demo(
     res = _run_plan(cloud, out, "plan", True, None, True, None)
     if names is None:
         names = ",".join(("Living,Bedroom,Hall" if lang == "en" else "Sala,Dormitorio,Pasillo").split(",")[: len(res.plan.rooms)])
-    _finish(res.plan, out, "plan", title or ("levanta demo" if lang == "en" else "demo de levanta"), lang, units, False, names, None, None, open_html)
+    _finish(res.plan, out, "plan", title or ("levanta demo" if lang == "en" else "demo de levanta"), lang, units, False, names, None, None, open_html, project={"name": project, "author": author, "sheet": sheet, "revision": revision, "level": level}, north=north, paper=paper, dxf_units=dxf_units)
 
 
 @app.command()
@@ -193,6 +217,14 @@ def video(
     scale: float | None = SCALE_OPT,
     door_width: float | None = DOOR_OPT,
     open_html: bool = OPEN_OPT,
+    project: str | None = PROJECT_OPT,
+    author: str | None = AUTHOR_OPT,
+    sheet: str | None = SHEET_OPT,
+    revision: str | None = REV_OPT,
+    level: str | None = LEVEL_OPT,
+    north: float | None = NORTH_OPT,
+    paper: str = PAPER_OPT,
+    dxf_units: str = DXF_UNITS_OPT,
 ) -> None:
     """Phone video -> frames -> MapAnything -> floor plan + 3D model (GPU recommended)."""
     from levanta.io.video import extract_frames
@@ -234,7 +266,7 @@ def video(
     res = _run_plan(cloud, out, stem, manhattan, up, True, None)
     if not focal_px and not door_width and not scale:
         _warn("scale from video alone is typically 5-15 % short; pass --focal-px, or --door-width 0.90 to calibrate on the doors")
-    _finish(res.plan, out, stem, title or video.stem, lang, units, ceiling, names, scale, door_width, open_html)
+    _finish(res.plan, out, stem, title or video.stem, lang, units, ceiling, names, scale, door_width, open_html, project={"name": project, "author": author, "sheet": sheet, "revision": revision, "level": level}, north=north, paper=paper, dxf_units=dxf_units)
 
 
 @app.command()
@@ -253,6 +285,14 @@ def plan(
     scale: float | None = SCALE_OPT,
     door_width: float | None = DOOR_OPT,
     open_html: bool = OPEN_OPT,
+    project: str | None = PROJECT_OPT,
+    author: str | None = AUTHOR_OPT,
+    sheet: str | None = SHEET_OPT,
+    revision: str | None = REV_OPT,
+    level: str | None = LEVEL_OPT,
+    north: float | None = NORTH_OPT,
+    paper: str = PAPER_OPT,
+    dxf_units: str = DXF_UNITS_OPT,
     debug_png: bool = typer.Option(True, help="Write a diagnostic PNG next to the outputs."),
 ) -> None:
     """Point cloud -> floor plan (HTML/PNG/SVG/DXF/JSON) + 3D model (GLB/OBJ)."""
@@ -260,7 +300,7 @@ def plan(
 
     pc = PointCloud.load_ply(cloud)
     res = _run_plan(pc, out, stem, manhattan, up, debug_png, voxel or None)
-    _finish(res.plan, out, stem, title or cloud.stem, lang, units, ceiling, names, scale, door_width, open_html)
+    _finish(res.plan, out, stem, title or cloud.stem, lang, units, ceiling, names, scale, door_width, open_html, project={"name": project, "author": author, "sheet": sheet, "revision": revision, "level": level}, north=north, paper=paper, dxf_units=dxf_units)
 
 
 @app.command()
@@ -278,6 +318,14 @@ def tum(
     ceiling: bool = CEILING_OPT,
     names: str | None = NAMES_OPT,
     open_html: bool = OPEN_OPT,
+    project: str | None = PROJECT_OPT,
+    author: str | None = AUTHOR_OPT,
+    sheet: str | None = SHEET_OPT,
+    revision: str | None = REV_OPT,
+    level: str | None = LEVEL_OPT,
+    north: float | None = NORTH_OPT,
+    paper: str = PAPER_OPT,
+    dxf_units: str = DXF_UNITS_OPT,
 ) -> None:
     """Public TUM RGB-D sequence (depth + ground-truth poses) -> plan.  No GPU."""
     from levanta.io.tum import load_tum_sequence
@@ -288,7 +336,7 @@ def tum(
     _step(f"fusing {len(frames)} depth maps")
     cloud = fuse_frames(frames, stride=pixel_stride, voxel=0.02)
     res = _run_plan(cloud, out, stem, manhattan, None, True, None)
-    _finish(res.plan, out, stem, title or seq_dir.name, lang, units, ceiling, names, None, None, open_html)
+    _finish(res.plan, out, stem, title or seq_dir.name, lang, units, ceiling, names, None, None, open_html, project={"name": project, "author": author, "sheet": sheet, "revision": revision, "level": level}, north=north, paper=paper, dxf_units=dxf_units)
 
 
 @app.command()
@@ -304,12 +352,20 @@ def render(
     scale: float | None = SCALE_OPT,
     door_width: float | None = DOOR_OPT,
     open_html: bool = OPEN_OPT,
+    project: str | None = PROJECT_OPT,
+    author: str | None = AUTHOR_OPT,
+    sheet: str | None = SHEET_OPT,
+    revision: str | None = REV_OPT,
+    level: str | None = LEVEL_OPT,
+    north: float | None = NORTH_OPT,
+    paper: str = PAPER_OPT,
+    dxf_units: str = DXF_UNITS_OPT,
 ) -> None:
     """Re-make every output (HTML, PNG, SVG, DXF, GLB, OBJ) from a saved plan.json."""
     from levanta.plan.types import FloorPlan
 
     fp = FloorPlan.from_json(plan_json)
-    _finish(fp, out or plan_json.parent, stem or plan_json.stem, title, lang, units, ceiling, names, scale, door_width, open_html)
+    _finish(fp, out or plan_json.parent, stem or plan_json.stem, title, lang, units, ceiling, names, scale, door_width, open_html, project={"name": project, "author": author, "sheet": sheet, "revision": revision, "level": level}, north=north, paper=paper, dxf_units=dxf_units)
 
 
 @app.command()
@@ -380,6 +436,7 @@ def site(
     lang: str = LANG_OPT,
     units: str = UNITS_OPT,
     open_html: bool = OPEN_OPT,
+    paper: str = PAPER_OPT,
 ) -> None:
     """A coordinate -> building footprint + height from public data -> LOD1 model + site plan."""
     from levanta.site.lod1 import export_site
@@ -392,7 +449,7 @@ def site(
         _fail(f"could not fetch buildings: {type(e).__name__}: {e}\n  No internet, or the Overpass API is busy: try again in a minute.")
     if not buildings:
         _fail("no building there in the chosen source; try --radius 150, --source overture, or check the coordinate on openstreetmap.org")
-    paths = export_site(buildings, lat, lon, out, stem=stem, only_target=not all_buildings, lang=lang, units=units)
+    paths = export_site(buildings, lat, lon, out, stem=stem, only_target=not all_buildings, lang=lang, units=units, paper=paper)
     b = buildings[0]
     h, how = b.height()
     _ok(f"{b.name or b.id}: {h:.1f} m ({how}), {len(b.footprint)} corners, {b.attribution}")

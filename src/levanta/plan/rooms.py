@@ -27,6 +27,7 @@ class LineOpening:
     t1: float
     z0: float
     z1: float
+    measured: bool = False
 
 
 def _free_fraction(line: WallLine, t0: float, t1: float, free: np.ndarray, grid: Grid, n: int = 12) -> float:
@@ -82,7 +83,7 @@ def resolve_gaps(
                 z1 = min(z1, ceiling_height)
                 ga, gb = _door_edges(ln, merged[-1][1], a, z1)
                 merged[-1][1] = ga
-                openings.append(LineOpening(ln.id, kind, ga, gb, 0.0, z1))
+                openings.append(LineOpening(ln.id, kind, ga, gb, 0.0, z1, measured))
                 merged.append([gb, b])
             elif gap <= unseen_merge_max:
                 merged[-1][1] = max(merged[-1][1], b)
@@ -140,16 +141,18 @@ def _extend(line: WallLine, k: int, side: int, t: float, free, grid, door_min, f
     if side < 0:
         ext = t0 - t
         if ext >= door_min and _free_fraction(line, t, t0, free, grid) >= free_min:
-            z1 = min(_lintel_height(line, t, t0, dh)[0], ch)
+            z1, measured = _lintel_height(line, t, t0, dh)
+            z1 = min(z1, ch)
             ga, gb = _door_edges(line, t, t0, z1)
-            openings.append(LineOpening(line.id, "door", ga, gb, 0.0, z1))
+            openings.append(LineOpening(line.id, "door", ga, gb, 0.0, z1, measured))
         line.intervals[k] = (t, t1)
     else:
         ext = t - t1
         if ext >= door_min and _free_fraction(line, t1, t, free, grid) >= free_min:
-            z1 = min(_lintel_height(line, t1, t, dh)[0], ch)
+            z1, measured = _lintel_height(line, t1, t, dh)
+            z1 = min(z1, ch)
             ga, gb = _door_edges(line, t1, t, z1)
-            openings.append(LineOpening(line.id, "door", ga, gb, 0.0, z1))
+            openings.append(LineOpening(line.id, "door", ga, gb, 0.0, z1, measured))
         line.intervals[k] = (t0, t)
 
 
@@ -211,7 +214,7 @@ def detect_windows(
                     head = float(np.percentile(zh, 5)) if len(zh) else high_min
                     if head - sill >= 0.4:
                         wt0, wt1 = refine_edges(ln.samples(wt0 - 0.3, wt1 + 0.3), wt0, wt1, sill + 0.1, head - 0.1)
-                        out.append(LineOpening(ln.id, "window", wt0, wt1, sill, head))
+                        out.append(LineOpening(ln.id, "window", wt0, wt1, sill, head, True))
                 k = j
     return out
 

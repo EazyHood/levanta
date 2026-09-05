@@ -269,7 +269,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         room_snap_dist=opts.room_snap_dist,
     )
 
-    plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug)
+    plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")))
     if opts.tidy:
         plan = tidy_walls(plan, attach_dist=opts.wall_attach_dist, trim_margin=opts.wall_trim_margin, min_len=opts.min_wall_len)
         plan = drop_stubs(plan, max_len=opts.stub_max_len)
@@ -282,6 +282,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
             default_thickness=opts.default_interior_thickness,
             default_door_height=opts.default_door_height,
         )
+    plan.label_openings()
     return PlanResult(
         plan=plan,
         cloud=aligned,
@@ -304,6 +305,7 @@ def _assemble(
     opts: PlanOptions,
     grav: GravityResult,
     debug: dict[str, Any],
+    source: str = "",
 ) -> FloorPlan:
     walls: list[Wall] = []
     plan_openings: list[Opening] = []
@@ -324,6 +326,7 @@ def _assemble(
                     height=float(ceiling_h),
                     sides_seen=ln.sides_seen,
                     line_id=ln.id,
+                    exterior=bool(ln.exterior),
                 )
             )
             for o in openings:
@@ -337,6 +340,7 @@ def _assemble(
                             t1=float(o.t1 - t0),
                             z0=float(o.z0),
                             z1=float(o.z1),
+                            height_measured=bool(o.measured),
                         )
                     )
 
@@ -367,6 +371,7 @@ def _assemble(
             "ceiling_support": grav.ceiling_support,
         },
         "debug": debug,
+        "source": source,
     }
     return FloorPlan(
         walls=walls,

@@ -42,9 +42,13 @@ measurement. No GPU, no data, no internet needed except for `pip`.
    levanta render out/house/plan.json --door-width 0.90
    ```
 
-You get, in `out/house/`: `plan.html` · `plan.png` · `plan.svg` · `plan_3d.png` ·
-`plan.dxf` (CAD) · `plan.glb` / `plan.obj` (3D) · `plan.json` (data) · `plan_debug.png`
-(what the planner saw). [What each file is and how to open it.](docs/formats.md)
+You get, in `out/house/`: `plan.pdf` (a sheet at 1:50 or 1:100 on A4/A3 with dimension
+chains, reference axes, door and window schedule, area schedule and title block, plus a
+page of interior elevations) · `plan.html` (viewer with a measuring tool and checks) ·
+`plan.png` · `plan.svg` · `plan_3d.png` · `plan_elevations.png` · `plan.dxf` (AIA layers,
+blocks, lineweights; m/cm/mm) · `plan_3d.dxf` · `plan.glb` / `plan.obj` (3D) ·
+`plan.json` (data) · `plan_debug.png` (what the planner saw).
+[What each file is and how to open it.](docs/formats.md)
 
 ## What it does, honestly
 
@@ -53,7 +57,7 @@ You get, in `out/house/`: `plan.html` · `plan.png` · `plan.svg` · `plan_3d.pn
 | **Phone video** | Metric point cloud, walls with thickness, doors, windows, rooms with areas, ceiling height, 2D plan, 3D model | MapAnything (Meta, 3DV 2026) predicts metric depth and cameras from plain RGB; `levanta.plan` turns the cloud into architecture |
 | **RGB-D frames with poses** (ARCore/ARKit/Record3D exports, datasets) | Same, no GPU, exact scale | numpy back-projection |
 | **Point cloud** in metres (`.ply`) | Same | `levanta plan` |
-| **A latitude/longitude** | Building footprint, height, LOD1 block model, site plan with side lengths | OpenStreetMap or Overture Maps, both derived from overhead imagery |
+| **A latitude/longitude** | Building footprint, height, LOD1 block model, site plan with numbered vertices, a coordinate table (local, WGS84, UTM with zone and EPSG), a boundary table with azimuth and length, area in m² and ha | OpenStreetMap or Overture Maps, both derived from overhead imagery |
 
 What a satellite **cannot** give you is the interior: no sensor sees through a roof.
 `levanta site` therefore stops at footprint + height, and its output says so. Interior
@@ -92,7 +96,9 @@ levanta doctor                     installed / missing / what to type
 ```
 
 Common options: `--lang es`, `--units ft`, `--names "A,B,C"`, `--title "..."`, `--open`,
-`--door-width 0.90`, `--scale 1.07`, `--ceiling`. Every command writes a `*_debug.png`.
+`--door-width 0.90`, `--scale 1.07`, `--ceiling`; title block and sheet: `--project`,
+`--author`, `--sheet A-01`, `--revision B`, `--level +3.20`, `--north 35`, `--paper A3`,
+`--dxf-units cm`. Every command writes a `*_debug.png`.
 
 As a library:
 
@@ -137,9 +143,16 @@ export_all(plan, "out", lang="en", units="m")           # html, png, svg, dxf, g
    are set aside, walls are trimmed to the stretch that bounds a room, desk fronts and
    jamb returns standing inside a room are dropped, and a gap between two wall pieces
    that the camera looked through becomes a door.
-9. **Drawings and 3D** (`levanta.io`). One drawing model renders both SVG and PNG, so
-   they always match. Walls become boxes split around openings (sill and lintel boxes,
-   no booleans); the 3D preview is an axonometric projection drawn without OpenGL.
+9. **Sheets and 3D** (`levanta.io`). One drawing model renders SVG, PNG and a vector PDF,
+   so they always match. The sheet carries what a drafter expects: dimension chains on
+   the perimeter walls, overall dimensions, reference axes, north arrow, opening tags,
+   area and opening schedules, title block, and a second page of interior elevations.
+   Walls become boxes split around openings (sill and lintel boxes, no booleans); the 3D
+   preview is an axonometric projection drawn without OpenGL; the DXF uses AIA-style
+   layers, blocks for doors and windows, lineweights and dimension entities.
+10. **Checks** (`FloorPlan.quality`). Open rooms, assumed thicknesses, default ceiling,
+   uncalibrated video scale and assumed door heights are listed on the console and in
+   the viewer, and every table says *measured* or *assumed* per item.
 
 ## How we know it works
 

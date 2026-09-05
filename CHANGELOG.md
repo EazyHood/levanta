@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.0 - 2026-09-05
+
+What a drafter expects on a sheet.
+
+- Dimension chains on every perimeter wall (corner - jamb - jamb - corner) plus overall dimensions.
+- Opening tags (P1, V1, A1) on the plan, a door & window schedule and an area schedule (net, walls, gross) on the sheet.
+- Title block: project, drawing, author, level (F.F.L.), scale, scale bar, date, revision, sheet, north.
+- Reference axes (A, B, C / 1, 2, 3) and a north arrow (`--north`).
+- Vector PDF at a standard scale (1:50, 1:100 ...) on A4/A3/A2/A1/Letter/Tabloid, with a second page of interior elevations; no PDF library needed.
+- Interior elevations: every wall face-on with doors, windows, tags, widths and heights (`plan_elevations.png`).
+- DXF: AIA-style layers (A-WALL, A-DOOR, A-GLAZ, A-ANNO-DIMS, A-GRID ...) with lineweights, door and window blocks, dimension chains, axes, schedules, title block; units m/cm/mm (`--dxf-units`).
+- DXF 3D (`plan_3d.dxf`): the model as 3DFACE meshes by layer, for AutoCAD/SketchUp users.
+- Checks (`FloorPlan.quality`): open rooms, assumed thicknesses, default ceiling, uncalibrated video scale, assumed door heights; printed by the CLI and listed in the HTML.
+- Measured vs assumed shown per wall and per opening in the tables; `Wall.exterior` in the JSON.
+- Measuring tool in the HTML viewer (click two points).
+- Site plan: numbered vertices, coordinate table (local, WGS84, UTM with zone and EPSG), boundary table with azimuth (D°M'S") and length, area in m² and ha, perimeter, traverse closure; PDF and DXF tables too.
+- `--project`, `--author`, `--sheet`, `--revision`, `--level`, `--north`, `--paper`, `--dxf-units`.
+
+
 ## 0.2.0 — 2026-09-05
 
 Made for people who are not going to read the source.

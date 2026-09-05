@@ -28,6 +28,7 @@ class Wall:
     height: float
     sides_seen: int = 1  # 1: only one face was observed (thickness is a default); 2: both faces measured
     line_id: int = -1  # walls on the same infinite line share this id
+    exterior: bool = False  # nothing was ever seen behind it
 
     @property
     def length(self) -> float:
@@ -68,6 +69,8 @@ class Opening:
     z0: float
     z1: float
     rooms: tuple[int, ...] = ()  # ids of the rooms this opening connects
+    tag: str = ""  # P1, V2, A1 ... assigned by FloorPlan.label_openings()
+    height_measured: bool = False  # z1 measured on the lintel (True) or a default (False)
 
     @property
     def width(self) -> float:
@@ -111,6 +114,8 @@ class FloorPlan:
     units: str = "m"
     meta: dict[str, Any] = field(default_factory=dict)
     extra_walls: list[Wall] = field(default_factory=list)  # seen, but bounding no room (not drawn)
+    north_deg: float | None = None  # where true north points: degrees clockwise from the plan's +y
+    project: dict[str, str] = field(default_factory=dict)  # name, author, sheet, revision, level ...
 
     # -- derived -----------------------------------------------------------------------
 
@@ -143,6 +148,64 @@ class FloorPlan:
 
     def openings_of(self, wall_id: int) -> list[Opening]:
         return sorted((o for o in self.openings if o.wall_id == wall_id), key=lambda o: o.t0)
+
+    # -- annotation ----------------------------------------------------------------------
+
+    def label_openings(self) -> FloorPlan:
+        """Give every opening a tag: P1, P2 ... doors, V1 ... windows, A1 ... passages,
+        numbered along the walls in wall order."""
+        counters = {"door": 0, "window": 0, "passage": 0}
+        prefix = {"door": "P", "window": "V", "passage": "A"}
+        for w in self.walls:
+            for o in self.openings_of(w.id):
+                counters[o.kind] = counters.get(o.kind, 0) + 1
+                o.tag = f"{prefix.get(o.kind, 'O')}{counters[o.kind]}"
+        return self
+
+    def area_summary(self) -> dict[str, float]:
+        """Useful area (rooms), wall footprint area, and gross area (rooms + walls)."""
+        from shapely.ops import unary_union
+
+        rooms = unary_union([r.shapely for r in self.rooms]) if self.rooms else None
+        walls = unary_union([w.polygon() for w in self.walls]) if self.walls else None
+        useful = float(rooms.area) if rooms is not None else 0.0
+        wall_area = float(walls.area) if walls is not None else 0.0
+        parts = [g for g in (rooms, walls) if g is not None]
+        gross = float(unary_union(parts).area) if parts else 0.0
+        return {
+            "useful_m2": useful,
+            "walls_m2": wall_area,
+            "gross_m2": gross,
+            "wall_length_m": float(sum(w.length for w in self.walls)),
+        }
+
+    def quality(self, lang: str = "en") -> list[dict[str, str]]:
+        """Checks a drafter would run before trusting the plan: ``[{level, text}]``.
+        ``level`` is ``ok`` | ``info`` | ``warn``."""
+        from levanta.i18n import t
+
+        out: list[dict[str, str]] = []
+        open_rooms = [r.name for r in self.rooms if not r.closed]
+        if open_rooms:
+            out.append({"level": "warn", "text": t(lang, "qa_open_room").format(rooms=", ".join(open_rooms))})
+        if not self.rooms:
+            out.append({"level": "warn", "text": t(lang, "qa_no_rooms")})
+        one_sided = sum(1 for w in self.walls if w.sides_seen == 1)
+        if self.walls:
+            out.append({"level": "info" if one_sided else "ok", "text": t(lang, "qa_thickness_assumed").format(n=one_sided, m=len(self.walls))})
+        if not self.ceiling_measured:
+            out.append({"level": "warn", "text": t(lang, "qa_ceiling_default")})
+        src = str(self.meta.get("source", ""))
+        if src == "mapanything" and "scale_factor" not in self.meta:
+            out.append({"level": "warn", "text": t(lang, "qa_scale_uncalibrated")})
+        unmeasured = [o.tag or o.kind for o in self.openings if o.kind == "door" and not o.height_measured]
+        if unmeasured:
+            out.append({"level": "info", "text": t(lang, "qa_height_assumed").format(tags=", ".join(unmeasured))})
+        if self.rooms and not any(o.kind == "window" for o in self.openings):
+            out.append({"level": "info", "text": t(lang, "qa_no_windows")})
+        if all(x["level"] == "ok" for x in out):
+            out.append({"level": "ok", "text": t(lang, "qa_ok")})
+        return out
 
     # -- editing -----------------------------------------------------------------------
 
@@ -257,6 +320,8 @@ class FloorPlan:
             units=d.get("units", "m"),
             meta=d.get("meta", {}),
             extra_walls=extra,
+            north_deg=d.get("north_deg"),
+            project=dict(d.get("project", {}) or {}),
         )
 
     @classmethod

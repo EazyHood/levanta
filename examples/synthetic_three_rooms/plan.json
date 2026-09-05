@@ -14,6 +14,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 0,
+      "exterior": false,
       "length_m": 5.1998
     },
     {
@@ -30,6 +31,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 2,
       "line_id": 1,
+      "exterior": false,
       "length_m": 3.1599
     },
     {
@@ -46,6 +48,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 2,
+      "exterior": false,
       "length_m": 5.1998
     },
     {
@@ -62,6 +65,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 3,
+      "exterior": false,
       "length_m": 7.7002
     },
     {
@@ -78,6 +82,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 2,
       "line_id": 4,
+      "exterior": false,
       "length_m": 7.7002
     },
     {
@@ -94,6 +99,7 @@
       "height": 2.5001008672709624,
       "sides_seen": 1,
       "line_id": 5,
+      "exterior": false,
       "length_m": 7.7002
     }
   ],
@@ -190,6 +196,8 @@
         1,
         2
       ],
+      "tag": "P1",
+      "height_measured": false,
       "width_m": 0.88
     },
     {
@@ -203,6 +211,8 @@
       "rooms": [
         0
       ],
+      "tag": "V1",
+      "height_measured": false,
       "width_m": 0.99
     },
     {
@@ -216,6 +226,8 @@
       "rooms": [
         1
       ],
+      "tag": "V2",
+      "height_measured": false,
       "width_m": 1.19
     },
     {
@@ -230,6 +242,8 @@
         0,
         2
       ],
+      "tag": "P2",
+      "height_measured": false,
       "width_m": 0.88
     },
     {
@@ -244,6 +258,8 @@
         0,
         1
       ],
+      "tag": "P3",
+      "height_measured": false,
       "width_m": 0.87
     }
   ],
@@ -340,8 +356,13 @@
       "faces": 14,
       "wall_lines": 6,
       "walls_set_aside": 0
-    }
+    },
+    "source": "synthetic"
   },
   "extra_walls": [],
+  "north_deg": 0.0,
+  "project": {
+    "name": "levanta demo"
+  },
   "version": 1
 }
