@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="812" height="652" viewBox="0 0 812 652" font-family="Inter, Helvetica, Arial, sans-serif">
+<style>.room{fill:#f6f2ea;stroke:none}.wall{fill:#2b2b2b;stroke:none}.door{stroke:#8a5a2b;stroke-width:1.4;fill:none}.win{stroke:#2b6cb0;stroke-width:1.2;fill:none}.pass{stroke:#2b2b2b;stroke-width:1;fill:none;stroke-dasharray:4 4}.lbl{fill:#222;font-size:13px;font-weight:600}.sub{fill:#555;font-size:11px}.dim{stroke:#777;stroke-width:0.8;fill:none}.dimt{fill:#444;font-size:11px}.ttl{fill:#111;font-size:14px;font-weight:700}.meta{fill:#666;font-size:10.5px}</style>
+<rect width="812" height="652" fill="#ffffff"/>
+<g id="rooms">
+<path class="room" fill-rule="evenodd" d="M 706.0,106.0 106.0,106.0 106.0,256.4 706.0,256.4 Z"/>
+<path class="room" fill-rule="evenodd" d="M 426.0,266.0 106.0,266.0 106.0,506.0 426.0,506.0 Z"/>
+<path class="room" fill-rule="evenodd" d="M 435.6,266.0 435.6,506.0 706.0,506.0 706.0,266.0 Z"/>
+</g>
+<g id="walls">
+<path class="wall" fill-rule="evenodd" d="M 90.0,98.0 106.0,98.0 106.0,514.0 90.0,514.0 90.0,98.0 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 435.6,261.2 435.6,362.5 426.0,362.5 426.0,261.2 435.6,261.2 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 435.6,514.0 426.0,514.0 426.0,432.9 435.6,432.9 435.6,514.0 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 722.0,98.0 722.0,138.0 706.0,138.0 706.0,98.0 722.0,98.0 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 722.0,514.0 706.0,514.0 706.0,218.0 722.0,218.0 722.0,514.0 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 98.0,506.0 266.0,506.0 266.0,522.0 98.0,522.0 98.0,506.0 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 714.0,506.0 714.0,522.0 361.2,522.0 361.2,506.0 714.0,506.0 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 98.0,256.4 171.1,256.4 171.1,266.0 98.0,266.0 98.0,256.4 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 547.0,256.4 547.0,266.0 240.7,266.0 240.7,256.4 547.0,256.4 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 714.0,256.4 714.0,266.0 617.4,266.0 617.4,256.4 714.0,256.4 Z"/>
+<path class="wall" fill-rule="evenodd" d="M 98.0,106.0 98.0,90.0 714.0,90.0 714.0,106.0 98.0,106.0 Z"/>
+</g>
+<g id="openings">
+<line class="door" x1="430.8" y1="432.9" x2="360.4" y2="432.9"/>
+<path class="door" d="M 360.4 432.9 A 70.4 70.4 0 0 1 430.8 362.5"/>
+<line class="win" x1="718.8" y1="218.0" x2="718.8" y2="138.0"/>
+<line class="win" x1="714.0" y1="218.0" x2="714.0" y2="138.0"/>
+<line class="win" x1="709.2" y1="218.0" x2="709.2" y2="138.0"/>
+<line class="win" x1="361.2" y1="509.2" x2="266.0" y2="509.2"/>
+<line class="win" x1="361.2" y1="514.0" x2="266.0" y2="514.0"/>
+<line class="win" x1="361.2" y1="518.8" x2="266.0" y2="518.8"/>
+<line class="door" x1="617.4" y1="261.2" x2="617.4" y2="331.6"/>
+<path class="door" d="M 617.4 331.6 A 70.4 70.4 0 0 1 547.0 261.2"/>
+<line class="door" x1="240.7" y1="261.2" x2="240.7" y2="330.8"/>
+<path class="door" d="M 240.7 330.8 A 69.6 69.6 0 0 1 171.1 261.2"/>
+</g>
+<g id="labels">
+<text class="lbl" x="406.0" y="177.2" text-anchor="middle">Room 1</text>
+<text class="sub" x="406.0" y="192.2" text-anchor="middle">14.10 m² · 7.50 × 1.88 m</text>
+<text class="lbl" x="266.0" y="382.0" text-anchor="middle">Room 2</text>
+<text class="sub" x="266.0" y="397.0" text-anchor="middle">12.00 m² · 4.00 × 3.00 m</text>
+<text class="lbl" x="570.8" y="382.0" text-anchor="middle">Room 3</text>
+<text class="sub" x="570.8" y="397.0" text-anchor="middle">10.14 m² · 3.38 × 3.00 m</text>
+</g>
+<g id="dimensions">
+<line class="dim" x1="90.0" y1="528.0" x2="90.0" y2="555.0"/>
+<line class="dim" x1="722.0" y1="528.0" x2="722.0" y2="555.0"/>
+<line class="dim" x1="90.0" y1="550.0" x2="722.0" y2="550.0"/>
+<line class="dim" x1="87.0" y1="553.0" x2="93.0" y2="547.0"/><line class="dim" x1="719.0" y1="553.0" x2="725.0" y2="547.0"/>
+<text class="dimt" x="406.0" y="546.0" text-anchor="middle">7.90 m</text>
+<line class="dim" x1="84.0" y1="522.0" x2="57.0" y2="522.0"/>
+<line class="dim" x1="84.0" y1="90.0" x2="57.0" y2="90.0"/>
+<line class="dim" x1="62.0" y1="522.0" x2="62.0" y2="90.0"/>
+<line class="dim" x1="59.0" y1="525.0" x2="65.0" y2="519.0"/><line class="dim" x1="59.0" y1="93.0" x2="65.0" y2="87.0"/>
+<text class="dimt" x="58.0" y="306.0" text-anchor="middle" transform="rotate(-90 58.0 306.0)">5.40 m</text>
+</g>
+<text class="ttl" x="90" y="618">Synthetic three-room apartment (tests/synthetic.py)</text>
+<text class="meta" x="90" y="634">levanta · 3 rooms · 36.24 m² · ceiling 2.50 m (measured) · 2026-09-04</text>
+<rect x="642.0" y="626.0" width="40.0" height="6" fill="#222"/>
+<rect x="682.0" y="626.0" width="40.0" height="6" fill="none" stroke="#222" stroke-width="0.8"/>
+<text class="meta" x="642.0" y="622.0">0</text><text class="meta" x="722.0" y="622.0" text-anchor="end">1 m</text>
+</svg>

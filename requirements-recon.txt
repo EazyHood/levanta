@@ -1,0 +1,9 @@
+# GPU reconstruction from plain video (the `mapanything` backend).
+#
+# 1. Install PyTorch for your CUDA version first (this line is for CUDA 12.8; see
+#    https://pytorch.org/get-started/locally/ for others, or omit --index-url for CPU):
+#
+#    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+#
+# 2. Then MapAnything itself (Apache-2.0 code; not published on PyPI):
+mapanything @ git+https://github.com/facebookresearch/map-anything.git

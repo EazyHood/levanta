@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "levanta"
+version = "0.1.0"
+description = "Turn a phone video (or public satellite-derived building data) into a 3D model and 2D/3D floor plans of a house."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Jhona (EazyHood)" }]
+keywords = [
+  "floor-plan", "3d-reconstruction", "photogrammetry", "architecture",
+  "point-cloud", "dxf", "svg", "glb", "rgb-d", "mapanything", "overture", "openstreetmap",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Graphics :: 3D Modeling",
+  "Topic :: Scientific/Engineering :: Image Processing",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "shapely>=2.0",
+  "trimesh>=4.0",
+  "mapbox-earcut>=1.0",
+  "ezdxf>=1.1",
+  "pillow>=10.0",
+  "opencv-python-headless>=4.8",
+  "typer>=0.12",
+  "requests>=2.31",
+]
+
+[project.optional-dependencies]
+# GPU reconstruction from plain video. MapAnything itself is not on PyPI; see requirements-recon.txt.
+recon = ["torch>=2.4", "huggingface_hub>=0.23"]
+# Overture Maps building footprints (needs pyarrow); the OpenStreetMap source works without it.
+overture = ["overturemaps>=0.9"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.5"]
+
+[project.scripts]
+levanta = "levanta.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/EazyHood/levanta"
+Repository = "https://github.com/EazyHood/levanta"
+Issues = "https://github.com/EazyHood/levanta/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/levanta"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/levanta", "tests", "README.md", "README.es.md", "LICENSE", "CITATION.cff"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "NPY", "RUF"]
+ignore = ["E501", "RUF001", "RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/levanta/cli.py" = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]

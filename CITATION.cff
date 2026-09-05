@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use levanta, please cite it and keep the author's copyright notice (MIT)."
+title: "levanta: floor plans and 3D models of a house from a phone video or public building data"
+type: software
+authors:
+  - name: "Jhona (EazyHood)"
+version: 0.1.0
+date-released: 2026-09-05
+license: MIT
+repository-code: "https://github.com/EazyHood/levanta"
+keywords:
+  - floor plan
+  - 3D reconstruction
+  - point cloud
+  - MapAnything
+  - OpenStreetMap
+  - Overture Maps
+references:
+  - type: conference-paper
+    title: "MapAnything: Universal Feed-Forward Metric 3D Reconstruction"
+    authors:
+      - family-names: Keetha
+        given-names: Nikhil
+    year: 2026
+    url: "https://map-anything.github.io/"
+  - type: conference-paper
+    title: "A Benchmark for the Evaluation of RGB-D SLAM Systems"
+    authors:
+      - family-names: Sturm
+        given-names: Jürgen
+      - family-names: Engelhard
+        given-names: Nikolas
+      - family-names: Endres
+        given-names: Felix
+      - family-names: Burgard
+        given-names: Wolfram
+      - family-names: Cremers
+        given-names: Daniel
+    year: 2012
+    conference:
+      name: "IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)"

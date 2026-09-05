@@ -1,0 +1,212 @@
+"""Vector floor-plan model: walls, openings, rooms.
+
+Everything lives in the *plan frame*: metres, z = 0 on the finished floor, +z up, and
+(when Manhattan mode is on) walls parallel to the x or y axis.  ``FloorPlan.transform``
+maps the original point-cloud frame into the plan frame so results can be related back
+to the capture.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+from shapely.geometry import LineString, Polygon
+
+
+@dataclass
+class Wall:
+    """Straight wall described by its centreline ``a -> b`` and its ``thickness``."""
+
+    id: int
+    a: tuple[float, float]
+    b: tuple[float, float]
+    thickness: float
+    height: float
+    sides_seen: int = 1  # 1: only one face was observed (thickness is a default); 2: both faces measured
+    line_id: int = -1  # walls on the same infinite line share this id
+
+    @property
+    def length(self) -> float:
+        return float(np.hypot(self.b[0] - self.a[0], self.b[1] - self.a[1]))
+
+    @property
+    def direction(self) -> np.ndarray:
+        d = np.array(self.b, dtype=float) - np.array(self.a, dtype=float)
+        n = np.linalg.norm(d)
+        return d / n if n > 0 else np.array([1.0, 0.0])
+
+    @property
+    def normal(self) -> np.ndarray:
+        d = self.direction
+        return np.array([-d[1], d[0]])
+
+    def point_at(self, t: float) -> np.ndarray:
+        return np.array(self.a, dtype=float) + self.direction * t
+
+    def polygon(self) -> Polygon:
+        """Footprint rectangle of the wall body."""
+        return LineString([self.a, self.b]).buffer(self.thickness / 2.0, cap_style="flat", join_style="mitre")
+
+
+@dataclass
+class Opening:
+    """Door, window or open passage cut into ``wall_id``.
+
+    ``t0``/``t1`` are distances along the wall centreline from ``Wall.a``; ``z0``/``z1``
+    the bottom/top heights above the floor.
+    """
+
+    id: int
+    wall_id: int
+    kind: str  # "door" | "window" | "passage"
+    t0: float
+    t1: float
+    z0: float
+    z1: float
+    rooms: tuple[int, ...] = ()  # ids of the rooms this opening connects
+
+    @property
+    def width(self) -> float:
+        return self.t1 - self.t0
+
+
+@dataclass
+class Room:
+    id: int
+    name: str
+    polygon: list[tuple[float, float]]  # exterior ring, counter-clockwise, metres
+    holes: list[list[tuple[float, float]]] = field(default_factory=list)
+    closed: bool = True  # False: not fully enclosed by detected walls; outline follows the seen floor
+
+    @property
+    def shapely(self) -> Polygon:
+        return Polygon(self.polygon, self.holes)
+
+    @property
+    def area(self) -> float:
+        return float(self.shapely.area)
+
+    @property
+    def perimeter(self) -> float:
+        return float(self.shapely.length)
+
+    @property
+    def centroid(self) -> tuple[float, float]:
+        c = self.shapely.representative_point()
+        return (float(c.x), float(c.y))
+
+
+@dataclass
+class FloorPlan:
+    walls: list[Wall]
+    rooms: list[Room]
+    openings: list[Opening]
+    ceiling_height: float
+    ceiling_measured: bool = True
+    transform: list[list[float]] = field(default_factory=lambda: np.eye(4).tolist())  # cloud -> plan
+    units: str = "m"
+    meta: dict[str, Any] = field(default_factory=dict)
+
+    # -- derived -----------------------------------------------------------------------
+
+    @property
+    def bounds(self) -> tuple[float, float, float, float]:
+        """(xmin, ymin, xmax, ymax) over wall bodies and rooms."""
+        xs: list[float] = []
+        ys: list[float] = []
+        for w in self.walls:
+            b = w.polygon().bounds
+            xs += [b[0], b[2]]
+            ys += [b[1], b[3]]
+        for r in self.rooms:
+            b = r.shapely.bounds
+            xs += [b[0], b[2]]
+            ys += [b[1], b[3]]
+        if not xs:
+            return (0.0, 0.0, 0.0, 0.0)
+        return (min(xs), min(ys), max(xs), max(ys))
+
+    @property
+    def total_area(self) -> float:
+        return float(sum(r.area for r in self.rooms))
+
+    def wall_by_id(self, wall_id: int) -> Wall:
+        for w in self.walls:
+            if w.id == wall_id:
+                return w
+        raise KeyError(wall_id)
+
+    def openings_of(self, wall_id: int) -> list[Opening]:
+        return sorted((o for o in self.openings if o.wall_id == wall_id), key=lambda o: o.t0)
+
+    def summary(self) -> str:
+        lines = [
+            f"walls: {len(self.walls)}  rooms: {len(self.rooms)}  openings: {len(self.openings)}",
+            f"ceiling: {self.ceiling_height:.2f} m ({'measured' if self.ceiling_measured else 'default'})",
+            f"floor area: {self.total_area:.2f} m2",
+        ]
+        for r in self.rooms:
+            lines.append(f"  {r.name}: {r.area:.2f} m2, perimeter {r.perimeter:.2f} m")
+        for o in self.openings:
+            lines.append(f"  {o.kind} #{o.id} on wall {o.wall_id}: width {o.width:.2f} m, z {o.z0:.2f}-{o.z1:.2f}")
+        return "\n".join(lines)
+
+    # -- (de)serialisation -------------------------------------------------------------
+
+    def to_dict(self) -> dict[str, Any]:
+        d = asdict(self)
+        d["version"] = 1
+        d["rooms"] = [
+            {**asdict(r), "area_m2": round(r.area, 4), "perimeter_m": round(r.perimeter, 4)} for r in self.rooms
+        ]
+        d["walls"] = [{**asdict(w), "length_m": round(w.length, 4)} for w in self.walls]
+        d["openings"] = [{**asdict(o), "width_m": round(o.width, 4)} for o in self.openings]
+        return d
+
+    def to_json(self, path: str | Path | None = None, indent: int = 2) -> str:
+        text = json.dumps(self.to_dict(), indent=indent, default=_json_default)
+        if path is not None:
+            Path(path).write_text(text, encoding="utf-8")
+        return text
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> FloorPlan:
+        walls = [Wall(**{k: v for k, v in w.items() if k in Wall.__dataclass_fields__}) for w in d["walls"]]
+        rooms = [Room(**{k: v for k, v in r.items() if k in Room.__dataclass_fields__}) for r in d["rooms"]]
+        openings = [
+            Opening(**{k: (tuple(v) if k == "rooms" else v) for k, v in o.items() if k in Opening.__dataclass_fields__})
+            for o in d["openings"]
+        ]
+        for w in walls:
+            w.a, w.b = tuple(w.a), tuple(w.b)
+        for r in rooms:
+            r.polygon = [tuple(p) for p in r.polygon]
+            r.holes = [[tuple(p) for p in h] for h in r.holes]
+        return cls(
+            walls=walls,
+            rooms=rooms,
+            openings=openings,
+            ceiling_height=float(d["ceiling_height"]),
+            ceiling_measured=bool(d.get("ceiling_measured", True)),
+            transform=d.get("transform", np.eye(4).tolist()),
+            units=d.get("units", "m"),
+            meta=d.get("meta", {}),
+        )
+
+    @classmethod
+    def from_json(cls, path_or_text: str | Path) -> FloorPlan:
+        p = Path(path_or_text)
+        text = p.read_text(encoding="utf-8") if p.exists() else str(path_or_text)
+        return cls.from_dict(json.loads(text))
+
+
+def _json_default(o: Any) -> Any:
+    if isinstance(o, np.ndarray):
+        return o.tolist()
+    if isinstance(o, np.generic):
+        return o.item()
+    raise TypeError(f"not JSON serialisable: {type(o)}")

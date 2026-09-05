@@ -1,0 +1,29 @@
+# environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# data and results (downloaded datasets, model weights, run outputs)
+data/
+out/
+frames/
+*.ply
+*.tgz
+*.tar.gz
+
+# keep the small example outputs that the README links to
+!examples/**/*.svg
+!examples/**/*.png
+!examples/**/*.json
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
