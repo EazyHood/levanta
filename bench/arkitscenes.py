@@ -127,9 +127,12 @@ def floor_truth(vertices: np.ndarray, faces: np.ndarray) -> dict:
     floor = unary_union(polys).buffer(-0.01).buffer(0)
     if isinstance(floor, MultiPolygon):
         floor = max(floor.geoms, key=lambda g: g.area)
-    rooms = floor.buffer(-0.45)
-    parts = [g for g in (rooms.geoms if hasattr(rooms, "geoms") else [rooms]) if g.area > 1.0]
-    return {"up": up, "sign": sign, "floor_h": floor_h, "horiz": horiz, "floor": floor, "area": float(floor.area), "rooms": len(parts)}
+    seen = float(floor.area)  # floor the LiDAR actually saw (furniture excluded)
+    # the floor plate: holes left by furniture and by gaps in the scan are filled
+    floor = Polygon(floor.exterior.coords, [h.coords for h in floor.interiors if Polygon(h.coords).area > 4.0]).buffer(0)
+    rooms = floor.buffer(-0.40)
+    parts = [g for g in (rooms.geoms if hasattr(rooms, "geoms") else [rooms]) if g.area > 1.5]
+    return {"up": up, "sign": sign, "floor_h": floor_h, "horiz": horiz, "floor": floor, "area": float(floor.area), "seen_area": seen, "rooms": len(parts)}
 
 
 # -- ARKit trajectory and intrinsics ------------------------------------------------------------
@@ -206,33 +209,37 @@ def evaluate(scene: Path, out_dir: Path, truth: dict, run: Path) -> dict:
     cloud = PointCloud.load_ply(run / "plan_cloud.ply")
     cams = cloud.cameras[:, :3, 3] if cloud.cameras is not None else None
     ts, centres = read_traj(scene / "lowres_wide.traj")
-    t0 = ts[0]
-    src, dst = [], []
-    if cams is not None and len(cams) == len(idx):
-        for k, f in enumerate(idx):
-            j = int(np.argmin(np.abs(ts - (t0 + f["time_s"]))))
-            if abs(ts[j] - (t0 + f["time_s"])) < 0.2:
-                src.append(cams[k])
-                dst.append(centres[j])
+    # the .mov and the trajectory start together within a second or two: fit the offset
     s = rms = None
     R = t = None
-    if len(src) >= 5:
-        s, R, t, rms = umeyama(np.array(src), np.array(dst))
-    # rooms into the mesh frame (plan xy -> cloud xyz via the plan's transform, then Sim3)
-    T = np.array(plan.get("transform", np.eye(4).tolist()))  # cloud -> plan
-    Tinv = np.linalg.inv(T)
+    src: list = []
+    best_off = 0.0
+    if cams is not None and len(cams) == len(idx):
+        for off in np.arange(-3.0, 3.01, 0.25):
+            sr, ds = [], []
+            for k, f in enumerate(idx):
+                j = int(np.argmin(np.abs(ts - (ts[0] + off + f["time_s"]))))
+                if abs(ts[j] - (ts[0] + off + f["time_s"])) < 0.2:
+                    sr.append(cams[k])
+                    ds.append(centres[j])
+            if len(sr) >= 5:
+                s_, R_, t_, rms_ = umeyama(np.array(sr), np.array(ds))
+                if rms is None or rms_ < rms:
+                    s, R, t, rms, best_off, src = s_, R_, t_, rms_, float(off), sr
+    # rooms into the mesh frame: the plan frame is the cloud frame (PlanResult.cloud), so
+    # the cameras' similarity carries the room polygons (z = 0, the floor) directly
     rooms_union = None
     if R is not None:
         polys = []
         for r in plan["rooms"]:
-            pts = np.array([[x, y, 0.0, 1.0] for x, y in r["polygon"]])
-            world = (Tinv @ pts.T).T[:, :3]
-            ark = s * (R @ world.T).T + t
+            pts = np.array([[x, y, 0.0] for x, y in r["polygon"]])
+            ark = s * (R @ pts.T).T + t
             h = truth["horiz"]
             polys.append(Polygon([(p[h[0]], p[h[1]]) for p in ark]).buffer(0))
         if polys:
             rooms_union = unary_union(polys)
-    lev_area = float(sum(r.get("area", 0.0) for r in plan["rooms"]))
+        _overlay(run / "overlay.png", truth["floor"], rooms_union, np.array([s * (R @ c) + t for c in cams])[:, truth["horiz"]] if cams is not None else None)
+    lev_area = float(sum(Polygon(r["polygon"]).area for r in plan["rooms"]))
     res.update(
         {
             "levanta_area_m2": lev_area,
@@ -241,6 +248,7 @@ def evaluate(scene: Path, out_dir: Path, truth: dict, run: Path) -> dict:
             "levanta_walls": len(plan["walls"]),
             "scale_factor": s,
             "traj_rms_m": rms,
+            "time_offset_s": best_off,
             "matched_cams": len(src),
             "area_error_pct": (lev_area - truth["area"]) / truth["area"] * 100.0,
             "area_error_scaled_pct": ((lev_area * s * s) - truth["area"]) / truth["area"] * 100.0 if s else None,
@@ -250,12 +258,47 @@ def evaluate(scene: Path, out_dir: Path, truth: dict, run: Path) -> dict:
     return res
 
 
+def _overlay(path: Path, floor, rooms, cams) -> None:
+    """Truth floor (grey) with levanta's rooms (green outline) and cameras (magenta)."""
+    from PIL import Image, ImageDraw
+
+    geoms = [floor] + ([rooms] if rooms is not None and not rooms.is_empty else [])
+    minx = min(g.bounds[0] for g in geoms) - 0.5
+    miny = min(g.bounds[1] for g in geoms) - 0.5
+    maxx = max(g.bounds[2] for g in geoms) + 0.5
+    maxy = max(g.bounds[3] for g in geoms) + 0.5
+    ppm = 80.0
+    W, H = int((maxx - minx) * ppm) + 1, int((maxy - miny) * ppm) + 1
+    im = Image.new("RGB", (W, H), "white")
+    d = ImageDraw.Draw(im)
+
+    def P(x, y):
+        return ((x - minx) * ppm, (maxy - y) * ppm)
+
+    for g in floor.geoms if hasattr(floor, "geoms") else [floor]:
+        d.polygon([P(*c) for c in g.exterior.coords], fill=(200, 200, 200), outline=(90, 90, 90))
+        for hole in g.interiors:
+            d.polygon([P(*c) for c in hole.coords], fill="white", outline=(150, 150, 150))
+    if rooms is not None and not rooms.is_empty:
+        for g in rooms.geoms if hasattr(rooms, "geoms") else [rooms]:
+            d.polygon([P(*c) for c in g.exterior.coords], outline=(0, 140, 0), width=3)
+    if cams is not None:
+        for x, y in cams:
+            px, py = P(x, y)
+            d.ellipse([px - 2, py - 2, px + 2, py + 2], fill=(200, 0, 200))
+    d.text((6, 6), "grey: LiDAR floor  green: levanta rooms  magenta: cameras", fill=(0, 0, 0))
+    im.save(path)
+
+
 def main() -> None:
+    sys.stdout.reconfigure(line_buffering=True)
     ap = argparse.ArgumentParser()
     ap.add_argument("scenes_dir", type=Path)
     ap.add_argument("out", type=Path)
     ap.add_argument("--max-views", type=int, default=24)
     ap.add_argument("--only", nargs="*", default=None)
+    ap.add_argument("--runs", nargs="*", default=["noK", "withK"], help="which runs to (re)do; the others are read from disk")
+    ap.add_argument("--eval-only", action="store_true", help="do not run levanta, evaluate what is on disk")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     results = []
@@ -285,14 +328,16 @@ def main() -> None:
         print(f"{vid}: mov {mw}x{mh}; ARKit fx {fx:.1f} at {w}x{h} -> {f_frame:.1f} px at {frame_long} px")
         rows = {"video_id": vid, "truth_area_m2": truth["area"], "truth_rooms": truth["rooms"], "mov": f"{mw}x{mh}", "focal_px_frame": f_frame}
         for name, focal in (("noK", None), ("withK", f_frame)):
-            run = run_levanta(mov, args.out / vid / name, args.max_views, focal)
-            r = evaluate(scene, args.out, truth, run)
+            run = args.out / vid / name
+            if name in args.runs and not args.eval_only:
+                run = run_levanta(mov, run, args.max_views, focal)
+            r = evaluate(scene, args.out, truth, run) if run.exists() else {"run": name, "ok": False}
             rows[name] = r
             print(f"  {name}: {json.dumps(r)}")
         results.append(rows)
         (args.out / "results.json").write_text(json.dumps(results, indent=1), encoding="utf-8")
     # the table
-    lines = ["| scene | truth m² / rooms | scale (no K) | scale (K) | area err (no K) | area err (K) | IoU (K) | rooms (K) | doors (K) | traj RMS (K) |", "|---|---|---|---|---|---|---|---|---|---|"]
+    lines = ["| scene | truth floor m² / rooms | scale, no K | scale, with K | area error, no K | area error, with K | floor IoU (K) | rooms (K) | doors (K) | camera RMS (K) |", "|---|---|---|---|---|---|---|---|---|---|"]
     for r in results:
         a, b = r["noK"], r["withK"]
         fmt = lambda v, f="{:.2f}": "—" if v is None else f.format(v)  # noqa: E731

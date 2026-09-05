@@ -67,17 +67,82 @@ def load_straight_to_device(cls, model_name: str, device: str):
     import json
 
     import torch
-    from huggingface_hub import hf_hub_download
     from safetensors.torch import load_file
 
-    cfg = json.loads(Path(hf_hub_download(model_name, "config.json")).read_text(encoding="utf-8"))
+    cfg = json.loads(Path(_hub_file(model_name, "config.json")).read_text(encoding="utf-8"))
     enc = cfg.get("encoder_config")
     if isinstance(enc, dict) and enc.get("encoder_str") == "dinov2":
         cfg["encoder_config"] = {**enc, "torch_hub_pretrained": False}  # the checkpoint has them
     with torch.device("meta"):
         model = cls(**cfg)
-    sd = load_file(hf_hub_download(model_name, "model.safetensors"), device=device)
+    sd = load_file(_hub_file(model_name, "model.safetensors"), device=device)
     return load_from_state_dict_on_meta(model, sd)
+
+
+class offline_when_cached:
+    """While active, model loading never touches the network if the pieces are on disk.
+
+    MapAnything's encoder is fetched through ``torch.hub.load("facebookresearch/dinov2")``,
+    which asks GitHub for the default branch and whether the repo is a fork on *every*
+    call, cache or not; on a bad connection (or an ISP that answers for hosts it does
+    not own) that probe dies with an AttributeError deep in urllib and the run is lost
+    although all 4.6 GB of weights are already on disk (five of ten benchmark runs went
+    that way).  With the dinov2 hub checkout present, the probes are answered locally;
+    with the HuggingFace files present, the hub is told to stay offline.
+    """
+
+    def __enter__(self):
+        import os
+
+        import torch
+
+        self._saved = None
+        hub_dir = Path(torch.hub.get_dir()) / "facebookresearch_dinov2_main"
+        if hub_dir.exists():
+            self._saved = (torch.hub._parse_repo_info, torch.hub._validate_not_a_forked_repo)
+            parse = self._saved[0]
+
+            def _parse(github: str):
+                if github.startswith("facebookresearch/dinov2"):
+                    return "facebookresearch", "dinov2", "main"
+                return parse(github)
+
+            torch.hub._parse_repo_info = _parse
+            torch.hub._validate_not_a_forked_repo = lambda *a, **k: None
+        self._env = os.environ.get("HF_HUB_OFFLINE")
+        try:
+            from huggingface_hub import hf_hub_download
+
+            hf_hub_download("facebook/map-anything-apache", "config.json", local_files_only=True)
+            os.environ["HF_HUB_OFFLINE"] = "1"
+        except Exception:
+            pass
+        return self
+
+    def __exit__(self, *exc):
+        import os
+
+        import torch
+
+        if self._saved is not None:
+            torch.hub._parse_repo_info, torch.hub._validate_not_a_forked_repo = self._saved
+        if self._env is None:
+            os.environ.pop("HF_HUB_OFFLINE", None)
+        else:
+            os.environ["HF_HUB_OFFLINE"] = self._env
+        return False
+
+
+def _hub_file(model_name: str, filename: str) -> str:
+    """The cached copy when there is one, the network otherwise: a flaky connection (or
+    an ISP that answers for hosts it does not own) must not break a run whose weights
+    are already on disk."""
+    from huggingface_hub import hf_hub_download
+
+    try:
+        return hf_hub_download(model_name, filename, local_files_only=True)
+    except Exception:
+        return hf_hub_download(model_name, filename)
 
 
 class MapAnythingBackend:
@@ -124,11 +189,15 @@ class MapAnythingBackend:
         # path (build on the CPU, then load) needs ~4.5 GB of host commit for the DINOv2
         # giant alone and died with "OS error 1455: the paging file is too small" on a
         # 32 GB laptop with other applications open, even with map_location set.
-        try:
-            model = load_straight_to_device(MapAnything, self.model_name, device)
-        except Exception as e:  # a checkpoint without safetensors, an offline cache ...
-            print(f"direct load failed ({type(e).__name__}: {e}); loading the standard way")
-            model = MapAnything.from_pretrained(self.model_name, map_location=device)
+        with offline_when_cached():
+            try:
+                model = load_straight_to_device(MapAnything, self.model_name, device)
+            except Exception as e:  # a checkpoint without safetensors, an offline cache ...
+                print(f"direct load failed ({type(e).__name__}: {e}); loading the standard way")
+                try:
+                    model = MapAnything.from_pretrained(self.model_name, map_location=device, local_files_only=True)
+                except Exception:
+                    model = MapAnything.from_pretrained(self.model_name, map_location=device)
         self._model = model.to(device)
         self._model.eval()
         self._device = device
