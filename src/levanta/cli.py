@@ -273,11 +273,11 @@ def video(
         from levanta.io.phone import focal_for_video
 
         w0 = cv2.imread(str(kept[0].path)).shape[1]
-        f_auto, phone, model = focal_for_video(video, w0)
+        f_auto, phone, phone_model = focal_for_video(video, w0)
         if phone is not None:
             focal_px = f_auto
             phone_name = phone.name
-            _ok(f"phone {model} -> {phone.name}, main camera {phone.quoted_as}: focal {focal_px:.0f} px at {w0} px wide")
+            _ok(f"phone {phone_model} -> {phone.name}, main camera {phone.quoted_as}: focal {focal_px:.0f} px at {w0} px wide")
         else:
             _step("no known phone in the file: scale from the network alone (pass --focal-px, or calibrate with --door-width)")
     frames = []
