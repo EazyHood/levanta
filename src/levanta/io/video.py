@@ -58,8 +58,13 @@ def extract_frames(
     max_side: int | None = 1024,
     min_sharpness: float = 20.0,
     jpeg_quality: int = 95,
+    score_every: int = 3,
 ) -> list[ExtractedFrame]:
     """Write the sharpest frame of every ``1/fps`` window of ``video_path`` to ``out_dir``.
+
+    Only one frame in ``score_every`` is decoded and scored (the others are skipped by
+    the decoder without a colour conversion): at 30 fps that still leaves ten
+    candidates per second, and the extraction runs about three times faster.
 
     Returns the frames in time order.  Frames whose sharpness is below ``min_sharpness``
     are dropped even if they were the best of their window, and so are flat frames (title
@@ -81,9 +86,19 @@ def extract_frames(
 
     candidates: list[tuple[float, bytes, int]] = []  # (sharpness, encoded jpeg, frame index)
     best: tuple[float, np.ndarray, int] | None = None
+    score_every = max(1, int(score_every))
     i = 0
     while True:
-        ok, bgr = cap.read()
+        if not cap.grab():
+            break
+        if i % score_every:
+            if (i + 1) % window == 0:  # a window ends on a skipped frame: close it anyway
+                if best is not None and best[0] >= min_sharpness:
+                    candidates.append(_encode(best, max_side, jpeg_quality))
+                best = None
+            i += 1
+            continue
+        ok, bgr = cap.retrieve()
         if not ok:
             break
         gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)

@@ -180,6 +180,20 @@ def demo(
     _finish(res.plan, out, "plan", title or ("levanta demo" if lang == "en" else "demo de levanta"), lang, units, False, names, None, None, open_html, project={"name": project, "author": author, "sheet": sheet, "revision": revision, "level": level}, north=north, paper=paper, dxf_units=dxf_units)
 
 
+def _phone_line(video: Path, video_width: int) -> None:
+    """One line about the phone that filmed the clip and the focal length it implies."""
+    from levanta.io.phone import focal_for_video
+
+    frame_w = min(1024, video_width) if video_width else 1024
+    f, phone, model = focal_for_video(video, frame_w)
+    if phone is not None:
+        typer.echo(f"phone: {model} -> {phone.name}, main camera {phone.quoted_as} ({phone.source}); focal {f:.0f} px at {frame_w} px wide, used for the scale")
+    elif model:
+        typer.echo(f"phone: {model} (not in the focal table): scale from the network alone; pass --focal-px or calibrate with --door-width 0.80")
+    else:
+        typer.echo("phone: unknown (the file carries no model): scale from the network alone; pass --focal-px or calibrate with --door-width 0.80")
+
+
 @app.command()
 def check(
     video: Path = typer.Argument(..., exists=True),
@@ -192,6 +206,7 @@ def check(
     typer.echo(f"{video.name}: {rep['width']}x{rep['height']}, {rep['duration_s']:.0f} s at {rep['fps']:.0f} fps, {rep['frames']} frames")
     typer.echo(f"sharpness: median {rep['sharpness_median']:.0f}, 10th percentile {rep['sharpness_p10']:.0f}  (below 20 is blurry)")
     typer.echo(f"would keep {rep['usable_frames']} frames at {fps:g} fps ({rep['blurry_windows']} windows had nothing sharp, {rep['flat_windows']} were title cards or blank)")
+    _phone_line(video, rep["width"])
     for w in rep["warnings"]:
         _warn("! " + w)
     if not rep["warnings"]:
@@ -251,6 +266,20 @@ def video(
         encoding="utf-8",
     )
     _ok(f"{len(kept)} frames covering {kept[0].time_s:.0f}-{kept[-1].time_s:.0f} s of the clip ({time.time() - t0:.0f} s)")
+    phone_name = None
+    if not focal_px:
+        import cv2
+
+        from levanta.io.phone import focal_for_video
+
+        w0 = cv2.imread(str(kept[0].path)).shape[1]
+        f_auto, phone, model = focal_for_video(video, w0)
+        if phone is not None:
+            focal_px = f_auto
+            phone_name = phone.name
+            _ok(f"phone {model} -> {phone.name}, main camera {phone.quoted_as}: focal {focal_px:.0f} px at {w0} px wide")
+        else:
+            _step("no known phone in the file: scale from the network alone (pass --focal-px, or calibrate with --door-width)")
     frames = []
     for k in kept:
         cam = None
@@ -270,6 +299,8 @@ def video(
         cloud = be.reconstruct(frames)
     except Exception as e:
         _fail(f"reconstruction failed: {type(e).__name__}: {e}\n  Out of memory?  Lower --max-views.  'OS error 1455' on Windows: close other applications.")
+    if phone_name:
+        cloud.meta["focal_source"] = phone_name
     cloud.save_ply(out / f"{stem}_recon.ply")
     dropped = cloud.meta.get("views_dropped_flat", 0)
     _ok(f"{len(cloud):,} points from {len(frames)} views in {cloud.meta.get('chunks', 1)} chunk(s) ({time.time() - t1:.0f} s)" + (f"; {dropped} view(s) were a flat picture and were skipped" if dropped else ""))

@@ -29,7 +29,7 @@ def elevations_drawing(
     font_scale: float = 1.0,
     title: str | None = None,
 ) -> Drawing:
-    from levanta.io.plan2d import _title_block, next_sheet, wall_orientation, wall_tag_point
+    from levanta.io.plan2d import _title_block, next_sheet, stamp, wall_orientation, wall_tag_point
 
     fs = font_scale
     walls = [w for w in plan.walls if w.length >= min_len]
@@ -108,6 +108,8 @@ def elevations_drawing(
         y0 += row_h
     if title_block:
         _title_block(d, margin, H - tb_h - 10 * fs, W - 2 * margin, tb_h, plan, title, lang, units, scale, print_scale, fs, sheet=sheet or next_sheet(plan.project.get("sheet")), subtitle=t(lang, "elevations"))
+    if plan.scale_uncalibrated:
+        stamp(d, W / 2, (H - tb_h) / 2, min(W, H - tb_h), lang, fs)
     else:
         d.text(margin, H - 10 * fs, t(lang, "generated_by"), size=10 * fs, anchor="start", color="#666")
     return d

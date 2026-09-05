@@ -97,6 +97,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "notes": "Notes",
         "note_assumed_thickness": "Walls {walls}: thickness assumed {th} (seen from one side only).",
         "note_scale_fit": "Scale 1:{s}: 1:{next} does not fit {paper}.",
+        "stamp": "PRELIMINARY · scale not calibrated",
+        "stamp_short": "not calibrated",
     },
     "es": {
         "room": "Habitación",
@@ -192,6 +194,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "notes": "Notas",
         "note_assumed_thickness": "Muros {walls}: grosor supuesto {th} (vistos por una sola cara).",
         "note_scale_fit": "Escala 1:{s}: 1:{next} no cabe en {paper}.",
+        "stamp": "PRELIMINAR · escala sin calibrar",
+        "stamp_short": "sin calibrar",
     },
 }
 

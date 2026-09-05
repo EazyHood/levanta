@@ -195,8 +195,7 @@ class FloorPlan:
             out.append({"key": "thickness", "level": "info" if one_sided else "ok", "text": t(lang, "qa_thickness_assumed").format(n=one_sided, m=len(self.walls))})
         if not self.ceiling_measured:
             out.append({"key": "ceiling", "level": "warn", "text": t(lang, "qa_ceiling_default")})
-        src = str(self.meta.get("source", ""))
-        if src == "mapanything" and "scale_factor" not in self.meta:
+        if self.scale_uncalibrated:
             out.append({"key": "scale", "level": "warn", "text": t(lang, "qa_scale_uncalibrated")})
         unmeasured = [o.tag or o.kind for o in self.openings if o.kind == "door" and not o.height_measured]
         if unmeasured:
@@ -223,6 +222,12 @@ class FloorPlan:
                 if n:
                     r.name = str(n)
         return self
+
+    @property
+    def scale_uncalibrated(self) -> bool:
+        """True when the metric scale comes from the network alone (a video with no known
+        focal length and no door calibration): the sheet is stamped PRELIMINARY."""
+        return str(self.meta.get("source", "")) == "mapanything" and "scale_factor" not in self.meta
 
     def scaled(self, factor: float) -> FloorPlan:
         """A copy with every length multiplied by ``factor`` (areas by ``factor**2``).

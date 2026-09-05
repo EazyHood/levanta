@@ -324,6 +324,15 @@ def room_label_specs(plan: FloorPlan, lang: str, units: str, scale: float, fs: f
     return specs
 
 
+def stamp(d: Drawing, cx: float, cy: float, extent: float, lang: str, fs: float) -> None:
+    """A diagonal "PRELIMINARY - scale not calibrated" across the drawing, sized to it."""
+    from levanta.io.pdf import text_width
+
+    text = t(lang, "stamp")
+    size = max(12.0 * fs, min(extent / 9.0, 0.9 * extent * 1.25 / max(text_width(text, 1.0, True), 1e-6)))
+    d.text(cx, cy + size * 0.35, text, size=size, weight="bold", color="#e8a0a0", rotate=28.0, cls="stamp")
+
+
 def next_sheet(sheet: str | None) -> str:
     """'A-01' -> 'A-02', 'A1' -> 'A2', None -> 'A-02'."""
     if not sheet:
@@ -526,6 +535,8 @@ def floor_plan_drawing(
     # north arrow
     if plan.north_deg is not None:
         _north_arrow(d, X(xmin) - 1.05 * scale, oy - 0.45 * scale, plan.north_deg, fs, lang)
+    if plan.scale_uncalibrated:
+        stamp(d, X((xmin + xmax) / 2), Y((ymin + ymax) / 2), min(plan_w, plan_h), lang, fs)
     # tables + notes
     if have_tables:
         if below:
@@ -720,7 +731,7 @@ def _title_block(d: Drawing, x: float, y: float, w: float, h: float, plan: Floor
     cell(1, t(lang, "author"), pr.get("author") or "—")
     d.text(x + cols[1] * w + 6 * fs, y + 54 * fs, f"{t(lang, 'level')}: {pr.get('level') or '±0.00'}", size=9.5 * fs, anchor="start", color=COLORS["sub"], cls="titleblock")
     d.text(x + cols[1] * w + 6 * fs, y + 68 * fs, t(lang, "generated_by"), size=8.5 * fs, anchor="start", color=COLORS["meta"], cls="titleblock")
-    cell(2, t(lang, "scale"), f"1:{print_scale}" if print_scale else "—")
+    cell(2, t(lang, "scale"), (f"1:{print_scale}" if print_scale else "—") + (f" · {t(lang, 'stamp_short')}" if plan.scale_uncalibrated else ""))
     sx = x + cols[2] * w + 6 * fs
     sy = y + 58 * fs
     bar = scale
