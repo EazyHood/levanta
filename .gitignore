@@ -10,7 +10,7 @@ dist/
 .ruff_cache/
 
 # data and results (downloaded datasets, model weights, run outputs)
-data/
+/data/
 out/
 frames/
 *.ply
