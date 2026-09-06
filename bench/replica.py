@@ -114,7 +114,7 @@ def floor_truth(mesh) -> dict:
     if k > 1:
         sizes = ndimage.sum(filled, lab, range(1, k + 1))
         filled = lab == (int(np.argmax(sizes)) + 1)
-    er = ndimage.binary_erosion(filled, iterations=int(round(0.50 / CELL)))  # doorways under 1.0 m separate rooms
+    er = ndimage.binary_erosion(filled, iterations=round(0.50 / CELL))  # doorways under 1.0 m separate rooms
     lab, k = ndimage.label(er)
     rooms = []
     for i in range(1, k + 1):
@@ -122,7 +122,7 @@ def floor_truth(mesh) -> dict:
         if m.sum() * CELL * CELL < 1.5:
             continue
         # grow the part back (within the floor) to get the room's own area
-        grown = ndimage.binary_dilation(m, iterations=int(round(0.50 / CELL))) & filled
+        grown = ndimage.binary_dilation(m, iterations=round(0.50 / CELL)) & filled
         cy, cx = ndimage.center_of_mass(m)
         rooms.append({"id": len(rooms), "area_m2": float(grown.sum() * CELL * CELL), "centre": (float(lo[0] + cy * CELL), float(lo[1] + cx * CELL)), "mask": grown})
     # doorways: every cell of the floor goes to its nearest room core (a watershed on the
@@ -130,7 +130,7 @@ def floor_truth(mesh) -> dict:
     if rooms:
         cores = np.zeros(filled.shape, dtype=np.int32)
         for r in rooms:
-            cores[ndimage.binary_erosion(r["mask"], iterations=int(round(0.50 / CELL)))] = r["id"] + 1
+            cores[ndimage.binary_erosion(r["mask"], iterations=round(0.50 / CELL))] = r["id"] + 1
         _d, (iy, ix) = ndimage.distance_transform_edt(cores == 0, return_indices=True)
         terr = np.where(filled, cores[iy, ix], 0)
         for r in rooms:
@@ -215,7 +215,7 @@ def wall_scores(plan_walls, truth: dict, wall_mask: np.ndarray, sim, tol: float 
         ij = np.floor((sel - lo) / CELL).astype(int)
         ok = (ij[:, 0] >= 0) & (ij[:, 1] >= 0) & (ij[:, 0] < wall_mask.shape[0]) & (ij[:, 1] < wall_mask.shape[1])
         near = np.zeros(len(sel), dtype=bool)
-        r = int(round(tol / CELL))
+        r = round(tol / CELL)
         from scipy import ndimage
 
         dil = ndimage.binary_dilation(wall_mask, iterations=r)
@@ -260,12 +260,12 @@ def _nearest_free(free: np.ndarray, p: tuple[int, int]) -> tuple[int, int]:
 
 def plan_walk(truth: dict) -> list[tuple[float, float, float]]:
     """(x, y, yaw) per step along the floor, room by room, with a full turn in each."""
-    free = ndimage.binary_erosion(truth["filled"], iterations=int(round(0.35 / CELL)))
+    free = ndimage.binary_erosion(truth["filled"], iterations=round(0.35 / CELL))
     lo = truth["lo"]
     # waypoints: every room centre plus a 2 m grid over the free floor, so a big open room
     # is walked through and not just visited at its middle
     centres = [(int((r["centre"][0] - lo[0]) / CELL), int((r["centre"][1] - lo[1]) / CELL)) for r in truth["rooms"]]
-    step = int(round(2.0 / CELL))
+    step = round(2.0 / CELL)
     for i in range(step // 2, free.shape[0], step):
         for j in range(step // 2, free.shape[1], step):
             if free[i, j]:
@@ -396,7 +396,7 @@ def frames_to_video(frames: list[Path], path: Path, fps: float = 1.0) -> Path:
 
 
 def run_levanta(video: Path, out: Path, max_views: int, focal_px: float | None, extra: list[str] | None = None) -> Path:
-    cmd = [sys.executable, "-m", "levanta.cli", "video", str(video), "-o", str(out), "--fps", "1", "--max-views", str(max_views), "--lang", "en", "--paper", "A3"] + list(extra or [])
+    cmd = [sys.executable, "-m", "levanta.cli", "video", str(video), "-o", str(out), "--fps", "1", "--max-views", str(max_views), "--lang", "en", "--paper", "A3", *list(extra or [])]
     if focal_px:
         cmd += ["--focal-px", f"{focal_px:.2f}"]
     out.mkdir(parents=True, exist_ok=True)
@@ -419,7 +419,7 @@ def evaluate(run: Path, truth: dict, poses: list[np.ndarray], walk_len: int) -> 
     cloud = PointCloud.load_ply(run / "plan_cloud.ply")
     cams = cloud.cameras[:, :3, 3]
     # the video runs at 1 fps: frame k of the video is walk step k
-    truth_c = np.array([poses[min(int(round(f["time_s"])), len(poses) - 1)][:3, 3] for f in idx])
+    truth_c = np.array([poses[min(round(f["time_s"]), len(poses) - 1)][:3, 3] for f in idx])
     s, R, t, rms = umeyama(cams, truth_c)
     h = truth["horiz"]
     lev_rooms = []
@@ -433,7 +433,7 @@ def evaluate(run: Path, truth: dict, poses: list[np.ndarray], walk_len: int) -> 
         c = Point(tr["centre"])
         hit = [(i, g) for i, g in enumerate(lev_rooms) if g.contains(c)]
         if hit:
-            i, g = hit[0]
+            i, _g = hit[0]
             truth_m2 = tr.get("territory_m2", tr["area_m2"])  # the watershed territory partitions the floor
             lev_m2 = float(Polygon(plan["rooms"][i]["polygon"]).area) * s * s
             matched.append({"truth_room": tr["id"], "levanta_room": i, "truth_m2": truth_m2, "levanta_m2": lev_m2, "area_error_pct": (lev_m2 - truth_m2) / truth_m2 * 100.0})

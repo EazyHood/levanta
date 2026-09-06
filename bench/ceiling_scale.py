@@ -90,7 +90,7 @@ def main() -> None:
         # of this home, as if the user had typed it
         s_ceiling_true = true_ceiling / h_net if measured and h_net > 0 and np.isfinite(true_ceiling) else None
 
-        def err(s):
+        def err(s, s_true=s_true):
             return None if s is None else abs(s / s_true - 1.0) * 100.0
 
         rows.append(

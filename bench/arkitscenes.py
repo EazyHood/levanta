@@ -58,7 +58,7 @@ def read_ply(path: Path) -> tuple[np.ndarray, np.ndarray]:
             data = fh.read().decode("ascii").split("\n")
             pos = 0
             out = {}
-            for name, n, props in elements:
+            for name, n, _props in elements:
                 rows = data[pos : pos + n]
                 pos += n
                 if name == "vertex":
@@ -162,8 +162,8 @@ def read_first_pincam(folder: Path) -> tuple[int, int, float, float]:
             vals = zf.read(name).decode().split()
     else:
         vals = next(folder.glob("*.pincam")).read_text().split()
-    w, h, fx, fy = int(float(vals[0])), int(float(vals[1])), float(vals[2]), float(vals[3])
-    return w, h, fx, fy
+    w, h, fx, _fy = int(float(vals[0])), int(float(vals[1])), float(vals[2]), float(vals[3])
+    return w, h, fx, _fy
 
 
 def umeyama(src: np.ndarray, dst: np.ndarray) -> tuple[float, np.ndarray, np.ndarray, float]:
@@ -187,7 +187,7 @@ def umeyama(src: np.ndarray, dst: np.ndarray) -> tuple[float, np.ndarray, np.nda
 
 
 def run_levanta(mov: Path, out: Path, max_views: int, focal_px: float | None, extra: list[str] | None = None, fps: float = 1.0) -> Path:
-    cmd = [sys.executable, "-m", "levanta.cli", "video", str(mov), "-o", str(out), "--fps", f"{fps:g}", "--max-views", str(max_views), "--lang", "en", "--paper", "A3"] + list(extra or [])
+    cmd = [sys.executable, "-m", "levanta.cli", "video", str(mov), "-o", str(out), "--fps", f"{fps:g}", "--max-views", str(max_views), "--lang", "en", "--paper", "A3", *list(extra or [])]
     if focal_px:
         cmd += ["--focal-px", f"{focal_px:.2f}"]
     log = out.parent / f"{out.name}.log"
@@ -324,7 +324,7 @@ def main() -> None:
         v, f = read_ply(mesh)
         truth = floor_truth(v, f)
         print(f"{vid}: truth floor {truth['area']:.1f} m2, {truth['rooms']} room(s), up axis {truth['up']} ({time.time() - t0:.0f} s)")
-        w, h, fx, fy = read_first_pincam(scene / "vga_wide_intrinsics")
+        w, h, fx, _fy = read_first_pincam(scene / "vga_wide_intrinsics")
         # the network sees frames 1024 px wide (long side): scale the focal to that
         import cv2
 

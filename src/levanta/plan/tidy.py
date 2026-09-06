@@ -375,7 +375,7 @@ def drop_duplicate_walls(plan: FloorPlan, gap: float = 0.5, min_overlap: float =
             tb = float((np.asarray(b.b) - np.asarray(a.a)) @ a.direction)
             lo, hi = max(0.0, min(ta, tb)), min(a.length, max(ta, tb))
             overlap = max(0.0, hi - lo)
-            shorter, longer = (a, b) if a.length <= b.length else (b, a)
+            shorter = a if a.length <= b.length else b
             if overlap < min_overlap * shorter.length:
                 continue
             if shorter.sides_seen >= 2:  # its thickness was measured: it is a real wall

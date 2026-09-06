@@ -50,7 +50,7 @@ def floor_raster(vertices: np.ndarray, faces: np.ndarray, cell: float = 0.05) ->
         sizes = ndimage.sum(filled, lab, range(1, k + 1))
         filled = lab == (int(np.argmax(sizes)) + 1)
     area_m2 = float(filled.sum() * cell * cell)
-    er = ndimage.binary_erosion(filled, iterations=int(round(0.40 / cell)))
+    er = ndimage.binary_erosion(filled, iterations=round(0.40 / cell))
     lab, k = ndimage.label(er)
     rooms = 0
     for i in range(1, k + 1):
@@ -76,7 +76,7 @@ def main() -> None:
         print(f"{scene.name}: floor {a:6.1f} m2, rooms {r}, faces {len(f):,}", flush=True)
     rows.sort(key=lambda x: -x[1])
     print("\nlargest:")
-    for name, a, r, nf in rows[:10]:
+    for name, a, r, _nf in rows[:10]:
         print(f"  {name}: {a:.1f} m2, {r} room(s)")
     big = [x for x in rows if x[1] >= 40 and x[2] >= 3]
     print(f"\n>= 40 m2 and >= 3 rooms: {[x[0] for x in big] or 'none'} of {len(rows)} scanned")

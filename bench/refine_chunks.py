@@ -147,7 +147,7 @@ def main() -> None:
             refined.append(refine_chunk(views[a:b], args.iters, args.voxel))
         # stitch: every chunk's refined poses replace its views (shared views take the later chunk)
         stitched = [dict(v) for v in views]
-        for (a, b), ch in zip(ranges, refined, strict=True):
+        for (a, _b), ch in zip(ranges, refined, strict=True):
             for k, v in enumerate(ch):
                 stitched[a + k]["T"] = v["T"]
         after = per_chunk_rms(stitched, ranges, dst)

@@ -91,7 +91,7 @@ def main() -> None:
         (run / "frames").mkdir(parents=True, exist_ok=True)
         (run / "frames" / "index.json").write_text(json.dumps(idx, indent=1), encoding="utf-8")
         paths = [k.path for k in kept]
-    steps = [min(int(round(f["time_s"])), len(poses) - 1) for f in idx]
+    steps = [min(round(f["time_s"]), len(poses) - 1) for f in idx]
     print(f"{len(paths)} frames, {len(poses)} walk steps, render {render_dir.exists()}")
 
     import cv2
