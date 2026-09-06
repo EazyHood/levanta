@@ -249,7 +249,7 @@ def plan_walk(truth: dict) -> list[tuple[float, float, float]]:
 # -- rendering --------------------------------------------------------------------------------
 
 
-def render_walk(mesh, truth: dict, walk, out_dir: Path, res: tuple[int, int], fov_deg: float = 70.0) -> tuple[list[Path], list[np.ndarray], np.ndarray]:
+def render_walk(mesh, truth: dict, walk, out_dir: Path, res: tuple[int, int], fov_deg: float = 70.0, save_depth: bool = False) -> tuple[list[Path], list[np.ndarray], np.ndarray]:
     """Frames, camera-to-world poses (OpenCV convention: x right, y down, z forward) and K.
 
     pyrender (flat vertex colours, no lighting) instead of Open3D's OffscreenRenderer:
@@ -293,9 +293,11 @@ def render_walk(mesh, truth: dict, walk, out_dir: Path, res: tuple[int, int], fo
         T = np.eye(4)
         T[:3, 0], T[:3, 1], T[:3, 2], T[:3, 3] = xax, yax, z, eye
         scene.set_pose(cam_node, T @ flip)
-        color, _depth = r.render(scene, flags=pyrender.RenderFlags.FLAT)
+        color, depth = r.render(scene, flags=pyrender.RenderFlags.FLAT)
         p = out_dir / f"frame_{k:05d}.png"
         Image.fromarray(color).save(p)
+        if save_depth:  # the exact z of every pixel: ground truth for the network's depth
+            np.save(out_dir / f"depth_{k:05d}.npy", depth.astype(np.float16))
         frames.append(p)
         poses.append(T)
     r.delete()
@@ -386,6 +388,7 @@ def main() -> None:
     ap.add_argument("--render-only", action="store_true")
     ap.add_argument("--eval-only", action="store_true")
     ap.add_argument("--skip-render", action="store_true", help="reuse walk.mp4 and walk_poses.json from an earlier render")
+    ap.add_argument("--save-depth", action="store_true", help="keep the exact depth map of every rendered frame (render/depth_*.npy)")
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
     W, H = (int(x) for x in args.res.split("x"))
@@ -400,12 +403,13 @@ def main() -> None:
     if not args.eval_only and not args.skip_render:
         walk = plan_walk(truth)
         print(f"walk: {len(walk)} steps ({len(walk) / 60:.1f} min at 1 fps)")
-        frames, poses, K = render_walk(mesh, truth, walk, args.out / "render", (W, H))
+        frames, poses, K = render_walk(mesh, truth, walk, args.out / "render", (W, H), save_depth=args.save_depth)
         frames_to_video(frames, video)
         poses_file.write_text(json.dumps({"K": K.tolist(), "poses": [p.tolist() for p in poses]}), encoding="utf-8")
         print(f"rendered {len(frames)} frames at {W}x{H} -> {video} ({time.time() - t0:.0f} s)")
-        for f in frames:  # the disk rule: no intermediates left behind
-            f.unlink()
+        if not args.save_depth:
+            for f in frames:  # the disk rule: no intermediates left behind
+                f.unlink()
     meta = json.loads(poses_file.read_text(encoding="utf-8"))
     K = np.array(meta["K"])
     poses = [np.array(p) for p in meta["poses"]]
