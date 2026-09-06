@@ -188,7 +188,7 @@ def clip_to_walls(poly: Polygon, wall_bodies, min_area: float) -> Polygon:
 # ----------------------------------------------------------------------------------------
 
 
-def tidy_walls(plan: FloorPlan, attach_dist: float = 0.25, trim_margin: float = 0.15, min_len: float = 0.4, inside_margin: float = 0.1) -> FloorPlan:
+def tidy_walls(plan: FloorPlan, attach_dist: float = 0.25, trim_margin: float = 0.15, min_len: float = 0.4, inside_margin: float = 0.1, partition_min_len: float = 1.5) -> FloorPlan:
     """Keep only the stretches of wall that bound a room; the rest goes to ``extra_walls``.
 
     Openings are carried over with their positions re-based on the trimmed wall.  When the
@@ -220,8 +220,20 @@ def tidy_walls(plan: FloorPlan, attach_dist: float = 0.25, trim_margin: float = 
             t1 = min(L, t1 + trim_margin)
             if t1 - t0 < min_len:
                 continue
+            # A long piece that starts at the room outline and runs inwards is a partition,
+            # not furniture.  Rooms that came out fused (one open room over a whole flat)
+            # put every partition "inside a room", and dropping them fuses the rooms
+            # further: measured on the apartment benchmark with a perfect cloud, keeping
+            # them raises wall recall from 36 % to 48 % and precision from 65 % to 75 %.
+            ends = (Point(w.point_at(t0)), Point(w.point_at(t1)))
+            seg_len_pre = t1 - t0
+            touches = min(boundary.distance(e) for e in ends) <= attach_dist + w.thickness
+            # long enough to be architecture on its own, or long enough and anchored to the
+            # outline; everything here already passed the wall filter (height coverage from
+            # the floor towards the ceiling), which furniture rarely does over 2 m
+            partition = seg_len_pre >= partition_min_len and touches
             mid = Point(w.point_at((t0 + t1) / 2))
-            if rooms_union.contains(mid) and boundary.distance(mid) > w.thickness / 2 + inside_margin:
+            if not partition and rooms_union.contains(mid) and boundary.distance(mid) > w.thickness / 2 + inside_margin:
                 continue  # standing inside a room: furniture, not a wall
             # Pieces that run *into* the room (a desk front, a cabinet side, a jamb return)
             # rather than along its outline.  A short piece crossing the outline, or a
@@ -240,7 +252,7 @@ def tidy_walls(plan: FloorPlan, attach_dist: float = 0.25, trim_margin: float = 
                 v = np.array([nearest.x - mid_pt.x, nearest.y - mid_pt.y])
                 parallel = to_boundary < 1e-6 or abs(float(w.direction @ (v / max(np.linalg.norm(v), 1e-9)))) < 0.3
                 hugging = parallel and to_boundary <= 0.3
-                if not hugging and inside_len > (0.05 if seg_len < 0.6 else max(0.2, 0.3 * seg_len)):
+                if not hugging and not partition and inside_len > (0.05 if seg_len < 0.6 else max(0.2, 0.3 * seg_len)):
                     continue
             kept_any = True
             nw = Wall(
@@ -260,6 +272,14 @@ def tidy_walls(plan: FloorPlan, attach_dist: float = 0.25, trim_margin: float = 
                     continue
                 openings.append(Opening(id=len(openings), wall_id=nw.id, kind=o.kind, t0=o0 - t0, t1=o1 - t0, z0=o.z0, z1=o.z1))
         if not kept_any:
+            # A long wall that borders none of the rooms is *not* kept here, and that costs
+            # real partitions on a flat (see bench/results): with the rooms fused, three
+            # partitions of 2.07, 1.29 and 2.43 m fall outside every room and are lost,
+            # which is 12 points of wall recall.  Keeping them by length alone was measured
+            # too: it brings the corridor seen through the door back into the TUM plan
+            # (3 walls -> 5).  Length and distance do not separate the two cases (0.98 m
+            # against 0.47 m), so the fix is not a threshold here but rooms that do not
+            # depend on the walls already being clean.
             extra.append(w)
     # which rooms does each opening connect?
     for o in openings:

@@ -148,6 +148,82 @@ def floor_truth(mesh) -> dict:
     return {"up": up, "sign": sign, "floor_h": floor_h, "horiz": horiz, "lo": lo, "filled": filled, "rooms": rooms, "doors": doors, "area_m2": float(filled.sum() * CELL * CELL)}
 
 
+def wall_truth(mesh, truth: dict, low: float = 0.30, high: float = 1.80) -> np.ndarray:
+    """Raster of where the real walls stand: vertical triangles between ``low`` and ``high``
+    above the floor, on the same grid as the floor."""
+    v = np.asarray(mesh.vertices)
+    f = np.asarray(mesh.triangles)
+    tri = v[f]
+    n = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    n = n / np.maximum(np.linalg.norm(n, axis=1, keepdims=True), 1e-12)
+    up, horiz, lo = truth["up"], truth["horiz"], truth["lo"]
+    h = tri[:, :, up].mean(axis=1)
+    vertical = np.abs(n[:, up]) < 0.30
+    band = vertical & (h > truth["floor_h"] + low) & (h < truth["floor_h"] + high)
+    pts = np.vstack([tri[band][:, :, horiz].reshape(-1, 2), tri[band][:, :, horiz].mean(axis=1)])
+    grid = np.zeros(truth["filled"].shape, dtype=bool)
+    ij = np.floor((pts - lo) / CELL).astype(int)
+    ok = (ij[:, 0] >= 0) & (ij[:, 1] >= 0) & (ij[:, 0] < grid.shape[0]) & (ij[:, 1] < grid.shape[1])
+    grid[ij[ok, 0], ij[ok, 1]] = True
+    return grid
+
+
+def wall_scores(plan_walls, truth: dict, wall_mask: np.ndarray, sim, tol: float = 0.25) -> dict:
+    """How much of the real wall levanta drew (recall) and how much of what it drew is wall
+    (precision), both within ``tol`` metres, on the floor grid."""
+    from shapely.geometry import Polygon as P
+    from shapely.ops import unary_union
+
+    s, R, t = sim
+    lo, h = truth["lo"], truth["horiz"]
+    polys = []
+    for w in plan_walls:
+        a, b, th = np.array(w["a"]), np.array(w["b"]), float(w["thickness"])
+        d = b - a
+        L = float(np.linalg.norm(d))
+        if L < 1e-6:
+            continue
+        d /= L
+        nrm = np.array([d[1], -d[0]]) * (th / 2)
+        corners = np.array([a + nrm, b + nrm, b - nrm, a - nrm])
+        world = np.c_[corners, np.zeros(len(corners))]
+        w3 = s * (R @ world.T).T + t
+        polys.append(P([(p[h[0]], p[h[1]]) for p in w3]).buffer(0))
+    if not polys:
+        return {"wall_recall": 0.0, "wall_precision": 0.0, "wall_truth_m2": float(wall_mask.sum() * CELL * CELL)}
+    drawn = unary_union(polys)
+    gi, gj = np.nonzero(wall_mask)
+    xs = lo[0] + (gi + 0.5) * CELL
+    ys = lo[1] + (gj + 0.5) * CELL
+    from shapely.geometry import Point as Pt
+    from shapely.strtree import STRtree
+
+    tree = STRtree([drawn]) if drawn.geom_type == "Polygon" else STRtree(list(drawn.geoms))
+    hit = 0
+    for x, y in zip(xs, ys, strict=True):
+        if len(tree.query(Pt(x, y).buffer(tol))) and drawn.distance(Pt(x, y)) <= tol:
+            hit += 1
+    recall = hit / max(len(xs), 1)
+    # precision: sample the drawn walls and ask how many land on real wall
+    minx, miny, maxx, maxy = drawn.bounds
+    gx, gy = np.meshgrid(np.arange(minx, maxx, CELL), np.arange(miny, maxy, CELL), indexing="ij")
+    pts = np.c_[gx.ravel(), gy.ravel()]
+    inside = np.array([drawn.contains(Pt(x, y)) for x, y in pts]) if len(pts) < 60000 else None
+    prec = None
+    if inside is not None and inside.any():
+        sel = pts[inside]
+        ij = np.floor((sel - lo) / CELL).astype(int)
+        ok = (ij[:, 0] >= 0) & (ij[:, 1] >= 0) & (ij[:, 0] < wall_mask.shape[0]) & (ij[:, 1] < wall_mask.shape[1])
+        near = np.zeros(len(sel), dtype=bool)
+        r = int(round(tol / CELL))
+        from scipy import ndimage
+
+        dil = ndimage.binary_dilation(wall_mask, iterations=r)
+        near[ok] = dil[ij[ok, 0], ij[ok, 1]]
+        prec = float(near.mean())
+    return {"wall_recall": float(recall), "wall_precision": prec, "wall_truth_m2": float(wall_mask.sum() * CELL * CELL), "wall_drawn_m2": float(drawn.area)}
+
+
 # -- the walk -----------------------------------------------------------------------------------
 
 
