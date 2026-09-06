@@ -365,6 +365,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     if opts.rooms_clipped_by_low_walls and weak:
         room_polys = _clip_rooms(room_polys, faces + weak, camera_xy=None if aligned.cameras is None else aligned.camera_centers[:, :2], min_area=opts.min_room_area, bridge=opts.room_clip_bridge)
         debug["rooms_clipped"] = len(weak)
+    room_polys = _unshare_floor(room_polys)
     floor_seen = [seen_floor_fraction(poly, floor_r, grid) for poly, _ in room_polys]
 
     plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")), floor_seen=floor_seen)
@@ -396,6 +397,33 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         faces=faces,
         debug=debug,
     )
+
+
+def _unshare_floor(room_polys, min_overlap: float = 1e-6):
+    """No square metre of floor belongs to two rooms.
+
+    A sheet that prints 30.99 m2 in its room table and 30.55 m2 as the floor area is saying
+    two things about one floor, and the published U2 apartment did exactly that: rooms 2 and
+    5, a corridor and its open end, shared 0.44 m2.  The overlap goes to the *smaller* room,
+    which is the one it is a larger part of, and the bigger one gives it up.
+
+    Measured over ten plans before this existed: eight had an overlap of exactly 0.0 and one
+    of 1.4e-14, so this touches nothing that was already right.
+    """
+    out = [(g, c) for g, c in room_polys]
+    order = sorted(range(len(out)), key=lambda i: out[i][0].area)  # smallest keeps its floor
+    for a in range(len(order)):
+        for b in range(a + 1, len(order)):
+            i, j = order[a], order[b]
+            gi, gj = out[i][0], out[j][0]
+            if gi.is_empty or gj.is_empty or gi.intersection(gj).area <= min_overlap:
+                continue
+            cut = gj.difference(gi)
+            if cut.geom_type == "MultiPolygon":
+                cut = max(cut.geoms, key=lambda q: q.area)
+            if cut.geom_type == "Polygon" and not cut.is_empty:
+                out[j] = (cut, out[j][1])
+    return out
 
 
 def _clip_rooms(room_polys, weak: list[Face], *, camera_xy, min_area: float, half_width: float = 0.05, bridge: float = 0.0):

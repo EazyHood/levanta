@@ -1,14 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1501" height="942" viewBox="0 0 1501 942" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
 <rect width="1501" height="942" fill="#ffffff"/>
 <path class="room" d="M 280.9,554.0 618.7,554.0 618.7,304.1 280.9,304.1 Z" fill="#f3f0ea"/>
-<path class="room" d="M 640.8,656.0 920.7,656.0 920.7,520.0 640.8,520.0 Z" fill="#f3f0ea"/>
+<path class="room" d="M 640.8,656.0 640.8,520.0 920.7,520.0 920.7,596.8 872.7,596.8 872.7,656.0 Z" fill="#f3f0ea"/>
 <path class="room" d="M 152.0,472.8 264.2,472.8 264.2,172.0 152.0,172.0 Z" fill="#f3f0ea"/>
 <path class="room" d="M 429.8,562.0 429.8,605.7 421.8,605.7 421.8,562.0 420.6,562.0 420.6,688.3 491.0,688.3 491.0,701.7 618.7,701.7 618.7,624.5 601.9,624.5 601.9,616.5 618.7,616.5 618.7,615.7 579.1,615.7 579.1,607.7 618.7,607.7 618.7,562.0 Z" fill="#f6f2ea"/>
 <path class="room" d="M 872.7,679.2 1068.7,679.2 1068.7,596.8 872.7,596.8 Z" fill="#f3f0ea"/>
 <path class="open-edge" d="M 280.9,505.1 L 280.9,529.3" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 652.8,656.0 L 920.7,656.0" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 920.7,656.0 L 920.7,608.2" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
-<path class="open-edge" d="M 908.7,520.0 L 652.8,520.0" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
+<path class="open-edge" d="M 652.8,520.0 L 908.7,520.0" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
+<path class="open-edge" d="M 908.8,596.8 L 872.7,596.8" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
+<path class="open-edge" d="M 872.7,596.8 L 872.7,656.0" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
+<path class="open-edge" d="M 872.7,656.0 L 652.8,656.0" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
 <path class="open-edge" d="M 152.0,472.8 L 260.9,472.8" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
 <path class="open-edge" d="M 152.0,172.0 L 152.0,220.5" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
 <path class="open-edge" d="M 152.0,417.5 L 152.0,472.8" fill="none" stroke="#9a9a9a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 5"/>
@@ -154,8 +155,8 @@
 <text class="wall-tag" x="351.1" y="329.5" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M22</text>
 <text class="label" x="449.8" y="426.4" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Room 1 (incomplete)</text>
 <text class="label" x="449.8" y="440.8" font-size="11" text-anchor="middle" fill="#555555">13.19 m² · 4.22 m × 3.12 m</text>
-<text class="label" x="780.8" y="585.3" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Room 2 (incomplete)</text>
-<text class="label" x="780.8" y="599.7" font-size="11" text-anchor="middle" fill="#555555">5.95 m² · 3.50 m × 1.70 m</text>
+<text class="label" x="780.8" y="555.7" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Room 2 (incomplete)</text>
+<text class="label" x="780.8" y="570.1" font-size="11" text-anchor="middle" fill="#555555">5.50 m² · 3.50 m × 1.70 m</text>
 <text class="label" x="208.1" y="306.0" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Room 3</text>
 <text class="label" x="208.1" y="320.3" font-size="11" text-anchor="middle" fill="#555555">(incomplete)</text>
 <text class="label" x="208.1" y="334.1" font-size="11" text-anchor="middle" fill="#555555">5.27 m²</text>
@@ -270,7 +271,7 @@
 <text class="table" x="1473.7" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">14.69 m</text>
 <path class="table" d="M 1216.7,70.0 L 1476.7,70.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="table" x="1219.7" y="81.0" font-size="8.5" text-anchor="start" fill="#333333">Room 2 *</text>
-<text class="table" x="1403.5" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">5.95 m²</text>
+<text class="table" x="1403.5" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">5.50 m²</text>
 <text class="table" x="1473.7" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">10.40 m</text>
 <path class="table" d="M 1216.7,85.0 L 1476.7,85.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="table" x="1219.7" y="96.0" font-size="8.5" text-anchor="start" fill="#333333">Room 3 *</text>
@@ -336,13 +337,11 @@
 <text class="notes" x="1226.1" y="376.0" font-size="8.5" text-anchor="start" fill="#333333">m (seen from one side only).</text>
 <text class="notes" x="1216.7" y="388.5" font-size="8.5" text-anchor="start" fill="#333333">3. Room 1, Room 2, Room 3, Room 5: one side was not scanned;</text>
 <text class="notes" x="1226.1" y="401.0" font-size="8.5" text-anchor="start" fill="#333333">the outline follows the seen floor there.</text>
-<text class="notes" x="1216.7" y="413.5" font-size="8.5" text-anchor="start" fill="#333333">4. Two rooms share 0.44 m² of floor; the areas of each are counted</text>
-<text class="notes" x="1226.1" y="426.0" font-size="8.5" text-anchor="start" fill="#333333">separately but the total counts it once.</text>
-<text class="notes" x="1216.7" y="438.5" font-size="8.5" text-anchor="start" fill="#333333">5. Scale comes from the network alone: pass --focal-px or calibrate</text>
-<text class="notes" x="1226.1" y="451.0" font-size="8.5" text-anchor="start" fill="#333333">with --door-width.</text>
-<text class="notes" x="1216.7" y="463.5" font-size="8.5" text-anchor="start" fill="#333333">6. Door height assumed (lintel not seen): P1, P2.</text>
-<text class="notes" x="1216.7" y="476.0" font-size="8.5" text-anchor="start" fill="#333333">7. No window detected. Windows need the wall under and above</text>
-<text class="notes" x="1226.1" y="488.5" font-size="8.5" text-anchor="start" fill="#333333">them scanned.</text>
+<text class="notes" x="1216.7" y="413.5" font-size="8.5" text-anchor="start" fill="#333333">4. Scale comes from the network alone: pass --focal-px or calibrate</text>
+<text class="notes" x="1226.1" y="426.0" font-size="8.5" text-anchor="start" fill="#333333">with --door-width.</text>
+<text class="notes" x="1216.7" y="438.5" font-size="8.5" text-anchor="start" fill="#333333">5. Door height assumed (lintel not seen): P1, P2.</text>
+<text class="notes" x="1216.7" y="451.0" font-size="8.5" text-anchor="start" fill="#333333">6. No window detected. Windows need the wall under and above</text>
+<text class="notes" x="1226.1" y="463.5" font-size="8.5" text-anchor="start" fill="#333333">them scanned.</text>
 <path class="titleblock" d="M 24.0,840.0 1476.7,840.0 1476.7,918.0 24.0,918.0 Z" fill="#ffffff" stroke="#333" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="titleblock" d="M 517.9,840.0 L 517.9,918.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="titleblock" d="M 837.5,840.0 L 837.5,918.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
