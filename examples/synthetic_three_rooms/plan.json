@@ -127,6 +127,7 @@
       ],
       "holes": [],
       "closed": true,
+      "floor_seen": 0.9964539007092199,
       "area_m2": 14.0996,
       "perimeter_m": 18.7602
     },
@@ -153,6 +154,7 @@
       ],
       "holes": [],
       "closed": true,
+      "floor_seen": 0.9987666666666667,
       "area_m2": 12.0002,
       "perimeter_m": 14.0002
     },
@@ -179,6 +181,7 @@
       ],
       "holes": [],
       "closed": true,
+      "floor_seen": 0.9983826429980276,
       "area_m2": 10.1408,
       "perimeter_m": 12.7605
     }
@@ -328,6 +331,10 @@
       "room_fallback": true,
       "room_min_jog": 0.9,
       "room_snap_dist": 2.5,
+      "room_close_r": 0.6,
+      "rooms_from": "floor",
+      "room_wall_evidence": 0.35,
+      "room_wall_blocked": 0.55,
       "tidy": true,
       "wall_attach_dist": 0.2,
       "wall_trim_margin": 0.1,
@@ -355,16 +362,21 @@
       "has_cameras": true,
       "faces": 14,
       "wall_lines": 6,
+      "rooms": {
+        "pockets": 4,
+        "too_small": 0,
+        "leaks_out": 1,
+        "not_inside": 0,
+        "closed": 3,
+        "stage2": 0,
+        "fallback": 0
+      },
       "walls_set_aside": 0
     },
     "source": "synthetic"
   },
   "extra_walls": [],
-  "north_deg": 20.0,
-  "project": {
-    "name": "Three rooms (synthetic)",
-    "author": "Jhona",
-    "sheet": "A-01"
-  },
+  "north_deg": null,
+  "project": {},
   "version": 1
 }

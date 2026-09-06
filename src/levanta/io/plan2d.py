@@ -23,6 +23,9 @@ from levanta.i18n import fmt_area, fmt_len, t
 from levanta.io.draw import Drawing
 from levanta.plan.types import FloorPlan, Opening, Wall
 
+# below this, an outline is mostly inference and the label says so
+FLOOR_SEEN_NOTE = 0.60
+
 COLORS = {
     "room": "#f6f2ea",
     "room_open": "#f3f0ea",
@@ -299,8 +302,13 @@ def room_label_specs(plan: FloorPlan, lang: str, units: str, scale: float, fs: f
         bx0, by0, bx1, by1 = poly.bounds
         avail = max(0.3, _room_chord(poly, (cx, cy)) - 0.16) * scale  # px, wall faces kept clear
         lines = [(r.name, 13.0 * fs, True)]
-        if not r.closed:
-            inc = f"({t(lang, 'incomplete')})"
+        # an outline drawn over floor nobody saw is inference, and the sheet says so where
+        # the reader looks: beside the room name, not only in the notes
+        notes = [] if r.closed else [t(lang, "incomplete")]
+        if r.floor_seen is not None and r.floor_seen < FLOOR_SEEN_NOTE:
+            notes.append(t(lang, "floor_seen").format(pct=round(100 * r.floor_seen)))
+        if notes:
+            inc = f"({' · '.join(notes)})"
             if text_width(f"{r.name} {inc}", 13.0 * fs, True) <= avail:
                 lines = [(f"{r.name} {inc}", 13.0 * fs, True)]
             else:
@@ -673,12 +681,16 @@ def _table(d: Drawing, x: float, y: float, w: float, title: str, headers: list[s
 
 
 def _areas_table(d: Drawing, x: float, y: float, w: float, plan: FloorPlan, lang: str, units: str, fs: float) -> float:
-    rows = [[r.name + ("" if r.closed else " *"), fmt_area(r.area, units), fmt_len(r.perimeter, units)] for r in plan.rooms]
+    def seen(r) -> str:
+        return "" if r.floor_seen is None else f"{round(100 * r.floor_seen)} %"
+
+    rows = [[r.name + ("" if r.closed else " *"), fmt_area(r.area, units), fmt_len(r.perimeter, units), seen(r)] for r in plan.rooms]
     summ = plan.area_summary()
-    rows.append([t(lang, "useful_area"), fmt_area(summ["useful_m2"], units), ""])
-    rows.append([t(lang, "walls_area"), fmt_area(summ["walls_m2"], units), fmt_len(summ["wall_length_m"], units)])
-    rows.append([t(lang, "gross_area"), fmt_area(summ["gross_m2"], units), ""])
-    y = _table(d, x, y, w, t(lang, "areas_table"), [t(lang, "name"), t(lang, "area"), t(lang, "perimeter")], rows, [0.46, 0.27, 0.27], fs, ["start", "end", "end"])
+    rows.append([t(lang, "useful_area"), fmt_area(summ["useful_m2"], units), "", ""])
+    rows.append([t(lang, "walls_area"), fmt_area(summ["walls_m2"], units), fmt_len(summ["wall_length_m"], units), ""])
+    rows.append([t(lang, "gross_area"), fmt_area(summ["gross_m2"], units), "", ""])
+    head = [t(lang, "name"), t(lang, "area"), t(lang, "perimeter"), t(lang, "floor_seen_col")]
+    y = _table(d, x, y, w, t(lang, "areas_table"), head, rows, [0.34, 0.21, 0.23, 0.22], fs, ["start", "end", "end", "end"])
     if any(not r.closed for r in plan.rooms):
         d.text(x, y + 11 * fs, f"* {t(lang, 'incomplete')}", size=8 * fs, anchor="start", color=COLORS["sub"], cls="table")
         y += 12 * fs

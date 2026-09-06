@@ -84,6 +84,13 @@ class Room:
     polygon: list[tuple[float, float]]  # exterior ring, counter-clockwise, metres
     holes: list[list[tuple[float, float]]] = field(default_factory=list)
     closed: bool = True  # False: not fully enclosed by detected walls; outline follows the seen floor
+    floor_seen: float | None = None
+    """Fraction of the room's area where floor was actually observed, not inferred.
+
+    A camera at eye height sees furniture, not floor: on a rendered walk with exact depth
+    and exact poses, floor points reached 36 % of a flat's real floor while the path passed
+    within 2 m of 80-94 % of every room.  The rest of the outline is inference, so the
+    number belongs on the sheet next to the room, where a reader can weigh it."""
 
     @property
     def shapely(self) -> Polygon:
@@ -190,6 +197,10 @@ class FloorPlan:
             out.append({"key": "open_room", "level": "warn", "text": t(lang, "qa_open_room").format(rooms=", ".join(open_rooms))})
         if not self.rooms:
             out.append({"key": "no_rooms", "level": "warn", "text": t(lang, "qa_no_rooms")})
+        thin = [r for r in self.rooms if r.floor_seen is not None and r.floor_seen < 0.5]
+        if thin:
+            avg = round(100 * sum(r.floor_seen for r in thin) / len(thin))
+            out.append({"key": "floor_seen", "level": "warn", "text": t(lang, "qa_floor_seen").format(rooms=", ".join(r.name for r in thin), pct=avg)})
         one_sided = sum(1 for w in self.walls if w.sides_seen == 1)
         if self.walls:
             out.append({"key": "thickness", "level": "info" if one_sided else "ok", "text": t(lang, "qa_thickness_assumed").format(n=one_sided, m=len(self.walls))})

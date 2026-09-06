@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461290.153900463
+2461290.2288194443
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461290.153900463
+2461290.2288194443
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{D397FFFF-4672-45E9-B19F-5087FD2BCA8B}
+{06865219-7869-47E8-9D41-3646DCBF5875}
   9
 $VERSIONGUID
   2
-{8A8F2247-36E3-4108-B89B-4A9CAE49A25A}
+{BA82C550-E7D9-498D-B423-330BEB48F8B3}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -8345,7 +8345,7 @@ AcDbMText
  71
 5
   1
-Room 1 (incomplete)\P24.49 m2\P4.45 x 5.50 m
+Office (incomplete)\P24.49 m2\P4.45 x 5.50 m
   0
 LINE
   5
@@ -9327,7 +9327,7 @@ AcDbText
  40
 0.11
   1
-Room 1 *
+Office *
  11
 4.45376386462272
  21
@@ -11167,7 +11167,7 @@ AcDbText
  40
 0.1
   1
-Drawing: TUM fr1/room · 1 rooms · 24.49 m2 · ceiling 2.91 m · made with levanta
+Drawing: Floor plan · 1 rooms · 24.49 m2 · ceiling 2.91 m · made with levanta
  11
 -2.059206894721674
  21
@@ -12281,7 +12281,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-09-06T08:41:37.714661+00:00
+1.4.4 @ 2026-09-06T10:29:30.012724+00:00
   0
 VISUALSTYLE
   5
@@ -12993,7 +12993,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-09-06T08:41:37.751766+00:00
+1.4.4 @ 2026-09-06T10:29:30.030791+00:00
   0
 ENDSEC
   0

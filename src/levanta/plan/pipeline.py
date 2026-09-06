@@ -33,6 +33,7 @@ from levanta.plan.tidy import (
     tidy_walls,
 )
 from levanta.plan.types import FloorPlan, Opening, Room, Wall
+from levanta.plan.wall_rooms import build_rooms_from_walls, seen_floor_fraction
 from levanta.plan.walls import (
     Face,
     WallLine,
@@ -86,6 +87,9 @@ class PlanOptions:
     room_min_jog: float = 0.9
     room_snap_dist: float = 2.5  # an open room's edge reaches a detected wall this far out
     room_close_r: float = 0.6  # gaps between wall pieces up to twice this are bridged when looking for closed rooms
+    rooms_from: str = "floor"  # "floor": the seen floor, cut by the walls; "walls": rectangles cut by the wall lines, the floor only voting
+    room_wall_evidence: float = 0.35  # a rectangle is interior when this much of it is seen floor or free space
+    room_wall_blocked: float = 0.55  # a wall covering this much of the edge between two rectangles separates them
     tidy: bool = True
     wall_attach_dist: float = 0.20
     wall_trim_margin: float = 0.10
@@ -262,7 +266,17 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
 
     # 8. rooms
     room_stats: dict = {}
-    room_polys = build_rooms(
+    room_polys = build_rooms_from_walls(
+        lines,
+        inside,
+        floor_r,
+        grid,
+        min_area=opts.min_room_area,
+        min_evidence=opts.room_wall_evidence,
+        blocked_frac=opts.room_wall_blocked,
+        camera_xy=None if aligned.cameras is None else aligned.camera_centers[:, :2],
+        stats=room_stats,
+    ) if opts.rooms_from == "walls" else build_rooms(
         lines,
         openings,
         inside,
@@ -279,8 +293,9 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         stats=room_stats,
     )
     debug["rooms"] = room_stats
+    floor_seen = [seen_floor_fraction(poly, floor_r, grid) for poly, _ in room_polys]
 
-    plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")))
+    plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")), floor_seen=floor_seen)
     for key in ("chunk_scales", "mask_fraction", "views", "chunks", "views_dropped_flat", "focal_source"):
         if key in cloud.meta:
             plan.meta[key] = cloud.meta[key]
@@ -322,6 +337,7 @@ def _assemble(
     grav: GravityResult,
     debug: dict[str, Any],
     source: str = "",
+    floor_seen: list[float] | None = None,
 ) -> FloorPlan:
     walls: list[Wall] = []
     plan_openings: list[Opening] = []
@@ -370,6 +386,7 @@ def _assemble(
                 polygon=[(float(x), float(y)) for x, y in list(p.exterior.coords)[:-1]],
                 holes=[[(float(x), float(y)) for x, y in list(h.coords)[:-1]] for h in p.interiors],
                 closed=closed,
+                floor_seen=None if floor_seen is None else float(floor_seen[i]),
             )
         )
     # which rooms does each opening connect?

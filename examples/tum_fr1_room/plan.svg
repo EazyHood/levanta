@@ -31,7 +31,7 @@
 <path class="wall-tag-pointer" d="M 333.3,187.2 L 333.3,178.4" fill="none" stroke="#6b6b6f" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
 <circle class="wall-tag-circle" cx="333.3" cy="194.4" r="7" fill="#ffffff" stroke="#6b6b6f" stroke-width="0.9"/>
 <text class="wall-tag" x="333.3" y="197.4" font-size="7.5" text-anchor="middle" fill="#6b6b6f" font-weight="700">M3</text>
-<text class="label" x="322.0" y="389.5" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Room 1 (incomplete)</text>
+<text class="label" x="322.0" y="389.5" font-size="13" text-anchor="middle" fill="#222222" font-weight="700">Office (incomplete · 56 % on seen floor)</text>
 <text class="label" x="322.0" y="403.8" font-size="11" text-anchor="middle" fill="#555555">24.49 m² · 4.45 m × 5.50 m</text>
 <path class="dim-chain" d="M 96.0,620.3 L 96.0,156.0" fill="none" stroke="#777777" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="dim-chain" d="M 131.2,620.3 L 96.0,620.3" fill="none" stroke="#777777" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
@@ -76,23 +76,28 @@
 <text class="table" x="678.6" y="35.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Area schedule</text>
 <path class="table" d="M 678.6,40.0 L 938.6,40.0" fill="none" stroke="#333333" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="table" x="681.6" y="51.0" font-size="8.5" text-anchor="start" fill="#333333" font-weight="700">Name</text>
-<text class="table" x="865.4" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Area</text>
-<text class="table" x="935.6" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Perimeter</text>
+<text class="table" x="818.6" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Area</text>
+<text class="table" x="878.4" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">Perimeter</text>
+<text class="table" x="935.6" y="51.0" font-size="8.5" text-anchor="end" fill="#333333" font-weight="700">seen floor</text>
 <path class="table" d="M 678.6,55.0 L 938.6,55.0" fill="none" stroke="#333333" stroke-width="0.6" stroke-linejoin="round" stroke-linecap="round"/>
-<text class="table" x="681.6" y="66.0" font-size="8.5" text-anchor="start" fill="#333333">Room 1 *</text>
-<text class="table" x="865.4" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">24.49 m²</text>
-<text class="table" x="935.6" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">19.91 m</text>
+<text class="table" x="681.6" y="66.0" font-size="8.5" text-anchor="start" fill="#333333">Office *</text>
+<text class="table" x="818.6" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">24.49 m²</text>
+<text class="table" x="878.4" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">19.91 m</text>
+<text class="table" x="935.6" y="66.0" font-size="8.5" text-anchor="end" fill="#333333">56 %</text>
 <path class="table" d="M 678.6,70.0 L 938.6,70.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="table" x="681.6" y="81.0" font-size="8.5" text-anchor="start" fill="#333333">Net floor area</text>
-<text class="table" x="865.4" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">24.49 m²</text>
+<text class="table" x="818.6" y="81.0" font-size="8.5" text-anchor="end" fill="#333333">24.49 m²</text>
+<text class="table" x="878.4" y="81.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
 <text class="table" x="935.6" y="81.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
 <path class="table" d="M 678.6,85.0 L 938.6,85.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="table" x="681.6" y="96.0" font-size="8.5" text-anchor="start" fill="#333333">Wall footprint</text>
-<text class="table" x="865.4" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">1.94 m²</text>
-<text class="table" x="935.6" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">14.81 m</text>
+<text class="table" x="818.6" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">1.94 m²</text>
+<text class="table" x="878.4" y="96.0" font-size="8.5" text-anchor="end" fill="#333333">14.81 m</text>
+<text class="table" x="935.6" y="96.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
 <path class="table" d="M 678.6,100.0 L 938.6,100.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="table" x="681.6" y="111.0" font-size="8.5" text-anchor="start" fill="#333333">Gross area</text>
-<text class="table" x="865.4" y="111.0" font-size="8.5" text-anchor="end" fill="#333333">26.44 m²</text>
+<text class="table" x="818.6" y="111.0" font-size="8.5" text-anchor="end" fill="#333333">26.44 m²</text>
+<text class="table" x="878.4" y="111.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
 <text class="table" x="935.6" y="111.0" font-size="8.5" text-anchor="end" fill="#333333"></text>
 <path class="table" d="M 678.6,115.0 L 938.6,115.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="table" x="678.6" y="126.0" font-size="8" text-anchor="start" fill="#555555">* incomplete</text>
@@ -115,7 +120,7 @@
 <text class="notes" x="678.6" y="220.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Notes</text>
 <text class="notes" x="678.6" y="236.0" font-size="8.5" text-anchor="start" fill="#333333">1. Walls M1, M2: thickness assumed 0.10 m (seen from one side only).</text>
 <text class="notes" x="678.6" y="248.5" font-size="8.5" text-anchor="start" fill="#333333">2. Walls M3: thickness assumed 0.20 m (seen from one side only).</text>
-<text class="notes" x="678.6" y="261.0" font-size="8.5" text-anchor="start" fill="#333333">3. Room 1: one side was not scanned; the outline follows the seen floor</text>
+<text class="notes" x="678.6" y="261.0" font-size="8.5" text-anchor="start" fill="#333333">3. Office: one side was not scanned; the outline follows the seen floor</text>
 <text class="notes" x="678.6" y="273.5" font-size="8.5" text-anchor="start" fill="#333333">    there.</text>
 <text class="notes" x="678.6" y="286.0" font-size="8.5" text-anchor="start" fill="#333333">4. Door height assumed (lintel not seen): P1.</text>
 <text class="notes" x="678.6" y="298.5" font-size="8.5" text-anchor="start" fill="#333333">5. No window detected. Windows need the wall under and above them scanned.</text>
@@ -126,7 +131,7 @@
 <path class="titleblock" d="M 810.6,732.3 L 810.6,810.3" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="titleblock" x="30.0" y="745.3" font-size="7.5" text-anchor="start" fill="#666666">PROJECT</text>
 <text class="titleblock" x="30.0" y="768.3" font-size="14" text-anchor="start" fill="#111111" font-weight="700">TUM fr1/room</text>
-<text class="titleblock" x="30.0" y="786.3" font-size="9.5" text-anchor="start" fill="#555555">Drawing: TUM fr1/room</text>
+<text class="titleblock" x="30.0" y="786.3" font-size="9.5" text-anchor="start" fill="#555555">Drawing: Floor plan</text>
 <text class="titleblock" x="30.0" y="800.3" font-size="8.5" text-anchor="start" fill="#666666">1 rooms · 24.49 m² · ceiling 2.91 m (measured)</text>
 <text class="titleblock" x="341.0" y="745.3" font-size="7.5" text-anchor="start" fill="#666666">AUTHOR</text>
 <text class="titleblock" x="341.0" y="764.3" font-size="11" text-anchor="start" fill="#111111">Jhona</text>

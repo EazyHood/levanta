@@ -55,7 +55,7 @@
   "rooms": [
     {
       "id": 0,
-      "name": "Room 1",
+      "name": "Office",
       "polygon": [
         [
           -2.0392068947216746,
@@ -76,6 +76,7 @@
       ],
       "holes": [],
       "closed": false,
+      "floor_seen": 0.5618426416632695,
       "area_m2": 24.4938,
       "perimeter_m": 19.9082
     }
@@ -162,6 +163,10 @@
       "room_fallback": true,
       "room_min_jog": 0.9,
       "room_snap_dist": 2.5,
+      "room_close_r": 0.6,
+      "rooms_from": "floor",
+      "room_wall_evidence": 0.35,
+      "room_wall_blocked": 0.55,
       "tidy": true,
       "wall_attach_dist": 0.2,
       "wall_trim_margin": 0.1,
@@ -189,6 +194,15 @@
       "has_cameras": true,
       "faces": 15,
       "wall_lines": 13,
+      "rooms": {
+        "pockets": 4,
+        "too_small": 3,
+        "leaks_out": 1,
+        "not_inside": 0,
+        "closed": 0,
+        "stage2": 0,
+        "fallback": 1
+      },
       "walls_set_aside": 9
     },
     "source": "rgbd"
@@ -368,8 +382,7 @@
   "north_deg": null,
   "project": {
     "name": "TUM fr1/room",
-    "author": "Jhona",
-    "sheet": "A-01"
+    "author": "Jhona"
   },
   "version": 1
 }
