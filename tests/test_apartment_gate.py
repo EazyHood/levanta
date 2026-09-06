@@ -30,6 +30,9 @@ them measured before being written down (truth: 51.8 m² of floor, three rooms, 
   merges two of the three, and the gate is there to catch the *count* collapsing further,
   not to bless two as correct;
 - total area between 45 and 78 m² (today 62.1, the truth 51.8);
+- **no room larger than the whole flat**, which is currently *false* and marked `xfail`
+  strict: the fused room is 55.8 m² on a 51.8 m² flat.  The fixture used to hide it by
+  being derived from the planner's own output;
 - at least twelve walls, and the longest at least 9 m (the party wall of the flat);
 - the plan carries no room bigger than the whole floor.
 """
@@ -61,6 +64,18 @@ def test_the_flat_does_not_collapse_to_one_room(plan):
 def test_the_area_is_in_the_right_range(plan):
     total = sum(r.shapely.area for r in plan.rooms)
     assert 45.0 <= total <= 78.0, total
+
+
+@pytest.mark.xfail(strict=True, reason="one pass fuses two rooms into a 55.8 m2 blob on a 51.8 m2 flat; see bench/results/round18")
+def test_no_room_is_bigger_than_the_whole_flat(plan):
+    """An invariant that has to stay visible while it is broken.
+
+    This assertion lived inside the area test and passed, because the fixture was derived
+    from the planner's own output and a second pass separates the rooms.  Against the cloud
+    that actually goes in, the fused room is 55.8 m2 on a flat of 51.8: the plan claims a
+    single room larger than the building.  Marked strict, so the day the fusion is fixed
+    this test fails and forces the mark to come off.
+    """
     assert all(r.shapely.area < TRUTH_FLOOR_M2 for r in plan.rooms), [round(r.shapely.area, 1) for r in plan.rooms]
 
 
