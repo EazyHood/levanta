@@ -9,6 +9,7 @@ to the capture.
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -208,9 +209,7 @@ class FloorPlan:
             out.append({"key": "open_room", "level": "warn", "text": t(lang, "qa_open_room").format(rooms=", ".join(open_rooms))})
         if not self.rooms:
             out.append({"key": "no_rooms", "level": "warn", "text": t(lang, "qa_no_rooms")})
-        overlap = float(sum(r.area for r in self.rooms)) - self.total_area
-        if overlap > 0.05:
-            out.append({"key": "rooms_overlap", "level": "warn", "text": t(lang, "qa_rooms_overlap").format(m2=f"{overlap:.2f}")})
+        out += self._impossible(lang)
         thin = [r for r in self.rooms if r.floor_seen is not None and r.floor_seen < 0.5]
         if thin:
             avg = round(100 * sum(r.floor_seen for r in thin) / len(thin))
@@ -250,6 +249,49 @@ class FloorPlan:
                 if n:
                     r.name = str(n)
         return self
+
+    def _impossible(self, lang: str) -> list[dict[str, str]]:
+        """Things a plan can say that are impossible on their face.
+
+        These cost a subtraction and need no ground truth, which is why they catch what a
+        benchmark cannot: a benchmark only sees the scenes it has, and a scene can be too
+        easy to contain the failure.  A plan that contradicts itself does so on any scene.
+
+        Measured when they were written: the published U2 apartment had two of them, rooms
+        sharing 0.44 m2 of floor and a room with no door on any of its walls.
+        """
+        from levanta.i18n import t
+
+        out: list[dict[str, str]] = []
+        overlap = float(sum(r.area for r in self.rooms)) - self.total_area
+        if overlap > 0.05:
+            out.append({"key": "rooms_overlap", "level": "warn", "text": t(lang, "qa_rooms_overlap").format(m2=f"{overlap:.2f}")})
+
+        wall_ids = {w.id for w in self.walls}
+        orphans = [o.tag or o.kind for o in self.openings if o.wall_id not in wall_ids]
+        if orphans:
+            out.append({"key": "opening_orphan", "level": "warn", "text": t(lang, "qa_opening_orphan").format(tags=", ".join(orphans))})
+
+        ways_in = [o for o in self.openings if o.kind in ("door", "passage") and o.wall_id in wall_ids]
+        shut = []
+        for r in self.rooms:
+            g = r.shapely.buffer(0.35)
+            if not any(g.intersects(self.wall_by_id(o.wall_id).polygon()) for o in ways_in):
+                shut.append(r.name)
+        if shut and self.rooms:
+            out.append({"key": "room_no_way_in", "level": "warn", "text": t(lang, "qa_room_no_way_in").format(rooms=", ".join(shut))})
+
+        bad = [r.name for r in self.rooms if r.area <= 0 or r.perimeter <= 0]
+        bad += [f"wall {w.id}" for w in self.walls if w.length <= 0 or w.thickness <= 0]
+        # a shape of area A cannot have a perimeter under the circle's, nor a wildly larger
+        # one unless it is a sliver that no room should be
+        for r in self.rooms:
+            circle = 2.0 * math.sqrt(math.pi * r.area) if r.area > 0 else 0.0
+            if circle and (r.perimeter < circle - 1e-6 or r.perimeter > 12 * circle):
+                bad.append(r.name)
+        if bad:
+            out.append({"key": "impossible_geometry", "level": "warn", "text": t(lang, "qa_impossible_geometry").format(items=", ".join(dict.fromkeys(bad)))})
+        return out
 
     @property
     def unreliable(self) -> tuple[int, int, float] | None:

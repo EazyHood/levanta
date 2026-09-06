@@ -85,3 +85,59 @@ cloud that actually goes in, one of its assertions failed immediately:
 That assertion had been passing for ten rounds because a second pass separates the rooms. It
 is now its own test, marked `xfail(strict=True)`, so it stays visible while it is broken and
 fails the day the fusion is fixed, forcing the mark off.
+
+---
+
+# Follow-up: what else does the output claim that is impossible?
+
+## 6. Six invariants, measured on five plans
+
+Checked without ground truth, on the Replica flat, both synthetic apartments and the three
+published examples:
+
+| the claim | holds today |
+|---|---|
+| no room larger than the building | **cannot be checked from the output alone** |
+| the rooms' areas sum to no more than the area they cover | **fails on the U2 apartment**: 30.99 against 30.55 |
+| no zero or negative area, length or thickness | holds everywhere |
+| every opening sits on a wall that exists | holds everywhere |
+| every room has a door or passage on one of its walls | **fails on the U2 apartment**: Room 5 |
+| perimeter and area do not contradict each other | holds everywhere |
+
+The first one is worth being exact about. Without truth, "the building" is the union of the
+plan's own rooms and walls, and a room is part of that by construction, so the check is
+vacuous. It only became a defect against the flat's real 51.8 m², which is why the gate
+found it and this family cannot.
+
+The other five are now in `FloorPlan.quality()` and print on the sheet like any other check,
+with seven tests including the tightest legal case, a circle, which must not fire.
+
+**The new one is the second failure on the published apartment: a room with no door or
+passage on any of its walls — a room the plan says you cannot enter.** It had been on the
+front page of the repository since it was generated.
+
+## 7. The xfail drawer, capped, and the cap tested
+
+`tests/conftest.py` prints the known defects at the end of every run and fails the suite
+above `MAX_XFAIL = 1`. Both directions were measured rather than assumed, and the first
+version was wrong: it printed the warning and the suite still exited 0, because
+`pytest_terminal_summary` runs too late to change the exit code. With `pytest_sessionfinish`
+it exits 1 with two xfails and 0 with one.
+
+There was a measurement error of my own in the middle: reading `$?` after a pipe gives the
+exit status of `tail`, not of pytest. The first "it does not bite" reading was that.
+
+## 8. Where every test input comes from
+
+| source | tests | is it upstream of what is tested? |
+|---|---|---|
+| `sample_apartment(...)`, the synthetic generator | 19 | yes: truth by construction |
+| `tests/data/replica_apt0_cloud.ply` | 4 | **was not**, fixed today: derived from `plan_cloud.ply`, the planner's own output |
+| `tests/data/video_real_plan.json` | 2 | yes, though it is a levanta plan: the unit under test is the *sheet renderer*, and a plan is its input |
+| written and read back within the test | 2 | yes |
+
+So the pattern appears twice and only one is a defect, which gives the rule that separates
+them: **a test's input must come from upstream of the thing being tested.** For the
+apartment gate the unit is the planner, so the input has to be the cloud that goes in, never
+the plan that comes out. For the label and note tests the unit is the renderer, so a plan is
+upstream and using a real one is right.
