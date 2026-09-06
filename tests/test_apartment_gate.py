@@ -9,6 +9,16 @@ The cloud is the Replica `apartment_0` walk with exact depth and exact poses (th
 own ceiling, no network error in the way), thinned to 40 046 points, which changes nothing
 in the plan: 16 walls and 61.5 m² at full density, 16 and 61.6 m² here.
 
+**It is not in the repository**: it derives from Replica's mesh, whose licence is for
+research, and this repository is MIT. Whoever has the dataset generates it once with
+
+    python bench/replica.py <replica>/apartment_0 out/replica_apt0 --res 1280x720 --save-depth
+    python bench/ideal_input.py <replica>/apartment_0 out/replica_apt0
+    python -c "from levanta.scene import PointCloud; PointCloud.load_ply('out/replica_apt0/ideal/plan_cloud.ply').voxel_downsampled(0.08).save_ply('tests/data/replica_apt0_cloud.ply')"
+
+and these tests start running. Without it they skip, and the seven-scene bench
+(`bench/planner_bench.py`) is what guards the planner.
+
 Thresholds, deliberately wide enough that only a real change moves them, and every one of
 them measured before being written down (truth: 51.8 m² of floor, three rooms, two doorways):
 
@@ -29,6 +39,8 @@ from levanta.scene import PointCloud
 
 CLOUD = Path(__file__).parent / "data" / "replica_apt0_cloud.ply"
 TRUTH_FLOOR_M2 = 51.8
+
+pytestmark = pytest.mark.skipif(not CLOUD.exists(), reason="Replica cloud not generated (research licence: not redistributed); see the module docstring")
 
 
 @pytest.fixture(scope="module")
