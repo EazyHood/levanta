@@ -125,12 +125,26 @@ def floor_truth(mesh) -> dict:
         grown = ndimage.binary_dilation(m, iterations=int(round(0.50 / CELL))) & filled
         cy, cx = ndimage.center_of_mass(m)
         rooms.append({"id": len(rooms), "area_m2": float(grown.sum() * CELL * CELL), "centre": (float(lo[0] + cy * CELL), float(lo[1] + cx * CELL)), "mask": grown})
-    # doorways: pairs of rooms whose regions touch once grown by one more step
-    doors = 0
-    for a in range(len(rooms)):
-        for b in range(a + 1, len(rooms)):
-            if (ndimage.binary_dilation(rooms[a]["mask"], iterations=2) & rooms[b]["mask"]).any():
-                doors += 1
+    # doorways: every cell of the floor goes to its nearest room core (a watershed on the
+    # distance transform); two rooms whose territories share a border are joined by one
+    if rooms:
+        cores = np.zeros(filled.shape, dtype=np.int32)
+        for r in rooms:
+            cores[ndimage.binary_erosion(r["mask"], iterations=int(round(0.50 / CELL)))] = r["id"] + 1
+        _d, (iy, ix) = ndimage.distance_transform_edt(cores == 0, return_indices=True)
+        terr = np.where(filled, cores[iy, ix], 0)
+        for r in rooms:
+            r["territory_m2"] = float((terr == r["id"] + 1).sum() * CELL * CELL)
+        pairs = set()
+        for dy, dx in ((0, 1), (1, 0)):
+            a = terr[: terr.shape[0] - dy, : terr.shape[1] - dx]
+            b = terr[dy:, dx:]
+            both = (a > 0) & (b > 0) & (a != b)
+            for u, v in zip(a[both].ravel(), b[both].ravel(), strict=True):
+                pairs.add((min(int(u), int(v)), max(int(u), int(v))))
+        doors = len(pairs)
+    else:
+        doors = 0
     return {"up": up, "sign": sign, "floor_h": floor_h, "horiz": horiz, "lo": lo, "filled": filled, "rooms": rooms, "doors": doors, "area_m2": float(filled.sum() * CELL * CELL)}
 
 
@@ -342,7 +356,9 @@ def evaluate(run: Path, truth: dict, poses: list[np.ndarray], walk_len: int) -> 
         hit = [(i, g) for i, g in enumerate(lev_rooms) if g.contains(c)]
         if hit:
             i, g = hit[0]
-            matched.append({"truth_room": tr["id"], "levanta_room": i, "truth_m2": tr["area_m2"], "levanta_m2": float(Polygon(plan["rooms"][i]["polygon"]).area) * s * s, "area_error_pct": (float(Polygon(plan["rooms"][i]["polygon"]).area) * s * s - tr["area_m2"]) / tr["area_m2"] * 100.0})
+            truth_m2 = tr.get("territory_m2", tr["area_m2"])  # the watershed territory partitions the floor
+            lev_m2 = float(Polygon(plan["rooms"][i]["polygon"]).area) * s * s
+            matched.append({"truth_room": tr["id"], "levanta_room": i, "truth_m2": truth_m2, "levanta_m2": lev_m2, "area_error_pct": (lev_m2 - truth_m2) / truth_m2 * 100.0})
     lev_total = sum(Polygon(r["polygon"]).area for r in plan["rooms"])
     return {
         "ok": True,
@@ -397,7 +413,7 @@ def main() -> None:
         return
     # levanta sees frames 1024 px wide: scale the exact focal to that
     f_frame = K[0, 0] * min(1024, W) / W
-    results = {"scene": args.scene.name, "truth": {"area_m2": truth["area_m2"], "rooms": [{"id": r["id"], "area_m2": r["area_m2"]} for r in truth["rooms"]], "doorways": truth["doors"]}, "walk_steps": len(poses), "res": f"{W}x{H}"}
+    results = {"scene": args.scene.name, "truth": {"area_m2": truth["area_m2"], "rooms": [{"id": r["id"], "area_m2": r["area_m2"], "territory_m2": r.get("territory_m2")} for r in truth["rooms"]], "doorways": truth["doors"]}, "walk_steps": len(poses), "res": f"{W}x{H}"}
     for name, focal in (("noK", None), ("withK", f_frame)):
         run = args.out / name
         if not args.eval_only:
