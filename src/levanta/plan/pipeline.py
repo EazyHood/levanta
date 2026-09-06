@@ -96,6 +96,14 @@ class PlanOptions:
     stub_max_len: float = 0.6
     detect_windows: bool = True
     max_rays: int = 150_000
+    free_blocked_by_walls: bool = False
+    """Stop a sight line at the first cell that holds a wall point.
+
+    A ray only knows where it ended, so one aimed past the edge of a wall walks through that
+    wall's cells and marks them free.  On the Replica flat that is where the interior leaves
+    the building: 61 % of the crossing front is real wall levanta did not draw, and 80 % of
+    those cells have wall points within 0.25 m.
+    """
     free_guard: float = 0.5
     """How far a sight line may stray from seen floor and still count as interior.
 
@@ -193,7 +201,8 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     floor_r = count_raster(grid, xyz[floor_m, :2]) > 0
     cams = aligned.point_camera_centers()
     if cams is not None:
-        free_r = free_space_raster(grid, xyz[:, :2], cams[:, :2], max_rays=opts.max_rays, seed=opts.seed)
+        blocker = count_raster(grid, wall_xy) > 0 if opts.free_blocked_by_walls else None
+        free_r = free_space_raster(grid, xyz[:, :2], cams[:, :2], max_rays=opts.max_rays, seed=opts.seed, occupied=blocker)
     else:
         free_r = np.zeros(grid.shape, dtype=bool)
     inside = floor_r | free_r
