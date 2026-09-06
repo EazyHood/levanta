@@ -79,12 +79,25 @@ truth (LiDAR meshes, a rendered flat, mocap poses) and reproducible with
 |---|---|
 | **One room**, walked with a phone | The area comes out **7-32 % small** on five real rooms with LiDAR truth. Walls are found on 28-48 % of the real wall. |
 | **A flat with several rooms** | On the only three-room flat measured end to end, levanta found **one room of three** and the area was **43 % small**. Partitions are the failure: on one scene not a single cell of the partition was drawn. |
-| **The best case there is** (perfect depth and poses, no network error) | **Two rooms of three**, and one of those two covers two real rooms at once: individually **−65 %, +226 % and +236 %**, while the total came out **+20 %** because the errors cancelled. |
+| **The best case there is** (perfect depth and poses, no network error) | Two behaviours, not an average. In half the configurations tried on that flat (3 of 6) **two of the three rooms merged into one**; in the other half the three came out separate. See below. |
 | **A room's outline** | Half of it typically rests on floor nobody saw, and each room's sheet prints that percentage. Do not read it as a reliability score: on the rooms measured so far the *worst* rooms had **more** seen floor than the rest (72 % against 34 %), because a room that swallows its neighbour rests on plenty of evidence in the wrong shape. |
 
 A total that looks right is not evidence that the rooms are right, which is why every sheet
 reports the area **per room** and how much of each was observed. The reasoning behind each
 number is in [`bench/results/`](bench/results/).
+
+**There is no single accuracy figure, because there are two behaviours.** On the one flat
+measured with exact depth and poses, over six ways of sampling the same walk:
+
+| | how often | area of each room against its own truth |
+|---|---|---|
+| the three rooms come out **separate** | 3 of 6 | **−65 %, −27 %, +162 %**, and those three numbers move by under 4 points between runs |
+| two of them **merge into one** | 3 of 6 | 175-223 % per room |
+
+Quoting the average of the two would describe a result that never happens. The separate
+case is not a blur either: the same room is always the one that comes out at two and a half
+times its size, run after run, and the total lands within +21 to +23 % only because the
+other two are short. One flat and six runs is a small sample and it is the sample there is.
 
 These figures are what the planner does in **one pass**, which is all a user gets. An earlier
 version of this table was measured by replanning the planner's own output, and that second
