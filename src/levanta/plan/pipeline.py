@@ -96,6 +96,13 @@ class PlanOptions:
     stub_max_len: float = 0.6
     detect_windows: bool = True
     max_rays: int = 150_000
+    free_guard: float = 0.5
+    """How far a sight line may stray from seen floor and still count as interior.
+
+    Measured on the flat with a perfect cloud: half the interior estimate (20.6 of 41.4 m2)
+    falls outside the building, and that half is what inflates one room to +161 %.  The
+    guard is what is supposed to stop it, so its distance is a knob the bench can sweep.
+    """
     seed: int = 0
 
 
@@ -190,10 +197,10 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     else:
         free_r = np.zeros(grid.shape, dtype=bool)
     inside = floor_r | free_r
-    # Seen floor, plus line of sight within half a metre of it: what the fallback room
+    # Seen floor, plus line of sight within ``free_guard`` of it: what the fallback room
     # outline may follow.  Sight lines far from any seen floor (through a doorway into an
     # unscanned corridor) are excluded.
-    inside_strict = floor_r | (free_r & dilate(floor_r, round(0.5 / opts.cell)))
+    inside_strict = floor_r | (free_r & dilate(floor_r, max(1, round(opts.free_guard / opts.cell))))
     debug["has_cameras"] = cams is not None
 
     # 6. faces and wall lines

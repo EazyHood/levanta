@@ -145,7 +145,18 @@ class FloorPlan:
 
     @property
     def total_area(self) -> float:
-        return float(sum(r.area for r in self.rooms))
+        """Floor area covered by the rooms, counting shared floor once.
+
+        Summing the rooms is wrong when two of them overlap, and they can: on the U2
+        apartment example, rooms 2 and 5 share 0.44 m2, so the title block said 30.99 m2
+        while the area schedule right beside it said 30.55.  The schedule was the honest
+        one, and this is now the same number.
+        """
+        if not self.rooms:
+            return 0.0
+        from shapely.ops import unary_union
+
+        return float(unary_union([r.shapely for r in self.rooms]).area)
 
     def wall_by_id(self, wall_id: int) -> Wall:
         for w in self.walls:
@@ -197,6 +208,9 @@ class FloorPlan:
             out.append({"key": "open_room", "level": "warn", "text": t(lang, "qa_open_room").format(rooms=", ".join(open_rooms))})
         if not self.rooms:
             out.append({"key": "no_rooms", "level": "warn", "text": t(lang, "qa_no_rooms")})
+        overlap = float(sum(r.area for r in self.rooms)) - self.total_area
+        if overlap > 0.05:
+            out.append({"key": "rooms_overlap", "level": "warn", "text": t(lang, "qa_rooms_overlap").format(m2=f"{overlap:.2f}")})
         thin = [r for r in self.rooms if r.floor_seen is not None and r.floor_seen < 0.5]
         if thin:
             avg = round(100 * sum(r.floor_seen for r in thin) / len(thin))

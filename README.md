@@ -69,6 +69,23 @@ blocks, lineweights; m/cm/mm) · `plan_3d.dxf` · `plan.glb` / `plan.obj` (3D) �
 | **Point cloud** in metres (`.ply`) | Same | `levanta plan` |
 | **A latitude/longitude** | Building footprint, height, LOD1 block model, site plan with numbered vertices, a coordinate table (local, WGS84, UTM with zone and EPSG), a boundary table with azimuth and length, area in m² and ha | OpenStreetMap or Overture Maps, both derived from overhead imagery |
 
+### How wrong it is, in numbers
+
+Read this before you use a plan for anything. Everything below is measured against ground
+truth (LiDAR meshes, a rendered flat, mocap poses) and reproducible with
+`python bench/planner_bench.py`.
+
+| What you scan | What to expect |
+|---|---|
+| **One room**, walked with a phone | The area comes out **17-31 % small** on five real rooms with LiDAR truth. Walls are found on 33-48 % of the real wall. |
+| **A flat with several rooms** | On the only three-room flat measured end to end, levanta found **one room of three** and the area was **43 % small**. Partitions are the failure: on one scene not a single cell of the partition was drawn. |
+| **The best case there is** (perfect depth and poses, no network error) | Three rooms of three, but individually **−73 %, +161 % and −28 %**: the total came out +19 % because two errors cancelled. |
+| **A room's outline** | Half of it typically rests on floor nobody saw. Each room's sheet now prints that percentage. |
+
+A total that looks right is not evidence that the rooms are right, which is why every sheet
+reports the area **per room** and how much of each was observed. The reasoning behind each
+number is in [`bench/results/`](bench/results/).
+
 What a satellite **cannot** give you is the interior: no sensor sees through a roof.
 `levanta site` therefore stops at footprint + height, and its output says so. Interior
 plans come from walking through the house.
@@ -311,6 +328,11 @@ intended input.
 - **Manhattan mode** snaps walls to two directions; `--free` for angled walls.
 - **Site models are LOD1**: footprint × height. Height comes from the source's `height`
   tag when present, else `levels × 3 m`, else 3 m, and the JSON says which.
+- **A partition may simply not be drawn**, and then the second room cannot exist: this is
+  measured, not hypothetical, and it is the main reason a flat comes out as one room.
+- **Half the interior can be inferred rather than seen.** A camera at eye height sees
+  furniture, not floor: on a walk that passed within 2 m of 80-94 % of every room, floor
+  points reached only 36 % of the floor. The sheet prints the share per room.
 - Glass, mirrors and blank walls are hard for any photogrammetry.
 
 More in the [FAQ](docs/faq.md).

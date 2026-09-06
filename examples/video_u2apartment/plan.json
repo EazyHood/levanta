@@ -416,6 +416,7 @@
       ],
       "holes": [],
       "closed": false,
+      "floor_seen": null,
       "area_m2": 13.1926,
       "perimeter_m": 14.6938
     },
@@ -442,6 +443,7 @@
       ],
       "holes": [],
       "closed": false,
+      "floor_seen": null,
       "area_m2": 5.9482,
       "perimeter_m": 10.3978
     },
@@ -468,6 +470,7 @@
       ],
       "holes": [],
       "closed": false,
+      "floor_seen": null,
       "area_m2": 5.2747,
       "perimeter_m": 10.3253
     },
@@ -550,6 +553,7 @@
       ],
       "holes": [],
       "closed": true,
+      "floor_seen": null,
       "area_m2": 4.0518,
       "perimeter_m": 10.9491
     },
@@ -576,6 +580,7 @@
       ],
       "holes": [],
       "closed": false,
+      "floor_seen": null,
       "area_m2": 2.5235,
       "perimeter_m": 6.96
     }
@@ -1169,7 +1174,7 @@
   ],
   "north_deg": null,
   "project": {
-    "name": "Apartamento U2 (CC BY, YouTube I-JUCu_9xKQ)",
+    "name": "U2 apartment (CC BY, YouTube I-JUCu_9xKQ)",
     "author": "Jhona",
     "sheet": "A-01"
   },

@@ -274,9 +274,14 @@ def main() -> None:
     overrides: dict = {}
     for item in args.set:
         k, v = item.split("=", 1)
-        overrides[k] = float(v) if "." in v or v.replace("-", "").isdigit() else v
         if v in ("True", "False"):
             overrides[k] = v == "True"
+        elif v.replace("-", "").isdigit():
+            overrides[k] = int(v)  # an int option (max_rays) breaks if it arrives as a float
+        elif "." in v and v.replace("-", "").replace(".", "").isdigit():
+            overrides[k] = float(v)
+        else:
+            overrides[k] = v
     rows = []
     for scene in scene_list():
         if args.only and scene["name"] not in args.only:

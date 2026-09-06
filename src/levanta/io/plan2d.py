@@ -699,13 +699,19 @@ def _areas_table(d: Drawing, x: float, y: float, w: float, plan: FloorPlan, lang
     def seen(r) -> str:
         return "" if r.floor_seen is None else f"{round(100 * r.floor_seen)} %"
 
-    rows = [[r.name + ("" if r.closed else " *"), fmt_area(r.area, units), fmt_len(r.perimeter, units), seen(r)] for r in plan.rooms]
+    # a plan written before the coverage was measured has nothing to put in that column, and
+    # a header over five blank cells reads like a bug; drop the column instead
+    show_seen = any(r.floor_seen is not None for r in plan.rooms)
+    rows = [[r.name + ("" if r.closed else " *"), fmt_area(r.area, units), fmt_len(r.perimeter, units), *([seen(r)] if show_seen else [])] for r in plan.rooms]
     summ = plan.area_summary()
-    rows.append([t(lang, "useful_area"), fmt_area(summ["useful_m2"], units), "", ""])
-    rows.append([t(lang, "walls_area"), fmt_area(summ["walls_m2"], units), fmt_len(summ["wall_length_m"], units), ""])
-    rows.append([t(lang, "gross_area"), fmt_area(summ["gross_m2"], units), "", ""])
-    head = [t(lang, "name"), t(lang, "area"), t(lang, "perimeter"), t(lang, "floor_seen_col")]
-    y = _table(d, x, y, w, t(lang, "areas_table"), head, rows, [0.34, 0.21, 0.23, 0.22], fs, ["start", "end", "end", "end"])
+    pad = [""] if show_seen else []
+    rows.append([t(lang, "useful_area"), fmt_area(summ["useful_m2"], units), "", *pad])
+    rows.append([t(lang, "walls_area"), fmt_area(summ["walls_m2"], units), fmt_len(summ["wall_length_m"], units), *pad])
+    rows.append([t(lang, "gross_area"), fmt_area(summ["gross_m2"], units), "", *pad])
+    head = [t(lang, "name"), t(lang, "area"), t(lang, "perimeter"), *([t(lang, "floor_seen_col")] if show_seen else [])]
+    widths = [0.34, 0.21, 0.23, 0.22] if show_seen else [0.46, 0.27, 0.27]
+    aligns = ["start", "end", "end", "end"] if show_seen else ["start", "end", "end"]
+    y = _table(d, x, y, w, t(lang, "areas_table"), head, rows, widths, fs, aligns)
     if any(not r.closed for r in plan.rooms):
         d.text(x, y + 11 * fs, f"* {t(lang, 'incomplete')}", size=8 * fs, anchor="start", color=COLORS["sub"], cls="table")
         y += 12 * fs
