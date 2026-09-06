@@ -58,6 +58,15 @@ Measured on five ARKitScenes rooms (real iPhone walks with a LiDAR floor as trut
   stamps the sheet *NOT RECONSTRUCTIBLE · mirror or glass* instead of drawing a room.
   Stand in the doorway, keep 1.5 m from what you film, include the door frame and the
   floor, and measure that room by hand.
+- **Walk into every room; filming more of the ones you already walked buys nothing.**
+  Measured on a rendered flat where depth and poses are exact, so only the walk changes.
+  Taking the first 20, 40, 60, 80 and 116 views of the walk finds 1, 2, 1, 2 and 3 of the
+  three rooms: a room appears when the walk reaches it, and not before. Spreading 40, 80 or
+  116 frames over the *whole* walk instead gives exactly the same per-room error (85 %),
+  and 20 spread that thin is not enough. So cover the house, and past roughly 40 frames
+  spread over it, more footage of the same path adds nothing. Twenty-four metres of walking
+  in a 52 m² flat still only put floor points on 46 % of its floor, which is why the advice
+  above is about *where* you point the camera, not how long you film.
 - **Keep one room to one or two minutes.** The camera track drifted 0.4–0.9 m over one
   to three minute walks; there is no loop closure yet, so a long wander degrades the
   plan more than a second, shorter clip would.

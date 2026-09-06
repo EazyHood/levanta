@@ -64,6 +64,15 @@ como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
   menos del 10 % del fotograma conservado) y sella la lámina *NO RECONSTRUIBLE · espejo o
   cristal* en vez de dibujar una habitación. Ponte en el vano de la puerta, mantén 1,5 m
   de distancia, incluye el marco y el suelo, y mide esa habitación a mano.
+- **Entra en todas las habitaciones; grabar más de las que ya recorriste no sirve.**
+  Medido en un piso renderizado donde la profundidad y las poses son exactas, así que lo
+  único que cambia es el paseo. Con las primeras 20, 40, 60, 80 y 116 vistas salen 1, 2, 1,
+  2 y 3 de las tres habitaciones: una habitación aparece cuando el paseo llega a ella, no
+  antes. Repartir 40, 80 o 116 fotogramas sobre el paseo *entero* da exactamente el mismo
+  error por habitación (85 %), y 20 tan repartidos no bastan. O sea: recorre la casa, y a
+  partir de unos 40 fotogramas repartidos, más metraje del mismo recorrido no añade nada.
+  Veinticuatro metros de paseo en un piso de 52 m² solo dejan puntos de suelo en el 46 % de
+  su superficie, y por eso el consejo de arriba es sobre *adónde* apuntas, no cuánto grabas.
 - **Una habitación, uno o dos minutos.** La trayectoria derivó 0,4–0,9 m en paseos de
   uno a tres minutos; todavía no hay cierre de bucle, así que deambular largo degrada
   el plano más de lo que lo haría un segundo clip corto.

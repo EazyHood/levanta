@@ -6,9 +6,17 @@ came out 21 % under the truth, and from all 116 it comes out over it.  Forty poi
 variable nobody had characterised, and it is the one variable a person holds in their hand
 before they start: how long they walk.
 
-So this sweeps *prefixes* of the walk, which is what a shorter recording is.  Sampling the
-same path more sparsely is a different question (frame rate, not duration) and is not what
-the capture guide has to answer.
+There are two questions inside that, and they need different sweeps, because a prefix of
+the walk is not a thinner sample of it:
+
+- **extent** (``--mode prefix``, the default): the first N views.  Every row walks a
+  different distance and sees a different part of the flat, so this answers "did I go
+  everywhere", and its answer is already in: until the whole flat is walked, the rooms do
+  not appear.  It is not monotonic and it should not be read as a density curve, because at
+  60 views the camera is halfway through the second room, which is the worst state there is.
+- **density** (``--mode density``): N views spread evenly over the *whole* walk, so every
+  row covers the same 24 metres and only the spacing changes.  This is the one that says
+  whether a person has to walk more slowly.
 
 Fusion is `stride 4` and `voxel 0.03`.  Three numbers have been quoted for "exact depth on
 this flat" and they are three different things, so here they are with their labels:
@@ -22,16 +30,20 @@ this flat" and they are three different things, so here they are with their labe
 The first is the one the bench and the README quote, and it is a *subsample* of the whole
 walk, not a prefix.  ``--every`` reproduces it; the prefixes answer the other question.
 
-**Written before the first run.** The prediction is that the *room count* saturates early,
-around 60 views, and that the *per-room error does not flatten at all* by 116, because what
-binds it is how much floor was seen (36 % of the flat at 116 views) and every extra view
-adds some.  "Flattens" is defined as the mean per-room absolute error moving less than 10
-points from the previous step.  If it does flatten by 60 the capture guide can name a
-number; if it does not, the guide has to say that more is always better, which is a worse
-answer and still has to be published.
+**Written before the prefix run, and wrong in both halves.**  The prediction was that the
+room count saturates near 60 views and the per-room error keeps falling to 116.  Rooms found
+went 1, 2, 1, 2, 3, and the error went 56, 58, 11, 117, 85 %, where the 11 % was one fused
+blob credited against two similar rooms.  Extent is not a curve you can read that way.
+
+**Written before the density run.**  With the whole walk covered at every density, the
+prediction is that it *does* flatten: every row visits all three rooms, so the room count
+should be 2 or 3 from 20 views up, and the mean per-room error should move less than 20
+points between 58 and 116.  If it flattens, the capture guide says walk the whole house at a
+normal pace; if it keeps improving to 116, the guide says record twice as much as you think.
 
 Usage:
-    python bench/coverage_sweep.py out/replica_apt0 C:/Users/jhona/replica_data/apartment_0
+    python bench/coverage_sweep.py out/replica_apt0 <replica>/apartment_0
+    python bench/coverage_sweep.py out/replica_apt0 <replica>/apartment_0 --mode density
 """
 
 from __future__ import annotations
@@ -77,6 +89,7 @@ def main() -> None:
     ap.add_argument("--stride", type=int, default=4)
     ap.add_argument("--voxel", type=float, default=0.03)
     ap.add_argument("--every", type=int, default=1, help="take every N-th view of the WHOLE walk instead of a prefix; --every 2 reproduces the published cloud")
+    ap.add_argument("--mode", choices=("prefix", "density"), default="prefix", help="prefix: the first N views (extent).  density: N views spread over the whole walk, same 24 m every row")
     ap.add_argument("--json", type=Path, default=None)
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
@@ -96,7 +109,12 @@ def main() -> None:
     rows = []
     for n in args.views:
         n = min(n, len(poses))
-        keep = list(range(0, len(poses), args.every))[:n] if args.every > 1 else list(range(n))
+        if args.mode == "density":
+            keep = sorted(set(np.linspace(0, len(poses) - 1, n).round().astype(int).tolist()))
+        elif args.every > 1:
+            keep = list(range(0, len(poses), args.every))[:n]
+        else:
+            keep = list(range(n))
         frames = []
         for k in keep:
             depth = np.load(render / f"depth_{k:05d}.npy").astype(np.float32)
