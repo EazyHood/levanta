@@ -125,6 +125,10 @@ def floor_truth(mesh) -> dict:
         grown = ndimage.binary_dilation(m, iterations=round(0.50 / CELL)) & filled
         cy, cx = ndimage.center_of_mass(m)
         rooms.append({"id": len(rooms), "area_m2": float(grown.sum() * CELL * CELL), "centre": (float(lo[0] + cy * CELL), float(lo[1] + cx * CELL)), "mask": grown})
+    if not rooms and filled.any():
+        # a room too small to survive the 0.50 m erosion (a 4 m2 bathroom) is still a room
+        cy, cx = ndimage.center_of_mass(filled)
+        rooms.append({"id": 0, "area_m2": float(filled.sum() * CELL * CELL), "centre": (float(lo[0] + cy * CELL), float(lo[1] + cx * CELL)), "mask": filled.copy()})
     # doorways: every cell of the floor goes to its nearest room core (a watershed on the
     # distance transform); two rooms whose territories share a border are joined by one
     if rooms:

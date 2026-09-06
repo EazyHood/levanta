@@ -85,6 +85,7 @@ class PlanOptions:
     room_fallback: bool = True
     room_min_jog: float = 0.9
     room_snap_dist: float = 2.5  # an open room's edge reaches a detected wall this far out
+    room_close_r: float = 0.6  # gaps between wall pieces up to twice this are bridged when looking for closed rooms
     tidy: bool = True
     wall_attach_dist: float = 0.20
     wall_trim_margin: float = 0.10
@@ -260,6 +261,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         openings += detect_windows(lines, ceiling_height=ceiling_h)
 
     # 8. rooms
+    room_stats: dict = {}
     room_polys = build_rooms(
         lines,
         openings,
@@ -273,7 +275,10 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         manhattan=opts.manhattan,
         room_min_jog=opts.room_min_jog,
         room_snap_dist=opts.room_snap_dist,
+        close_r=opts.room_close_r,
+        stats=room_stats,
     )
+    debug["rooms"] = room_stats
 
     plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")))
     for key in ("chunk_scales", "mask_fraction", "views", "chunks", "views_dropped_flat", "focal_source"):

@@ -236,6 +236,7 @@ def build_rooms(
     manhattan: bool = True,
     room_min_jog: float = 0.9,
     room_snap_dist: float = 1.0,
+    stats: dict | None = None,
 ) -> list[tuple[Polygon, bool]]:
     """Rooms are the pockets between wall bodies (doors temporarily bricked up) that the
     capture actually looked into.
@@ -265,17 +266,22 @@ def build_rooms(
     pockets = domain.difference(solid)
     polys = list(pockets.geoms) if hasattr(pockets, "geoms") else [pockets]
     rooms: list[tuple[Polygon, bool]] = []
+    counts = {"pockets": len(polys), "too_small": 0, "leaks_out": 0, "not_inside": 0, "closed": 0, "stage2": 0, "fallback": 0}
     for p in polys:
         if p.area < min_area:
+            counts["too_small"] += 1
             continue
         if p.touches(domain.exterior) or p.intersects(domain.exterior):
+            counts["leaks_out"] += 1
             continue  # leaks to the outside world; handled by the raster fallback
         frac = _inside_fraction(p, inside, grid)
         if frac < min_inside_frac:
+            counts["not_inside"] += 1
             continue
         q = p.simplify(simplify_tol, preserve_topology=True)
         if q.is_valid and q.area > 0:
             rooms.append((q, True))
+            counts["closed"] += 1
 
     if fallback:
         strict = inside if inside_strict is None else inside_strict
@@ -303,6 +309,7 @@ def build_rooms(
                 q = p.simplify(0.02, preserve_topology=True)
                 if q.is_valid and q.area > 0 and plausible(q):
                     rooms.append((q, False))
+                    counts["stage2"] += 1
         # Stage 3: whatever is still open follows the seen floor.  Its outline then
         # loses the bites furniture took out of it and snaps to the walls beside it.
         from levanta.plan.tidy import clip_to_walls, simplify_orthogonal, snap_edges_to_walls
@@ -317,7 +324,10 @@ def build_rooms(
                 poly = simplify_orthogonal(poly.simplify(0.02, preserve_topology=True), min_edge=room_min_jog)
             if plausible(poly):
                 rooms.append((poly, False))
+                counts["fallback"] += 1
     rooms.sort(key=lambda r: -r[0].area)
+    if stats is not None:
+        stats.update(counts)
     return rooms
 
 
