@@ -105,6 +105,30 @@ class PlanOptions:
     real floor took the flat's mean per-room error from 176 % to 33 %; what was missing was
     evidence to clip with, and the low runs cover 63 % of the front where the interior
     leaves the building.
+
+    With ``room_clip_bridge`` closing the fragments it does what four earlier attempts could
+    not: on the flat it turns the fused mode into the separate one, 2 rooms and 175 % mean
+    per-room error becoming 3 rooms and 86 %, the best room structure measured (7 of 8
+    matched over the bench).  It is still off, because the same cut fires inside rooms that
+    never needed cutting:
+
+    | | mean area error | wall recall | rooms matched |
+    |---|---|---|---|
+    | as it is | **17 %** | **31 %** | 6 of 8 |
+    | clipped, bridging at 0.5 m | 39 % | 19 % | **7 of 8** |
+
+    Every single-room scene loses twenty points or more and the TUM example goes to -16 %.
+    The sixth attempt is not a better fence: it is clipping only the rooms suspected of
+    having fused, and no signal available on a user's machine identifies those yet.
+    """
+    room_clip_bridge: float = 0.5
+    """Join evidence ends this far apart before cutting the rooms with them.
+
+    A fragment notches a polygon; only a cut crossing from one side to the other separates
+    anything.  Every bridge is outline nobody filmed, and it is cheap: on the flat, joining
+    ends 0.5 m apart leaves 1 % of the perimeter on a bridge, 1.0 m leaves 5 %, 1.5 m leaves
+    11 % and 2.0 m leaves 22 %.  A sheet that drew the bridged stretches dashed, the way the
+    TUM example already draws its unscanned side, would be honest for very little ink.
     """
     free_blocked_by_walls: bool = False
     """Stop a sight line at the first fitted run that was too low to become a wall.
@@ -339,7 +363,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     )
     debug["rooms"] = room_stats
     if opts.rooms_clipped_by_low_walls and weak:
-        room_polys = _clip_rooms(room_polys, weak, camera_xy=None if aligned.cameras is None else aligned.camera_centers[:, :2], min_area=opts.min_room_area)
+        room_polys = _clip_rooms(room_polys, faces + weak, camera_xy=None if aligned.cameras is None else aligned.camera_centers[:, :2], min_area=opts.min_room_area, bridge=opts.room_clip_bridge)
         debug["rooms_clipped"] = len(weak)
     floor_seen = [seen_floor_fraction(poly, floor_r, grid) for poly, _ in room_polys]
 
@@ -374,7 +398,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     )
 
 
-def _clip_rooms(room_polys, weak: list[Face], *, camera_xy, min_area: float, half_width: float = 0.05):
+def _clip_rooms(room_polys, weak: list[Face], *, camera_xy, min_area: float, half_width: float = 0.05, bridge: float = 0.0):
     """Cut the finished rooms along runs that were too low to become walls.
 
     Three rounds were spent trying to stop the sight lines *during* the tracing, on raw
@@ -390,14 +414,26 @@ def _clip_rooms(room_polys, weak: list[Face], *, camera_xy, min_area: float, hal
     from shapely.geometry import LineString
     from shapely.ops import unary_union
 
-    blades = []
+    segs = []
     for f in weak:
         n = np.array([np.cos(f.alpha), np.sin(f.alpha)])
         d = np.array([-np.sin(f.alpha), np.cos(f.alpha)])
-        a, b = f.s * n + f.t0 * d, f.s * n + f.t1 * d
-        blades.append(LineString([tuple(a), tuple(b)]).buffer(half_width, cap_style="flat"))
-    if not blades:
+        segs.append((f.s * n + f.t0 * d, f.s * n + f.t1 * d))
+    if not segs:
         return room_polys
+    blades = [LineString([tuple(a), tuple(b)]).buffer(half_width, cap_style="flat") for a, b in segs]
+    if bridge > 0 and len(segs) > 1:
+        # a fragment only notches a polygon; it takes a cut that crosses from one side to
+        # the other to separate anything.  Joining ends that are within `bridge` of each
+        # other is what turns the fragments into that cut, and every metre of it is a wall
+        # nobody filmed, which is why the sheet has to draw it differently.
+        ends = np.array([p for ab in segs for p in ab])
+        for i in range(len(ends)):
+            for j in range(i + 1, len(ends)):
+                if i // 2 == j // 2:
+                    continue
+                if float(np.hypot(*(ends[i] - ends[j]))) <= bridge:
+                    blades.append(LineString([tuple(ends[i]), tuple(ends[j])]).buffer(half_width, cap_style="flat"))
     blade = unary_union(blades)
     out = []
     for poly, closed in room_polys:
@@ -412,8 +448,11 @@ def _clip_rooms(room_polys, weak: list[Face], *, camera_xy, min_area: float, hal
 
             walked = [g for g in parts if contains_xy(g.buffer(0.3), camera_xy[:, 0], camera_xy[:, 1]).any()]
             parts = walked or parts
-        keep = max(parts, key=lambda g: g.area)
-        out.append((keep, closed))
+        else:
+            parts = [max(parts, key=lambda g: g.area)]
+        # every walked piece is a room: a cut that separates two rooms must produce two, and
+        # keeping only the larger throws away the one the cut just found
+        out += [(g, closed) for g in parts]
     return out
 
 
