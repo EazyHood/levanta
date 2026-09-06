@@ -250,6 +250,36 @@ chaining and is flagged; no ARKitScenes video is an apartment (one video is one 
 and the notes say which public source would give one. Full tables, both rounds, in
 [`bench/results/`](bench/results/arkitscenes_2026-09-05_round4.md).
 
+**An apartment: Replica.** No ARKitScenes video is a flat (one video is one room), so the
+apartment test is a real scanned flat from Meta's
+[Replica](https://github.com/facebookresearch/Replica-Dataset) walked virtually:
+`apartment_0`, 51.8 m² of floor, three rooms joined by two doorways, a 116-step walk
+rendered off-screen at 720p and handed to `levanta video` as a 1 fps clip
+([`bench/replica.py`](bench/replica.py); truth, walk and metrics fixed before running).
+
+| | scale | camera RMS | rooms found | walls | total area error |
+|---|---|---|---|---|---|
+| scale from the network alone | 1.07 | 1.08 m | 1 of 3 | 5 | −49 % |
+| with the exact focal length | 1.06 | 1.04 m | 2 of 3 | 8 | −38 % |
+
+**levanta does not yet deliver its promise on an apartment.** Three rooms come out as one
+or two, no doorway is found where there are two, and the room that does match a real one
+is 94 % too big: two rooms fused into one. The scale is the good news — 1.06–1.07 with no
+calibration at all, the best of any real input so far. What stops the plan is the camera
+track: **1.0 m off after a 35 m walk in five chunks**, so each chunk's walls arrive
+doubled and offset from the next one's.
+
+Three things were tried against that drift and none of them moved it, which is worth as
+much as a fix: the ceiling as a scale anchor (2.50 m ÷ the ceiling the network measures)
+lost on 5 of 5 scenes — real ceilings run 2.34–3.25 m and the network's own measurement is
+off by up to 20 %; refining each chunk's poses against its own fused surface (TSDF + ICP,
+three rounds) changed the per-chunk error by ±0.03 m, because the network's depths and
+poses already agree with each other and the ICP has nothing to correct; and composing
+chunks by overlap instead of time left the RMS where it was (1.05 m with 16 views sharing
+8, 1.01 m with 12 sharing 6, against 1.04 m with 24 sharing 4). The bend is inside what
+the network predicts for a set of views. Details in
+[`bench/results/`](bench/results/arkitscenes_2026-09-05_round5.md).
+
 **MapAnything from RGB only** on the same sequence (16 frames of 640×480, RTX 5060 laptop
 8 GB, 6.7 GB VRAM, 46 s once the weights are cached), compared pixel by pixel with the
 Kinect depth:

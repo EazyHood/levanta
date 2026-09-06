@@ -317,8 +317,8 @@ def frames_to_video(frames: list[Path], path: Path, fps: float = 1.0) -> Path:
 # -- levanta and the metrics ---------------------------------------------------------------------
 
 
-def run_levanta(video: Path, out: Path, max_views: int, focal_px: float | None) -> Path:
-    cmd = [sys.executable, "-m", "levanta.cli", "video", str(video), "-o", str(out), "--fps", "1", "--max-views", str(max_views), "--lang", "en", "--paper", "A3"]
+def run_levanta(video: Path, out: Path, max_views: int, focal_px: float | None, extra: list[str] | None = None) -> Path:
+    cmd = [sys.executable, "-m", "levanta.cli", "video", str(video), "-o", str(out), "--fps", "1", "--max-views", str(max_views), "--lang", "en", "--paper", "A3"] + list(extra or [])
     if focal_px:
         cmd += ["--focal-px", f"{focal_px:.2f}"]
     out.mkdir(parents=True, exist_ok=True)

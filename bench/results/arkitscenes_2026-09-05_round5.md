@@ -46,8 +46,22 @@ network predicts, not in how its views are placed. Refining poses against the ne
 own depth cannot see it; only an outside reference (a measured door, a second sensor) or
 a different network can.
 
-The other lever — views composed by parallax rather than time (2 fps, 16 views per
-chunk: more overlap, fewer views) — is measured below.
+The other lever named in round 4 — views composed by overlap rather than by time — was
+measured on the apartment below, where the drift matters most (`bench/overlap_sweep.py`,
+with the exact focal length, threshold written before: camera RMS from 1.04 m to
+<= 0.50 m and at least 2 of 3 rooms):
+
+| views : shared | scale | camera RMS | rooms found | walls | total area error |
+|---|---|---|---|---|---|
+| 24 : 4 (baseline) | 1.06 | 1.04 m | 2 of 3 | 8 | −38 % |
+| 16 : 8 | 0.85 | 1.05 m | 2 of 3 | 5 | −47 % |
+| 12 : 6 | 1.16 | 1.01 m | 1 of 3 | 3 | −23 % |
+
+**Not met, and the RMS does not move**: 1.01–1.05 m whatever the composition. Halving the
+views per chunk costs walls (8 → 5 → 3) and swings the scale (0.85 to 1.16) without buying
+accuracy. Both levers named in round 4 are now measured and both are dead ends; what is
+left is the geometry the network predicts for a set of views, which no amount of
+re-arranging those views repairs.
 
 ## 3. An apartment: Replica
 
@@ -57,4 +71,31 @@ generated on the floor raster, rendered off-screen with Open3D at 720p, `levanta
 on the result). Two things learned before any number: Replica's `mesh.ply` are *quad*
 meshes, which Open3D's reader refuses (a numpy reader splits them); and `apartment_1`,
 the first scene fetched, is an open-plan 57 m² flat with no doorway under 1.2 m — one
-room by any erosion. The multi-room flats are `apartment_0` and `apartment_2`.
+room by any erosion. The multi-room flat used here is **`apartment_0`: 51.8 m² of floor,
+three rooms (territories 18.1, 17.1, 16.6 m²) joined by two doorways**. The walk is 116
+steps of 0.30 m, camera at 1.5 m, a full turn in every room, rendered at 1280x720 and
+written at 1 fps: 1.9 minutes of "video".
+
+The first run exposed a bug of my own before it measured anything about the planner: the
+round-3 speed-up (score one frame in three) assumes a window of about 30 frames, and this
+render is *already* at 1 fps, so two frames of every three were never candidates — the
+network saw 31 views of the flat instead of 94. The skip is now capped at the window size
+(`tests/test_frame_sampling_window.py`). Both runs are in the table.
+
+| | scale | camera RMS | rooms found | walls | total area error |
+|---|---|---|---|---|---|
+| no K, 31 views (the bug) | 1.14 | 0.96 m | 1 of 3 | 2 | −78 % |
+| **no K, 94 views** | **1.07** | **1.08 m** | **1 of 3** | **5** | **−49 %** |
+| with K, 31 views (the bug) | 1.15 | 0.90 m | 1 of 3 | 6 | −43 % |
+| **with K, 94 views** | **1.06** | **1.04 m** | **2 of 3** | **8** | **−38 %** |
+
+**The verdict the round asked for: levanta does not yet deliver its promise on an
+apartment.** Three rooms come out as one or two, no doorway is found where the truth has
+two, and the one room that matches a real one is 94 % too big — two rooms fused. Scale is
+the good news: 1.06–1.07 without any calibration, the best of any real input so far. The
+camera track ends **1.0 m** from the truth over a 35 m walk in five chunks, and the debug
+cloud shows why the rooms fuse: the walls arrive doubled and bent, each chunk's copy
+offset from the next.
+
+This is the same limit as round 4, now measured where it matters: the drift inside a
+chunk, chained five times across a flat, is what stops a three-room plan from existing.

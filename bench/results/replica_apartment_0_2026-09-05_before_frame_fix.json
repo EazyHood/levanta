@@ -1,0 +1,56 @@
+{
+ "scene": "apartment_0",
+ "truth": {
+  "area_m2": 51.76750000000001,
+  "rooms": [
+   {
+    "id": 0,
+    "area_m2": 15.910000000000004,
+    "territory_m2": 18.052500000000002
+   },
+   {
+    "id": 1,
+    "area_m2": 14.950000000000001,
+    "territory_m2": 17.110000000000003
+   },
+   {
+    "id": 2,
+    "area_m2": 11.9625,
+    "territory_m2": 16.605
+   }
+  ],
+  "doorways": 2
+ },
+ "walk_steps": 116,
+ "res": "1280x720",
+ "noK": {
+  "ok": true,
+  "scale_factor": 1.1365716401409927,
+  "camera_rms_m": 0.9644137640783057,
+  "rooms_levanta": 1,
+  "rooms_truth": 3,
+  "rooms_matched": 0,
+  "doors_levanta": 0,
+  "doorways_truth": 2,
+  "area_total_error_pct": -78.30513989265236,
+  "area_total_error_scaled_pct": -71.97468616625832,
+  "per_room": [],
+  "walls": 2,
+  "unreliable": null
+ },
+ "withK": {
+  "ok": true,
+  "scale_factor": 1.1527172888727153,
+  "camera_rms_m": 0.9002635054255518,
+  "rooms_levanta": 1,
+  "rooms_truth": 3,
+  "rooms_matched": 0,
+  "doors_levanta": 0,
+  "doorways_truth": 2,
+  "area_total_error_pct": -43.04267911894506,
+  "area_total_error_scaled_pct": -24.317552744605816,
+  "per_room": [],
+  "walls": 6,
+  "unreliable": null
+ }
+}

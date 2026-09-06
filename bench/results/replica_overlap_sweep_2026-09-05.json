@@ -1,0 +1,52 @@
+[
+ {
+  "ok": true,
+  "scale_factor": 0.8511862709766808,
+  "camera_rms_m": 1.0547925105658165,
+  "rooms_levanta": 2,
+  "rooms_truth": 3,
+  "rooms_matched": 1,
+  "doors_levanta": 0,
+  "doorways_truth": 2,
+  "area_total_error_pct": -46.962075719711095,
+  "area_total_error_scaled_pct": -61.57306557506168,
+  "per_room": [
+   {
+    "truth_room": 2,
+    "levanta_room": 0,
+    "truth_m2": 16.605,
+    "levanta_m2": 11.098801959149746,
+    "area_error_pct": -33.159879800362866
+   }
+  ],
+  "walls": 5,
+  "unreliable": null,
+  "max_views": 16,
+  "overlap": 8
+ },
+ {
+  "ok": true,
+  "scale_factor": 1.1621874000869392,
+  "camera_rms_m": 1.0114387754507503,
+  "rooms_levanta": 1,
+  "rooms_truth": 3,
+  "rooms_matched": 1,
+  "doors_levanta": 1,
+  "doorways_truth": 2,
+  "area_total_error_pct": -22.880758913214457,
+  "area_total_error_scaled_pct": 4.163382072693919,
+  "per_room": [
+   {
+    "truth_room": 2,
+    "levanta_room": 0,
+    "truth_m2": 16.605,
+    "levanta_m2": 53.92277881448184,
+    "area_error_pct": 224.73820424258864
+   }
+  ],
+  "walls": 3,
+  "unreliable": null,
+  "max_views": 12,
+  "overlap": 6
+ }
+]
