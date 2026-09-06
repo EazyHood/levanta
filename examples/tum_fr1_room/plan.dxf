@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461289.0840625
+2461290.153900463
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461289.0840625
+2461290.153900463
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{2DC1EE70-96CD-45B3-9939-E62991541F64}
+{D397FFFF-4672-45E9-B19F-5087FD2BCA8B}
   9
 $VERSIONGUID
   2
-{569D2327-4969-46B7-A1D2-F458BA78E2C0}
+{8A8F2247-36E3-4108-B89B-4A9CAE49A25A}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -8345,7 +8345,7 @@ AcDbMText
  71
 5
   1
-Room 1 (incompleta)\P24.49 m2\P4.45 x 5.50 m
+Room 1 (incomplete)\P24.49 m2\P4.45 x 5.50 m
   0
 LINE
   5
@@ -9087,7 +9087,7 @@ AcDbText
  40
 0.16
   1
-Cuadro de áreas
+Area schedule
  11
 4.39376386462272
  21
@@ -9151,7 +9151,7 @@ AcDbText
  40
 0.12
   1
-Nombre
+Name
  11
 4.45376386462272
  21
@@ -9183,7 +9183,7 @@ AcDbText
  40
 0.12
   1
-Área
+Area
  11
 6.053763864622719
  21
@@ -9215,7 +9215,7 @@ AcDbText
  40
 0.12
   1
-Perímetro
+Perimeter
  11
 7.053763864622719
  21
@@ -9503,7 +9503,7 @@ AcDbText
  40
 0.11
   1
-Área útil
+Net floor area
  11
 4.45376386462272
  21
@@ -9679,7 +9679,7 @@ AcDbText
  40
 0.11
   1
-Área de muros
+Wall footprint
  11
 4.45376386462272
  21
@@ -9855,7 +9855,7 @@ AcDbText
  40
 0.11
   1
-Área construida
+Gross area
  11
 4.45376386462272
  21
@@ -9999,7 +9999,7 @@ AcDbText
  40
 0.16
   1
-Cuadro de carpinterías
+Door & window schedule
  11
 4.39376386462272
  21
@@ -10063,7 +10063,7 @@ AcDbText
  40
 0.12
   1
-Ref.
+Tag
  11
 4.45376386462272
  21
@@ -10095,7 +10095,7 @@ AcDbText
  40
 0.12
   1
-Tipo
+Type
  11
 4.95376386462272
  21
@@ -10127,7 +10127,7 @@ AcDbText
  40
 0.12
   1
-Ancho
+Width
  11
 5.85376386462272
  21
@@ -10191,7 +10191,7 @@ AcDbText
  40
 0.12
   1
-Antepecho
+Sill
  11
 7.153763864622719
  21
@@ -10223,7 +10223,7 @@ AcDbText
  40
 0.12
   1
-Muro
+Wall
  11
 7.853763864622719
  21
@@ -10439,7 +10439,7 @@ AcDbText
  40
 0.11
   1
-puerta
+door
  11
 4.95376386462272
  21
@@ -10847,7 +10847,7 @@ AcDbText
  40
 0.09
   1
-PROYECTO
+PROJECT
  11
 -2.059206894721674
  21
@@ -10911,7 +10911,7 @@ AcDbText
  40
 0.09
   1
-AUTOR
+AUTHOR
  11
 0.3407931052783261
  21
@@ -10975,7 +10975,7 @@ AcDbText
  40
 0.09
   1
-ESCALA
+SCALE
  11
 1.5407931052783255
  21
@@ -11039,7 +11039,7 @@ AcDbText
  40
 0.09
   1
-FECHA
+DATE
  11
 2.440793105278326
  21
@@ -11071,7 +11071,7 @@ AcDbText
  40
 0.16
   1
-2026-09-05
+2026-09-06
  11
 2.440793105278326
  21
@@ -11103,7 +11103,7 @@ AcDbText
  40
 0.09
   1
-HOJA
+SHEET
  11
 3.220793105278326
  21
@@ -11167,7 +11167,7 @@ AcDbText
  40
 0.1
   1
-Plano: TUM fr1/room · 1 habitaciones · 24.49 m2 · techo 2.91 m · hecho con levanta
+Drawing: TUM fr1/room · 1 rooms · 24.49 m2 · ceiling 2.91 m · made with levanta
  11
 -2.059206894721674
  21
@@ -12281,7 +12281,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-09-05T07:01:03.925063+00:00
+1.4.4 @ 2026-09-06T08:41:37.714661+00:00
   0
 VISUALSTYLE
   5
@@ -12993,7 +12993,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-09-05T07:01:03.940506+00:00
+1.4.4 @ 2026-09-06T08:41:37.751766+00:00
   0
 ENDSEC
   0

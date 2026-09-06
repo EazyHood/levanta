@@ -8,8 +8,7 @@ only snapped to walls within 1.0 m and the farthest-overlapping wall won over th
 Thresholds written before the fix ran (metres):
 - an edge snaps to a parallel wall up to REACH away when the wall covers at least
   MIN_OVERLAP of the edge;
-- among candidates the *nearest* wall wins (a wall of the next room, further out, must
-  not pull the edge through the near one);
+- among candidates the wall that covers most of the edge wins, ties by distance;
 - a short stub covering less than MIN_OVERLAP is ignored.
 """
 
@@ -37,12 +36,15 @@ def test_edge_reaches_a_wall_two_metres_out():
     assert abs(out.bounds[0] - 0.0) < TOL and abs(out.bounds[3] - 3.0) < TOL
 
 
-def test_nearest_wall_wins_over_a_farther_one_with_more_overlap():
+def test_the_wall_that_covers_most_of_the_edge_wins():
+    """Measured on seven scenes (bench/planner_sweep.py): preferring the nearest wall is
+    worse or equal on every one of them, and it shrank the TUM room by 2 m2 and its walls
+    by 2 m."""
     seen = Polygon([(0, 0), (4, 0), (4, 3), (0, 3)])
     near = _seg((5.0, 0.5), (5.0, 2.0))  # 1.0 m out, covers 1.5 / 3.0 = 50 %
     far = _seg((6.5, -1.0), (6.5, 4.0))  # 2.5 m out, covers 100 %
     out = snap_edges_to_walls(seen, [near, far], max_dist=REACH, min_overlap=MIN_OVERLAP)
-    assert abs(out.bounds[2] - 4.95) < TOL
+    assert abs(out.bounds[2] - 6.45) < TOL
 
 
 def test_a_stub_is_ignored_and_walls_behind_the_reach_too():

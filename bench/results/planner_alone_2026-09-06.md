@@ -54,5 +54,38 @@ the walls harder, and a 0.45 m scrap appears.
 
 It is not from today's change — `git stash` and the same run at commit `8407b7b` gives
 the same four walls. It entered between round 3, when the example was generated, and
-round 5, and nothing caught it because the TUM was never re-run after round 4. The
-published example no longer matches what the code produces.
+round 5, and nothing caught it because the TUM was never re-run after round 4.
+
+### Fixed, and how it was chosen
+
+Two causes, both found by replanning saved clouds in seconds instead of re-running the
+whole sequence (`bench/planner_sweep.py`, which judges a setting on all seven scenes at
+once — the tool that was missing when the regression was introduced):
+
+1. **Round 4 made an open room's outline snap to the *nearest* parallel wall** instead of
+   the one covering most of the edge. Measured on the seven scenes, the old scoring is
+   better or equal on **every one of them**:
+
+   | scene | truth | nearest wins | most overlap wins |
+   |---|---|---|---|
+   | 41069021 | 17.5 m² | −25 % | −25 % |
+   | 42897526 | 4.9 m² | −4 % | −4 % |
+   | 45260905 | 25.3 m² | −31 % | −31 % |
+   | 47331964 | 24.0 m² | −13 % | **−8 %** |
+   | 47430051 | 4.2 m² | −100 % | −100 % |
+   | TUM fr1/room | 24.5 m² | −9 % | **−0 %** |
+   | Replica apt_0 | 51.8 m² | +25 % | **+19 %** |
+
+   The improvement round 4 claimed for this change came from the reach that arrived with
+   it (1.0 m → 2.5 m), which is kept: at 1.0 m two scenes get much worse (−51 %, +54 %).
+
+2. **The same wall arriving twice.** With the room the right size again, a second wall
+   0.39 m inside the west wall bordered it and was drawn: a phantom partition on the
+   sheet. `drop_duplicate_walls` keeps the longer of two parallel walls closer than 0.5 m
+   that run alongside each other, never dropping one whose thickness was measured from
+   both faces (`tests/test_duplicate_walls.py`). It removes 2 to 4 walls per scene and
+   changes no area.
+
+`levanta tum` now reproduces the published example exactly: three walls of 5.80, 4.93 and
+4.07 m, one door, 24.49 m², ceiling 2.91 m. Both examples in the repository were
+regenerated.

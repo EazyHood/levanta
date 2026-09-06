@@ -327,7 +327,7 @@
       "min_room_inside_frac": 0.25,
       "room_fallback": true,
       "room_min_jog": 0.9,
-      "room_snap_dist": 1.0,
+      "room_snap_dist": 2.5,
       "tidy": true,
       "wall_attach_dist": 0.2,
       "wall_trim_margin": 0.1,

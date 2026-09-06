@@ -161,7 +161,7 @@
       "min_room_inside_frac": 0.25,
       "room_fallback": true,
       "room_min_jog": 0.9,
-      "room_snap_dist": 1.0,
+      "room_snap_dist": 2.5,
       "tidy": true,
       "wall_attach_dist": 0.2,
       "wall_trim_margin": 0.1,
@@ -189,28 +189,11 @@
       "has_cameras": true,
       "faces": 15,
       "wall_lines": 13,
-      "walls_set_aside": 10
+      "walls_set_aside": 9
     },
     "source": "rgbd"
   },
   "extra_walls": [
-    {
-      "id": 1,
-      "a": [
-        -1.700447198435027,
-        -3.2405202269830418
-      ],
-      "b": [
-        -1.700447198435027,
-        0.5440684956716172
-      ],
-      "thickness": 0.1,
-      "height": 2.9095600406587514,
-      "sides_seen": 1,
-      "line_id": 1,
-      "exterior": false,
-      "length_m": 3.7846
-    },
     {
       "id": 2,
       "a": [
@@ -363,6 +346,23 @@
       "line_id": 12,
       "exterior": true,
       "length_m": 1.2191
+    },
+    {
+      "id": 1,
+      "a": [
+        -1.700447198435027,
+        -3.2405202269830418
+      ],
+      "b": [
+        -1.700447198435027,
+        0.5440684956716173
+      ],
+      "thickness": 0.1,
+      "height": 2.9095600406587514,
+      "sides_seen": 1,
+      "line_id": 1,
+      "exterior": false,
+      "length_m": 3.7846
     }
   ],
   "north_deg": null,

@@ -147,7 +147,13 @@ def snap_edges_to_walls(poly: Polygon, walls: list[WallSeg], max_dist: float = 2
             if overlap < min_overlap * L:
                 continue
             inner_face = off - np.sign(off) * th / 2 if abs(off) > th / 2 else 0.0
-            score = (-abs(off), overlap)  # the nearest wall that runs alongside wins; ties by overlap
+            # The wall that covers most of this edge wins, ties by distance.  Preferring the
+            # *nearest* wall instead (round 4) was measured on seven scenes and is worse or
+            # equal on every one: it shrank the TUM room from 24.5 to 22.4 m2 and its walls
+            # from 5.80 to 3.68 m, cost 5 points on ARKitScenes 47331964 and 6 on the
+            # Replica flat.  The reach of 2.5 m, which arrived in the same change, is what
+            # actually helped and stays.
+            score = (overlap, -abs(off))
             if best is None or score > best[0]:
                 best = (score, inner_face)
         if best is not None:
@@ -342,6 +348,54 @@ def square_corners(plan: FloorPlan, reach: float = 0.35, min_len: float = 0.3) -
                     if o.wall_id == w.id:
                         o.t0 -= shift
                         o.t1 -= shift
+    return plan
+
+
+def drop_duplicate_walls(plan: FloorPlan, gap: float = 0.5, min_overlap: float = 0.6) -> FloorPlan:
+    """Of two parallel walls closer than ``gap`` that run alongside each other, keep the
+    longer one.
+
+    The same surface often arrives twice: the wall itself and whatever stands against it.
+    On the TUM sheet that drew a phantom partition 0.39 m inside the west wall.  A wall
+    whose thickness was measured (both faces seen) is never dropped: that one is real.
+    """
+    walls = list(plan.walls)
+    drop: set[int] = set()
+    for i, a in enumerate(walls):
+        for j in range(i + 1, len(walls)):
+            b = walls[j]
+            if i in drop or j in drop:
+                continue
+            if abs(float(a.direction @ b.direction)) < 0.985:  # not parallel
+                continue
+            off = abs(float((np.asarray(b.a) - np.asarray(a.a)) @ a.normal))
+            if off > gap:
+                continue
+            ta = float((np.asarray(b.a) - np.asarray(a.a)) @ a.direction)
+            tb = float((np.asarray(b.b) - np.asarray(a.a)) @ a.direction)
+            lo, hi = max(0.0, min(ta, tb)), min(a.length, max(ta, tb))
+            overlap = max(0.0, hi - lo)
+            shorter, longer = (a, b) if a.length <= b.length else (b, a)
+            if overlap < min_overlap * shorter.length:
+                continue
+            if shorter.sides_seen >= 2:  # its thickness was measured: it is a real wall
+                continue
+            drop.add(walls.index(shorter))
+    if not drop:
+        return plan
+    keep = [w for k, w in enumerate(walls) if k not in drop]
+    old_to_new = {}
+    new_walls = []
+    for w in keep:
+        old_to_new[w.id] = len(new_walls)
+        new_walls.append(Wall(id=len(new_walls), a=w.a, b=w.b, thickness=w.thickness, height=w.height, sides_seen=w.sides_seen, exterior=w.exterior, line_id=w.line_id))
+    openings = []
+    for o in plan.openings:
+        if o.wall_id in old_to_new:
+            openings.append(Opening(id=len(openings), wall_id=old_to_new[o.wall_id], kind=o.kind, t0=o.t0, t1=o.t1, z0=o.z0, z1=o.z1, rooms=o.rooms))
+    plan.extra_walls = list(plan.extra_walls) + [walls[k] for k in sorted(drop)]
+    plan.walls = new_walls
+    plan.openings = openings
     return plan
 
 
