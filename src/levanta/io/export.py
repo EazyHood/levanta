@@ -106,7 +106,7 @@ def fit_print_scale(plan: FloorPlan, paper: str = "A4", orientation: str = "land
     if next_scale is not None and next_fits is False and fill < 0.6:
         note = t(lang, "note_scale_fit").format(s=s, next=next_scale, paper=paper)
         pt_per_m = 1000.0 / s * PT_PER_MM
-        d = floor_plan_drawing(plan, scale=pt_per_m, margin=margin_mm * PT_PER_MM, lang=lang, units=units, title=title, print_scale=s, font_scale=0.78, tables=layout, notes=[note], **kw)
+        d = floor_plan_drawing(plan, scale=pt_per_m, margin=margin_mm * PT_PER_MM, lang=lang, units=units, title=title, print_scale=s, font_scale=0.78, tables=layout, notes=[note, *(kw.pop("notes", None) or [])], **kw)
     ox = max(0.0, (pw - d.width) / 2)
     oy = max(0.0, (ph - d.height) / 2)
     return d, pw, ph, ox, oy, s, info

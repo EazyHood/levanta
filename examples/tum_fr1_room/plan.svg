@@ -118,12 +118,14 @@
 <text class="table" x="935.6" y="187.0" font-size="8.5" text-anchor="end" fill="#333333">M2</text>
 <path class="table" d="M 678.6,191.0 L 938.6,191.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="notes" x="678.6" y="220.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Notes</text>
-<text class="notes" x="678.6" y="236.0" font-size="8.5" text-anchor="start" fill="#333333">1. Walls M1, M2: thickness assumed 0.10 m (seen from one side only).</text>
-<text class="notes" x="678.6" y="248.5" font-size="8.5" text-anchor="start" fill="#333333">2. Walls M3: thickness assumed 0.20 m (seen from one side only).</text>
-<text class="notes" x="678.6" y="261.0" font-size="8.5" text-anchor="start" fill="#333333">3. Office: one side was not scanned; the outline follows the seen floor</text>
-<text class="notes" x="678.6" y="273.5" font-size="8.5" text-anchor="start" fill="#333333">    there.</text>
-<text class="notes" x="678.6" y="286.0" font-size="8.5" text-anchor="start" fill="#333333">4. Door height assumed (lintel not seen): P1.</text>
-<text class="notes" x="678.6" y="298.5" font-size="8.5" text-anchor="start" fill="#333333">5. No window detected. Windows need the wall under and above them scanned.</text>
+<text class="notes" x="678.6" y="236.0" font-size="8.5" text-anchor="start" fill="#333333">1. Walls M1, M2: thickness assumed 0.10 m (seen from one side</text>
+<text class="notes" x="688.1" y="248.5" font-size="8.5" text-anchor="start" fill="#333333">only).</text>
+<text class="notes" x="678.6" y="261.0" font-size="8.5" text-anchor="start" fill="#333333">2. Walls M3: thickness assumed 0.20 m (seen from one side only).</text>
+<text class="notes" x="678.6" y="273.5" font-size="8.5" text-anchor="start" fill="#333333">3. Office: one side was not scanned; the outline follows the seen</text>
+<text class="notes" x="688.1" y="286.0" font-size="8.5" text-anchor="start" fill="#333333">floor there.</text>
+<text class="notes" x="678.6" y="298.5" font-size="8.5" text-anchor="start" fill="#333333">4. Door height assumed (lintel not seen): P1.</text>
+<text class="notes" x="678.6" y="311.0" font-size="8.5" text-anchor="start" fill="#333333">5. No window detected. Windows need the wall under and above</text>
+<text class="notes" x="688.1" y="323.5" font-size="8.5" text-anchor="start" fill="#333333">them scanned.</text>
 <path class="titleblock" d="M 24.0,732.3 938.6,732.3 938.6,810.3 24.0,810.3 Z" fill="#ffffff" stroke="#333" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="titleblock" d="M 335.0,732.3 L 335.0,810.3" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="titleblock" d="M 536.2,732.3 L 536.2,810.3" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>

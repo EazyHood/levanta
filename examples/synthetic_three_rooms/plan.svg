@@ -249,8 +249,8 @@
 <text class="table" x="1173.0" y="265.0" font-size="8.5" text-anchor="end" fill="#333333">M4</text>
 <path class="table" d="M 916.0,269.0 L 1176.0,269.0" fill="none" stroke="#cfcac2" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <text class="notes" x="916.0" y="298.0" font-size="11" text-anchor="start" fill="#333333" font-weight="700">Notes</text>
-<text class="notes" x="916.0" y="314.0" font-size="8.5" text-anchor="start" fill="#333333">1. Walls M1, M3, M4, M6: thickness assumed 0.20 m (seen from one side</text>
-<text class="notes" x="916.0" y="326.5" font-size="8.5" text-anchor="start" fill="#333333">    only).</text>
+<text class="notes" x="916.0" y="314.0" font-size="8.5" text-anchor="start" fill="#333333">1. Walls M1, M3, M4, M6: thickness assumed 0.20 m (seen from one</text>
+<text class="notes" x="925.5" y="326.5" font-size="8.5" text-anchor="start" fill="#333333">side only).</text>
 <text class="notes" x="916.0" y="339.0" font-size="8.5" text-anchor="start" fill="#333333">2. Door height assumed (lintel not seen): P1, P2, P3.</text>
 <path class="titleblock" d="M 24.0,700.0 1176.0,700.0 1176.0,778.0 24.0,778.0 Z" fill="#ffffff" stroke="#333" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
 <path class="titleblock" d="M 415.7,700.0 L 415.7,778.0" fill="none" stroke="#333" stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round"/>

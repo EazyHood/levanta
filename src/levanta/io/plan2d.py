@@ -25,6 +25,9 @@ from levanta.plan.types import FloorPlan, Opening, Wall
 
 # below this, an outline is mostly inference and the label says so
 FLOOR_SEEN_NOTE = 0.60
+# the widest line of 8.5 pt notes worth reading (px at font_scale 1, about 70 characters):
+# a wide sheet leaves the rest of the column empty instead of running a note across the page
+NOTES_MEASURE = 300.0
 
 COLORS = {
     "room": "#f6f2ea",
@@ -424,17 +427,33 @@ def floor_plan_drawing(
     table_w = 260.0 * fs if have_tables else 0.0
     tb_h = 78.0 * fs if show_title_block else 0.0
     all_notes = general_notes(plan, lang, units) + list(notes or [])
-    notes_h = (16 + 13 * (len(all_notes) + sum(len(n) // 72 for n in all_notes))) * fs if all_notes else 0.0
     n_rows = len(plan.rooms) + 4 + (len(plan.openings) + 3 if plan.openings else 0)
     tables_h = (34 + 15 * n_rows + 30) * fs if have_tables else 0.0
     below = tables == "below" and have_tables
     if below:
-        block_h = max(tables_h, notes_h + 10 * fs) if (2 * table_w + 40 * fs + 260 * fs) <= max(plan_w, 2 * table_w + 40 * fs) else tables_h + notes_h + 10 * fs
         W = pad + max(plan_w, 2 * table_w + 40 * fs) + pad
-        H = pad + plan_h + block_h + 10 * fs + tb_h + pad
     else:
         side_w = (16 * fs + table_w) if have_tables else 0.0
         W = pad + plan_w + side_w + pad
+    # where the notes go, and how wide their column is: a third column beside the two
+    # schedules, under the schedules on the right, or the whole sheet.  The width is
+    # settled here because the notes wrap to it, and their height follows the wrap.
+    third_col = below and W - pad - (pad + 2 * (table_w + 40 * fs)) >= 260 * fs
+    if third_col:
+        notes_x = pad + 2 * (table_w + 40 * fs)
+        notes_w = W - pad - notes_x
+    elif below:
+        notes_x, notes_w = pad, W - 2 * pad
+    elif have_tables:
+        notes_x, notes_w = pad + plan_w + 16 * fs, table_w
+    else:
+        notes_x, notes_w = pad, W - 2 * pad
+    notes_w = min(notes_w, NOTES_MEASURE * fs)
+    notes_h = (16 + 12.5 * len(_note_lines(all_notes, notes_w, fs))) * fs if all_notes else 0.0
+    if below:
+        block_h = max(tables_h, notes_h + 10 * fs) if third_col else tables_h + notes_h + 10 * fs
+        H = pad + plan_h + block_h + 10 * fs + tb_h + pad
+    else:
         H = pad + max(plan_h, tables_h + notes_h + 20 * fs) + tb_h + pad
     d = Drawing(W, H)
 
@@ -554,20 +573,16 @@ def floor_plan_drawing(
             tx2 = tx1 + table_w + 40 * fs
             ty2 = _schedule_table(d, tx2, ty0, table_w, plan, lang, units, fs) if plan.openings else ty0
             if all_notes:
-                tx3 = tx2 + table_w + 40 * fs
-                if W - pad - tx3 >= 260 * fs:
-                    _notes_block(d, tx3, ty0, all_notes, lang, fs)
-                else:
-                    _notes_block(d, tx1, max(ty, ty2) + 12 * fs, all_notes, lang, fs)
+                _notes_block(d, notes_x, ty0 if third_col else max(ty, ty2) + 12 * fs, notes_w, all_notes, lang, fs)
         else:
             tx = pad + plan_w + 16 * fs
             ty = _areas_table(d, tx, pad, table_w, plan, lang, units, fs)
             if plan.openings:
                 ty = _schedule_table(d, tx, ty + 18 * fs, table_w, plan, lang, units, fs)
             if all_notes:
-                _notes_block(d, tx, ty + 18 * fs, all_notes, lang, fs)
+                _notes_block(d, notes_x, ty + 18 * fs, notes_w, all_notes, lang, fs)
     elif all_notes:
-        _notes_block(d, pad, pad + plan_h, all_notes, lang, fs)
+        _notes_block(d, notes_x, pad + plan_h, notes_w, all_notes, lang, fs)
     # title block
     if show_title_block:
         _title_block(d, pad, H - pad - tb_h, W - 2 * pad, tb_h, plan, title, lang, units, scale, print_scale, fs)
@@ -705,23 +720,45 @@ def _schedule_table(d: Drawing, x: float, y: float, w: float, plan: FloorPlan, l
     return _table(d, x, y, w, t(lang, "schedule"), [t(lang, "tag"), t(lang, "kind"), t(lang, "width"), "H", t(lang, "sill"), t(lang, "wall")], rows, [0.11, 0.21, 0.16, 0.14, 0.23, 0.15], fs, ["start", "start", "end", "end", "end", "end"])
 
 
-def _notes_block(d: Drawing, x: float, y: float, notes: list[str], lang: str, fs: float) -> float:
+def _note_lines(notes: list[str], w: float, fs: float) -> list[tuple[float, str]]:
+    """The notes wrapped to a column ``w`` wide: one ``(x offset, text)`` per line.
+
+    Measured with the same Helvetica widths the PDF writer uses, not counted in characters:
+    a note of 71 characters is 302 px wide at 8.5 pt and ran off a 260 px column.  Runovers
+    hang under the first word, and a word wider than the whole column is broken with a
+    hyphen rather than left to overflow.
+    """
+    from levanta.io.pdf import text_width
+
+    size = 8.5 * fs
+    out: list[tuple[float, str]] = []
+    for i, n in enumerate(notes):
+        head = f"{i + 1}. "
+        hang = text_width(head, size)
+        dx, pre, cur = 0.0, head, ""
+        for wd in n.split():
+            cand = (cur + " " + wd).strip()
+            if cur and dx + text_width(pre + cand, size) > w:
+                out.append((dx, pre + cur))
+                dx, pre, cur = hang, "", wd
+            else:
+                cur = cand
+            while len(cur) > 1 and dx + text_width(pre + cur, size) > w:
+                k = len(cur) - 1
+                while k > 1 and dx + text_width(pre + cur[:k] + "-", size) > w:
+                    k -= 1
+                out.append((dx, pre + cur[:k] + "-"))
+                dx, pre, cur = hang, "", cur[k:]
+        out.append((dx, pre + cur))
+    return out
+
+
+def _notes_block(d: Drawing, x: float, y: float, w: float, notes: list[str], lang: str, fs: float) -> float:
     d.text(x, y + 11 * fs, t(lang, "notes"), size=11 * fs, weight="bold", anchor="start", color=COLORS["table"], cls="notes")
     y += 16 * fs
-    for i, n in enumerate(notes):
-        words = n.split()
-        lines, cur = [], ""
-        for wd in words:
-            if len(cur) + len(wd) + 1 > 72:
-                lines.append(cur)
-                cur = wd
-            else:
-                cur = (cur + " " + wd).strip()
-        if cur:
-            lines.append(cur)
-        for k, ln in enumerate(lines):
-            d.text(x, y + 11 * fs, (f"{i + 1}. " if k == 0 else "    ") + ln, size=8.5 * fs, anchor="start", color=COLORS["table"], cls="notes")
-            y += 12.5 * fs
+    for dx, ln in _note_lines(notes, w, fs):
+        d.text(x + dx, y + 11 * fs, ln, size=8.5 * fs, anchor="start", color=COLORS["table"], cls="notes")
+        y += 12.5 * fs
     return y
 
 
