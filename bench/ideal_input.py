@@ -79,6 +79,12 @@ def main() -> None:
     (run / "frames" / "index.json").write_text(json.dumps(idx, indent=1), encoding="utf-8")
     t2 = time.time()
     res = extract_floor_plan(cloud, PlanOptions())
+    # both, and the difference matters: `res.cloud` has already been gravity-aligned,
+    # Manhattan-rotated and voxel-thinned by the planner, so replanning *it* measures the
+    # planner run twice.  Measured on this flat: two passes give 3 rooms and a mean per-room
+    # error of 87 %, one pass gives 2 rooms and 175 %.  A user only ever gets one pass, so
+    # the bench reads `fused_cloud.ply`.
+    cloud.save_ply(run / "fused_cloud.ply")
     res.cloud.save_ply(run / "plan_cloud.ply")
     plan = res.plan.label_openings()
     print(f"plan ({time.time() - t2:.0f} s): {len(plan.walls)} walls, {len(plan.rooms)} rooms, {len(plan.openings)} openings")

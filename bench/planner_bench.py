@@ -64,7 +64,11 @@ def scene_list() -> list[dict]:
     runs = {r["video_id"]: r["noK"] for r in json.loads((ROOT / "out/bench3/results.json").read_text(encoding="utf-8"))}
     for r in rows:
         vid = r["video_id"]
-        cloud = ROOT / "out/bench3" / vid / "noK" / "plan_cloud.ply"
+        # the *input* to the planner, not its output.  `plan_cloud.ply` is what the planner
+        # returned, already gravity-aligned, Manhattan-rotated and voxel-thinned, so
+        # replanning it measures a second pass the user never gets: on the Replica flat that
+        # made the mean per-room error look like 87 % instead of 175 %.
+        cloud = ROOT / "out/bench3" / vid / "noK" / "plan_recon.ply"
         mesh = ARKIT / vid / f"{vid}_3dod_mesh.ply"
         if cloud.exists() and mesh.exists():
             run = runs.get(vid, {})
@@ -73,7 +77,7 @@ def scene_list() -> list[dict]:
     tum = ROOT / "out/tum_raw.ply"
     if tum.exists():
         out.append({"name": "TUM fr1/room", "cloud": tum, "kind": "reference", "reference": TUM_REFERENCE})
-    apt = ROOT / "out/replica_apt0/ideal/plan_cloud.ply"
+    apt = ROOT / "out/replica_apt0/ideal/fused_cloud.ply"
     if apt.exists() and (REPLICA / "apartment_0/mesh.ply").exists():
         out.append({"name": "Replica apt_0 (perfect cloud)", "cloud": apt, "mesh": REPLICA / "apartment_0/mesh.ply", "kind": "replica", "poses": ROOT / "out/replica_apt0/walk_poses.json", "index": apt.parent / "frames" / "index.json"})
     return out
@@ -185,7 +189,7 @@ def match_rooms(plan, truth: dict, sim) -> dict:
 
     s, R, t = sim
     h, lo = truth["horiz"], truth["lo"]
-    detected, own_m2, off_floor = [], [], []
+    detected, own_m2, off_floor, seen = [], [], [], []
     for r in plan.rooms:
         pts = np.array([[x, y, 0.0] for x, y in r.polygon])
         w = s * (R @ pts.T).T + t
@@ -193,6 +197,15 @@ def match_rooms(plan, truth: dict, sim) -> dict:
         detected.append(g)
         own_m2.append(float(r.shapely.area))
         off_floor.append(_outside_floor(g, truth))
+        seen.append(r.floor_seen)
+    # how much of each detected room is shared with another one: a signal, like floor_seen,
+    # that needs no truth and is therefore available on the user's own sheet
+    overlap = [0.0] * len(detected)
+    for i, g in enumerate(detected):
+        if g.is_empty or g.area <= 0:
+            continue
+        shared = sum(g.intersection(h).area for j, h in enumerate(detected) if j != i and not h.is_empty)
+        overlap[i] = min(1.0, shared / g.area)
     per_room, best_of = [], {}
     for tr in truth["rooms"]:
         cy, cx = np.nonzero(tr["territory"])
@@ -204,7 +217,13 @@ def match_rooms(plan, truth: dict, sim) -> dict:
             per_room.append({"truth_m2": truth_m2, "levanta_m2": None, "covered_pct": 100.0 * max(cover, default=0.0), "error_pct": None})
             continue
         best_of.setdefault(k, []).append(tr["id"])
-        per_room.append({"truth_m2": truth_m2, "levanta_m2": own_m2[k], "covered_pct": 100.0 * cover[k], "outside_pct": off_floor[k], "error_pct": (own_m2[k] - truth_m2) / truth_m2 * 100.0})
+        per_room.append({
+            "truth_m2": truth_m2, "levanta_m2": own_m2[k], "covered_pct": 100.0 * cover[k],
+            "outside_pct": off_floor[k], "error_pct": (own_m2[k] - truth_m2) / truth_m2 * 100.0,
+            # the two signals a user has at home, with no ground truth anywhere near them
+            "floor_seen_pct": None if seen[k] is None else 100.0 * seen[k],
+            "overlap_pct": 100.0 * overlap[k],
+        })
     return {
         "per_room": per_room,
         "rooms_matched": len(best_of),

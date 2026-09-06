@@ -77,14 +77,19 @@ truth (LiDAR meshes, a rendered flat, mocap poses) and reproducible with
 
 | What you scan | What to expect |
 |---|---|
-| **One room**, walked with a phone | The area comes out **17-31 % small** on five real rooms with LiDAR truth. Walls are found on 33-48 % of the real wall. |
+| **One room**, walked with a phone | The area comes out **7-32 % small** on five real rooms with LiDAR truth. Walls are found on 28-48 % of the real wall. |
 | **A flat with several rooms** | On the only three-room flat measured end to end, levanta found **one room of three** and the area was **43 % small**. Partitions are the failure: on one scene not a single cell of the partition was drawn. |
-| **The best case there is** (perfect depth and poses, no network error) | Three rooms of three, but individually **−73 %, +161 % and −28 %**: the total came out +19 % because two errors cancelled. |
-| **A room's outline** | Half of it typically rests on floor nobody saw. Each room's sheet now prints that percentage. |
+| **The best case there is** (perfect depth and poses, no network error) | **Two rooms of three**, and one of those two covers two real rooms at once: individually **−65 %, +226 % and +236 %**, while the total came out **+20 %** because the errors cancelled. |
+| **A room's outline** | Half of it typically rests on floor nobody saw, and each room's sheet prints that percentage. Do not read it as a reliability score: on the rooms measured so far the *worst* rooms had **more** seen floor than the rest (72 % against 34 %), because a room that swallows its neighbour rests on plenty of evidence in the wrong shape. |
 
 A total that looks right is not evidence that the rooms are right, which is why every sheet
 reports the area **per room** and how much of each was observed. The reasoning behind each
 number is in [`bench/results/`](bench/results/).
+
+These figures are what the planner does in **one pass**, which is all a user gets. An earlier
+version of this table was measured by replanning the planner's own output, and that second
+pass halved the apparent per-room error (87 % against 175 %); the bench now reads the cloud
+that goes *into* the planner.
 
 What a satellite **cannot** give you is the interior: no sensor sees through a roof.
 `levanta site` therefore stops at footprint + height, and its output says so. Interior
