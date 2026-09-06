@@ -5,8 +5,11 @@ the synthetic apartment is a closed box, so it passes with planner changes the s
 bench measures at twice the area error.  A plan that contradicts *itself* does so on any
 scene, needs no ground truth, and costs a subtraction.
 
-Two of these were found on the published U2 apartment the day they were written: rooms
-sharing 0.44 m² of floor, and a room with no door on any of its walls.
+One of these was found on the published U2 apartment the day they were written: rooms
+sharing 0.44 m² of floor, which is real (four other plans overlap by exactly 0.0000 m²).  A
+second alarm on the same sheet, a room with no door, was **the checker being wrong**: that
+room is the open end of a corridor and you walk into it.  Both directions are tested here,
+because a check that cannot be quiet is not a check.
 """
 
 from __future__ import annotations
@@ -40,12 +43,23 @@ def test_a_clean_plan_claims_nothing_impossible():
     assert not ({"rooms_overlap", "room_no_way_in", "opening_orphan", "impossible_geometry"} & keys(plan))
 
 
-def test_a_room_you_cannot_enter_is_reported():
-    """Found on the published U2 apartment: Room 5 had no door on any of its walls."""
-    far = Wall(id=0, a=(50.0, 50.0), b=(54.0, 50.0), thickness=0.1, height=2.5)
-    door = Opening(id=0, wall_id=0, kind="door", t0=1.0, t1=1.8, z0=0.0, z1=2.05)
-    plan = _plan([_room(0, SQUARE)], [far], [door])
+def _box_walls(x0=0.0, y0=0.0, x1=4.0, y1=4.0) -> list[Wall]:
+    corners = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+    return [Wall(id=i, a=corners[i], b=corners[(i + 1) % 4], thickness=0.1, height=2.5) for i in range(4)]
+
+
+def test_a_room_walled_all_round_with_no_opening_is_reported():
+    """Enclosed on every side and no door anywhere: that is a room nobody can enter."""
+    plan = _plan([_room(0, SQUARE)], _box_walls(), [])
     assert "room_no_way_in" in keys(plan)
+
+
+def test_a_room_open_to_the_next_one_is_not_reported():
+    """The check said the published U2 apartment had a room nobody could enter.  It did not:
+    Room 5 is the open end of a corridor, 4 % of its outline on a wall and 21 % touching the
+    room next door.  An open plan has no door because it needs none."""
+    plan = _plan([_room(0, SQUARE)], _box_walls()[:1], [])
+    assert "room_no_way_in" not in keys(plan)
 
 
 def test_an_opening_on_a_wall_that_does_not_exist_is_reported():

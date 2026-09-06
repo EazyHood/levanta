@@ -101,7 +101,7 @@ published examples:
 | the rooms' areas sum to no more than the area they cover | **fails on the U2 apartment**: 30.99 against 30.55 |
 | no zero or negative area, length or thickness | holds everywhere |
 | every opening sits on a wall that exists | holds everywhere |
-| every room has a door or passage on one of its walls | **fails on the U2 apartment**: Room 5 |
+| every *enclosed* room has a door or passage on one of its walls | holds everywhere; the first version of this check raised a false alarm |
 | perimeter and area do not contradict each other | holds everywhere |
 
 The first one is worth being exact about. Without truth, "the building" is the union of the
@@ -112,9 +112,33 @@ found it and this family cannot.
 The other five are now in `FloorPlan.quality()` and print on the sheet like any other check,
 with seven tests including the tightest legal case, a circle, which must not fire.
 
-**The new one is the second failure on the published apartment: a room with no door or
-passage on any of its walls — a room the plan says you cannot enter.** It had been on the
-front page of the repository since it was generated.
+**And then one of the two was the checker, not the plan.** Announcing a defect on a published
+example deserves the same suspicion as any instrument that accuses something published, so
+both were re-measured.
+
+**The room with no door: false alarm, and the checker is fixed.** Room 5 of the U2 apartment
+has **4 % of its outline on a wall and 21 % of it touching the room next door**. It is the
+open end of a corridor: you walk in, and there is no door because there is no door in
+reality. The check now fires only on a room walled all the way round (≥90 % of its outline
+backed by wall) with no opening in any of those walls, and both directions are tested,
+because a check that cannot be quiet is not a check.
+
+**The overlap: real, and the threshold is not in a hole.** The distribution over the five
+plans settles it:
+
+| plan | excess of the sum over the area covered |
+|---|---|
+| Replica apt_0 | 0.0000 m² |
+| synthetic three_rooms | 0.0000 m² |
+| synthetic two_rooms | 0.0000 m² |
+| TUM office | 0.0000 m² |
+| **U2 apartment** | **0.4443 m² (1.46 %)** |
+
+Not a gradient of floating-point noise with a threshold sitting in the middle of it: four
+plans are exactly zero and one is half a square metre, four orders of magnitude apart. The
+0.05 m² threshold could be anywhere in that gap. The overlapping pair is Room 2 and Room 5,
+the same corridor and its open end, so the two alarms had one cause and only one of them was
+a defect.
 
 ## 7. The xfail drawer, capped, and the cap tested
 

@@ -260,6 +260,8 @@ class FloorPlan:
         Measured when they were written: the published U2 apartment had two of them, rooms
         sharing 0.44 m2 of floor and a room with no door on any of its walls.
         """
+        from shapely.ops import unary_union
+
         from levanta.i18n import t
 
         out: list[dict[str, str]] = []
@@ -272,11 +274,24 @@ class FloorPlan:
         if orphans:
             out.append({"key": "opening_orphan", "level": "warn", "text": t(lang, "qa_opening_orphan").format(tags=", ".join(orphans))})
 
+        # A room with no door is only unreachable if it is *enclosed*.  The first version of
+        # this check said the published U2 apartment had a room nobody could enter; it did
+        # not.  Room 5 is the open end of a corridor: 4 % of its outline sits on a wall and
+        # 21 % touches the room next door, so you walk in, and there is no door because
+        # there is no door in reality.  An open plan is not a defect.
         ways_in = [o for o in self.openings if o.kind in ("door", "passage") and o.wall_id in wall_ids]
+        solid = unary_union([w.polygon() for w in self.walls]) if self.walls else None
         shut = []
         for r in self.rooms:
-            g = r.shapely.buffer(0.35)
-            if not any(g.intersects(self.wall_by_id(o.wall_id).polygon()) for o in ways_in):
+            g = r.shapely
+            if any(g.buffer(0.35).intersects(self.wall_by_id(o.wall_id).polygon()) for o in ways_in):
+                continue
+            if solid is None:
+                continue
+            ring = g.exterior
+            n = max(40, int(ring.length / 0.05))
+            backed = sum(1 for i in range(n) if solid.buffer(0.10).contains(ring.interpolate(i / n, normalized=True)))
+            if backed / n >= 0.90:  # walled all the way round and no way through it
                 shut.append(r.name)
         if shut and self.rooms:
             out.append({"key": "room_no_way_in", "level": "warn", "text": t(lang, "qa_room_no_way_in").format(rooms=", ".join(shut))})
