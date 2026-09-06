@@ -99,6 +99,12 @@ case is not a blur either: the same room is always the one that comes out at two
 times its size, run after run, and the total lands within +21 to +23 % only because the
 other two are short. One flat and six runs is a small sample and it is the sample there is.
 
+**Part of this is not an algorithm problem.** Where a room's outline leaves the building on
+the flat measured, 63 % of that border is a wall levanta saw but judged too low to draw, and
+**23 % of it never gathered five points on a line at all**. That last quarter is border
+nobody filmed, and no threshold, no sight-line rule and no clipping reaches it. It is the
+share of this problem that belongs to the capture, not to the code.
+
 These figures are what the planner does in **one pass**, which is all a user gets. An earlier
 version of this table was measured by replanning the planner's own output, and that second
 pass halved the apparent per-room error (87 % against 175 %); the bench now reads the cloud

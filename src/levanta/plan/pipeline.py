@@ -96,6 +96,16 @@ class PlanOptions:
     stub_max_len: float = 0.6
     detect_windows: bool = True
     max_rays: int = 150_000
+    rooms_clipped_by_low_walls: bool = False
+    """Cut the finished rooms along the runs that were too low to become walls.
+
+    The same evidence as ``free_blocked_by_walls`` and the opposite order: the tracing is
+    left alone, so the rooms and doors still form, and the cut happens afterwards.  Round
+    10 showed the operation works when the evidence is perfect, clipping the interior to the
+    real floor took the flat's mean per-room error from 176 % to 33 %; what was missing was
+    evidence to clip with, and the low runs cover 63 % of the front where the interior
+    leaves the building.
+    """
     free_blocked_by_walls: bool = False
     """Stop a sight line at the first fitted run that was too low to become a wall.
 
@@ -328,6 +338,9 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         stats=room_stats,
     )
     debug["rooms"] = room_stats
+    if opts.rooms_clipped_by_low_walls and weak:
+        room_polys = _clip_rooms(room_polys, weak, camera_xy=None if aligned.cameras is None else aligned.camera_centers[:, :2], min_area=opts.min_room_area)
+        debug["rooms_clipped"] = len(weak)
     floor_seen = [seen_floor_fraction(poly, floor_r, grid) for poly, _ in room_polys]
 
     plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")), floor_seen=floor_seen)
@@ -359,6 +372,49 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         faces=faces,
         debug=debug,
     )
+
+
+def _clip_rooms(room_polys, weak: list[Face], *, camera_xy, min_area: float, half_width: float = 0.05):
+    """Cut the finished rooms along runs that were too low to become walls.
+
+    Three rounds were spent trying to stop the sight lines *during* the tracing, on raw
+    points, on every fitted run, and on the low ones only.  All three cost the same six
+    points of wall recall, because free space is what builds the rooms: a small bathroom's
+    fixtures are exactly the runs discarded on height, and blocking there means the room
+    never forms at all.
+
+    Clipping runs in the other order.  The tracing works as it does today, the rooms and
+    doors come out, and only then does a room lose whatever sits past an edge it should not
+    have crossed.  The bathroom already exists by the time the cut arrives.
+    """
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+
+    blades = []
+    for f in weak:
+        n = np.array([np.cos(f.alpha), np.sin(f.alpha)])
+        d = np.array([-np.sin(f.alpha), np.cos(f.alpha)])
+        a, b = f.s * n + f.t0 * d, f.s * n + f.t1 * d
+        blades.append(LineString([tuple(a), tuple(b)]).buffer(half_width, cap_style="flat"))
+    if not blades:
+        return room_polys
+    blade = unary_union(blades)
+    out = []
+    for poly, closed in room_polys:
+        cut = poly.difference(blade)
+        parts = list(cut.geoms) if cut.geom_type == "MultiPolygon" else [cut]
+        parts = [g for g in parts if g.geom_type == "Polygon" and g.area >= min_area]
+        if not parts:
+            out.append((poly, closed))  # a cut that removes the whole room is not a cut
+            continue
+        if camera_xy is not None and len(camera_xy):
+            from shapely import contains_xy
+
+            walked = [g for g in parts if contains_xy(g.buffer(0.3), camera_xy[:, 0], camera_xy[:, 1]).any()]
+            parts = walked or parts
+        keep = max(parts, key=lambda g: g.area)
+        out.append((keep, closed))
+    return out
 
 
 def _face_raster(grid: Grid, faces: list[Face], half_width: float = 0.06) -> np.ndarray:
