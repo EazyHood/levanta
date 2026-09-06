@@ -97,12 +97,26 @@ class PlanOptions:
     detect_windows: bool = True
     max_rays: int = 150_000
     free_blocked_by_walls: bool = False
-    """Stop a sight line at the first cell that holds a wall point.
+    """Stop a sight line at the first fitted run that was too low to become a wall.
 
     A ray only knows where it ended, so one aimed past the edge of a wall walks through that
     wall's cells and marks them free.  On the Replica flat that is where the interior leaves
-    the building: 61 % of the crossing front is real wall levanta did not draw, and 80 % of
-    those cells have wall points within 0.25 m.
+    the building: 61 % of the crossing front is real wall levanta did not draw, and 63 % of
+    that front is covered by runs face extraction found and then discarded on height, 32 %
+    for too few bands and 31 % for not reaching the ceiling.
+
+    Off, because the seven-scene bench has rejected every version of the blocker:
+
+    | what stops the ray | mean area error | wall recall | TUM example |
+    |---|---|---|---|
+    | nothing (today)    | **17 %** | **31 %** | 24.5 m2 (+0 %) |
+    | any cell with a wall point | 21 % | 25 % | 22.4 m2 (-9 %) |
+    | every fitted run, accepted or not | 22 % | 25 % | 22.4 m2 (-9 %) |
+    | only the runs too low to be a wall | 20 % | 25 % | 24.5 m2 (+0 %) |
+
+    The last one keeps the published example intact and still costs six points of wall
+    recall, because free space is the signal the rooms and doors are built from and a small
+    bathroom's fixtures are exactly the runs that get discarded on height.
     """
     free_guard: float = 0.5
     """How far a sight line may stray from seen floor and still count as interior.
@@ -196,24 +210,10 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     wall_xy, wall_n, wall_z = wall_xy[keep], wall_n[keep], wall_z[keep]
     debug["wall_points"] = len(wall_xy)
 
-    grid = Grid.from_points(xyz[:, :2], opts.cell)
-    floor_m = (nrm[:, 2] > 0.9) & (np.abs(z) < 0.08)
-    floor_r = count_raster(grid, xyz[floor_m, :2]) > 0
-    cams = aligned.point_camera_centers()
-    if cams is not None:
-        blocker = count_raster(grid, wall_xy) > 0 if opts.free_blocked_by_walls else None
-        free_r = free_space_raster(grid, xyz[:, :2], cams[:, :2], max_rays=opts.max_rays, seed=opts.seed, occupied=blocker)
-    else:
-        free_r = np.zeros(grid.shape, dtype=bool)
-    inside = floor_r | free_r
-    # Seen floor, plus line of sight within ``free_guard`` of it: what the fallback room
-    # outline may follow.  Sight lines far from any seen floor (through a doorway into an
-    # unscanned corridor) are excluded.
-    inside_strict = floor_r | (free_r & dilate(floor_r, max(1, round(opts.free_guard / opts.cell))))
-    debug["has_cameras"] = cams is not None
-
-    # 6. faces and wall lines
+    # 6. faces, before the rasters: a run that is too low to be a wall is still evidence
+    # that something vertical stands there, and the sight lines need to know about it
     faces: list[Face] = []
+    weak: list[Face] = []
     for alpha in alphas:
         faces += extract_faces(
             wall_xy,
@@ -231,7 +231,26 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
             z_top=z_seen_top if ceiling_measured else None,
             total_bands=n_bands_total,
             t_bin=opts.station_bin,
+            low=weak,
         )
+    debug["faces_too_low"] = len(weak)
+
+    grid = Grid.from_points(xyz[:, :2], opts.cell)
+    floor_m = (nrm[:, 2] > 0.9) & (np.abs(z) < 0.08)
+    floor_r = count_raster(grid, xyz[floor_m, :2]) > 0
+    cams = aligned.point_camera_centers()
+    if cams is not None:
+        blocker = _face_raster(grid, weak) if opts.free_blocked_by_walls else None
+        free_r = free_space_raster(grid, xyz[:, :2], cams[:, :2], max_rays=opts.max_rays, seed=opts.seed, occupied=blocker)
+    else:
+        free_r = np.zeros(grid.shape, dtype=bool)
+    inside = floor_r | free_r
+    # Seen floor, plus line of sight within ``free_guard`` of it: what the fallback room
+    # outline may follow.  Sight lines far from any seen floor (through a doorway into an
+    # unscanned corridor) are excluded.
+    inside_strict = floor_r | (free_r & dilate(floor_r, max(1, round(opts.free_guard / opts.cell))))
+    debug["has_cameras"] = cams is not None
+
     lines: list[WallLine] = []
     for alpha in alphas:
         lines += build_wall_lines(
@@ -340,6 +359,29 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         faces=faces,
         debug=debug,
     )
+
+
+def _face_raster(grid: Grid, faces: list[Face], half_width: float = 0.06) -> np.ndarray:
+    """Cells a fitted run passes through, which is where a sight line has to stop.
+
+    Built from the runs themselves rather than from raw wall points: a lone point on a
+    wardrobe or in a doorway is not a run, and blocking on raw points was measured to cost
+    more than it saved (wall recall 31 % to 25 %, and the TUM example broken by 9 %).
+    """
+    out = np.zeros(grid.shape, dtype=bool)
+    for f in faces:
+        n = np.array([np.cos(f.alpha), np.sin(f.alpha)])
+        d = np.array([-np.sin(f.alpha), np.cos(f.alpha)])
+        steps = max(2, int(np.ceil((f.t1 - f.t0) / (grid.cell * 0.7))) + 1)
+        ts = np.linspace(f.t0, f.t1, steps)
+        for off in np.arange(-half_width, half_width + grid.cell, grid.cell):
+            pts = (f.s + off) * n[None, :] + ts[:, None] * d[None, :]
+            inside = grid.inside(pts)
+            if not inside.any():
+                continue
+            ix, iy = grid.to_index(pts[inside])
+            out[iy, ix] = True
+    return out
 
 
 def _assemble(

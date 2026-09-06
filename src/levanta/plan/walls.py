@@ -203,6 +203,7 @@ def extract_faces(
     total_bands: float | None = None,
     top_frac: float = 0.20,
     full_frac: float = 0.75,
+    low: list[Face] | None = None,
 ) -> list[Face]:
     """Wall faces of one direction family (see module docstring).
 
@@ -211,6 +212,12 @@ def extract_faces(
     the ceiling band (``z_top - 0.5``) in ``top_frac`` of its station bins, or span
     ``full_frac`` of all bands: that is what separates a wall from a wardrobe or an open
     door leaf.
+
+    ``low`` collects the runs that were long enough to be a wall and failed only on height,
+    at either gate.  They are not walls and never become one, but they are evidence that
+    something vertical stands there, and on the Replica flat they are 63 % of the front
+    where the interior leaks out of the building: 32 % died for too few height bands and
+    31 % for not reaching the ceiling.  A sight line has no business crossing them.
     """
     n = np.array([np.cos(alpha), np.sin(alpha)])
     d = np.array([-np.sin(alpha), np.cos(alpha)])
@@ -253,7 +260,12 @@ def extract_faces(
                     continue
                 _, cov = _station_coverage(tt, zr, t_bin, z_band)
                 cov_med = float(np.median(cov))
+
+                weak = Face(alpha=alpha, sign=sign, s=s0, t0=float(tt[0]), t1=float(tt[-1]),
+                            tz=np.stack([tt, zr], axis=1), coverage=cov_med, n_pts=int(b - a))
                 if cov_med < min_bands:
+                    if low is not None:
+                        low.append(weak)
                     continue
                 if z_top is not None:
                     n_bins = max(1, int(np.ceil(length / t_bin)))
@@ -261,6 +273,8 @@ def extract_faces(
                     reaches_top = len(top_bins) / n_bins >= top_frac
                     spans_all = total_bands is not None and cov_med >= full_frac * total_bands
                     if not (reaches_top or spans_all):
+                        if low is not None:
+                            low.append(weak)
                         continue
                 faces.append(
                     Face(
