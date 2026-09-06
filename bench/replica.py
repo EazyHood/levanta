@@ -138,7 +138,8 @@ def floor_truth(mesh) -> dict:
         _d, (iy, ix) = ndimage.distance_transform_edt(cores == 0, return_indices=True)
         terr = np.where(filled, cores[iy, ix], 0)
         for r in rooms:
-            r["territory_m2"] = float((terr == r["id"] + 1).sum() * CELL * CELL)
+            r["territory"] = terr == r["id"] + 1  # every floor cell that belongs to this room
+            r["territory_m2"] = float(r["territory"].sum() * CELL * CELL)
         pairs = set()
         for dy, dx in ((0, 1), (1, 0)):
             a = terr[: terr.shape[0] - dy, : terr.shape[1] - dx]
@@ -172,7 +173,23 @@ def wall_truth(mesh, truth: dict, low: float = 0.30, high: float = 1.80) -> np.n
     return grid
 
 
-def wall_scores(plan_walls, truth: dict, wall_mask: np.ndarray, sim, tol: float = 0.25) -> dict:
+def partition_mask(truth: dict, wall_mask: np.ndarray, reach: float = 1.0) -> np.ndarray:
+    """The real walls that separate one room from another, told apart from the facade.
+
+    Missing a partition and missing an outside wall are different failures: without the
+    partition there is no second room to find, however good the outline is.  A wall cell
+    counts as a partition when floor from two different rooms lies within ``reach``.
+    """
+    from scipy import ndimage
+
+    r = max(1, round(reach / CELL))
+    near = np.zeros(wall_mask.shape, dtype=np.uint8)
+    for room in truth["rooms"]:
+        near += ndimage.binary_dilation(room["territory"], iterations=r).astype(np.uint8)
+    return wall_mask & (near >= 2)
+
+
+def wall_scores(plan_walls, truth: dict, wall_mask: np.ndarray, sim, tol: float = 0.25, parts: dict | None = None) -> dict:
     """How much of the real wall levanta drew (recall) and how much of what it drew is wall
     (precision), both within ``tol`` metres, on the floor grid."""
     from shapely.geometry import Polygon as P
@@ -208,6 +225,14 @@ def wall_scores(plan_walls, truth: dict, wall_mask: np.ndarray, sim, tol: float 
         if len(tree.query(Pt(x, y).buffer(tol))) and drawn.distance(Pt(x, y)) <= tol:
             hit += 1
     recall = hit / max(len(xs), 1)
+    part_recall = {}
+    for name, sub in (parts or {}).items():
+        si, sj = np.nonzero(sub)
+        if not len(si):
+            part_recall[f"recall_{name}"] = None
+            continue
+        got = sum(1 for x, y in zip(lo[0] + (si + 0.5) * CELL, lo[1] + (sj + 0.5) * CELL, strict=True) if drawn.distance(Pt(x, y)) <= tol)
+        part_recall[f"recall_{name}"] = got / len(si)
     # precision: sample the drawn walls and ask how many land on real wall
     minx, miny, maxx, maxy = drawn.bounds
     gx, gy = np.meshgrid(np.arange(minx, maxx, CELL), np.arange(miny, maxy, CELL), indexing="ij")
@@ -225,7 +250,7 @@ def wall_scores(plan_walls, truth: dict, wall_mask: np.ndarray, sim, tol: float 
         dil = ndimage.binary_dilation(wall_mask, iterations=r)
         near[ok] = dil[ij[ok, 0], ij[ok, 1]]
         prec = float(near.mean())
-    return {"wall_recall": float(recall), "wall_precision": prec, "wall_truth_m2": float(wall_mask.sum() * CELL * CELL), "wall_drawn_m2": float(drawn.area)}
+    return {"wall_recall": float(recall), "wall_precision": prec, **part_recall, "wall_truth_m2": float(wall_mask.sum() * CELL * CELL), "wall_drawn_m2": float(drawn.area)}
 
 
 # -- the walk -----------------------------------------------------------------------------------

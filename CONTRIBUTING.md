@@ -22,6 +22,17 @@ ruff check src tests
   `tests/test_pipeline_synthetic.py` were fixed before the first run and should only
   move when a change genuinely improves the result. Add a scene if your change targets
   a situation the existing ones do not cover.
+- **One planner change per round.** When you touch `src/levanta/plan/`, change *one*
+  thing, then run `python bench/planner_bench.py` and keep it only if the table says so.
+  Round 4 shipped two changes together, a new scoring in `snap_edges_to_walls` and a
+  longer snap reach; the pair helped, so both were kept. Round 6 swept them separately
+  and found the scoring was worse or equal on all seven scenes: a useless change had
+  been sitting in the planner for two rounds, and it was what broke the published TUM
+  example. A bench run over the sum of two changes cannot say which one earned the gain.
+  If two are unavoidable, sweep each alone as well.
+- **Judge a planner change room by room, not on the total.** The bench prints each room
+  against its own truth because a total can be right for two wrong reasons: on the
+  Replica flat the total area was +19 % while one room was −73 % and another +161 %.
 - **No GPU in tests.** The MapAnything backend is exercised manually
   (`levanta video`, `levanta reconstruct`); everything else must run on CPU in CI.
 - **Public data only** in examples and tests, with its license named.

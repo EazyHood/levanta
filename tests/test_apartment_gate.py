@@ -5,9 +5,12 @@ hand: round 4's outline snapping shrank the TUM room by 2 m² and its walls by 2
 example in the repository stopped matching the code. This is the gate that would have said
 so the same day.
 
-The cloud is the Replica `apartment_0` walk with exact depth and exact poses (the planner's
-own ceiling, no network error in the way), thinned to 40 046 points, which changes nothing
-in the plan: 16 walls and 61.5 m² at full density, 16 and 61.6 m² here.
+The cloud is the Replica `apartment_0` walk with exact depth and exact poses, thinned to
+40 046 points, which changes nothing in the plan: 16 walls and 61.5 m² at full density, 16
+and 61.6 m² here.  Exact is not complete: floor points reach only 36 % of the flat's floor
+because a camera at 1.5 m sees furniture, so this gate is the planner without network error,
+not the planner with full information.  `apartment_0` also has a second storey 2.85 m up,
+which the walk glimpses and the truth here does not include.
 
 **It is not in the repository**: it derives from Replica's mesh, whose licence is for
 research, and this repository is MIT. Whoever has the dataset generates it once with
