@@ -64,7 +64,8 @@ def extract_frames(
 
     Only one frame in ``score_every`` is decoded and scored (the others are skipped by
     the decoder without a colour conversion): at 30 fps that still leaves ten
-    candidates per second, and the extraction runs about three times faster.
+    candidates per second, and the extraction runs about three times faster.  The skip is
+    capped at the window size, so a clip already at ``fps`` keeps every frame.
 
     Returns the frames in time order.  Frames whose sharpness is below ``min_sharpness``
     are dropped even if they were the best of their window, and so are flat frames (title
@@ -86,7 +87,10 @@ def extract_frames(
 
     candidates: list[tuple[float, bytes, int]] = []  # (sharpness, encoded jpeg, frame index)
     best: tuple[float, np.ndarray, int] | None = None
-    score_every = max(1, int(score_every))
+    # never skip more than a window holds: on a clip whose frame rate is close to ``fps``
+    # a window is one or two frames, and skipping two in three loses whole seconds of the
+    # walk (measured: 31 of 116 frames survived a 1 fps render)
+    score_every = max(1, min(int(score_every), window))
     i = 0
     while True:
         if not cap.grab():
