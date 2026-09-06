@@ -11,9 +11,15 @@ deliberate act with a reason next to it, which is the point.
 
 from __future__ import annotations
 
-MAX_XFAIL = 1
-"""1: `tests/test_apartment_gate.py::test_no_room_is_bigger_than_the_whole_flat` — one pass
-fuses two rooms into a 55.8 m² blob on a 51.8 m² flat (bench/results/round18)."""
+MAX_XFAIL = 2
+"""Every entry is a defect that is understood and not yet fixed, with the case in front of it.
+
+1. `test_apartment_gate.py::test_no_room_is_bigger_than_the_whole_flat` — one pass fuses two
+   rooms into a 55.8 m² blob on a 51.8 m² flat (bench/results/round18).
+2. `test_room_and_a_view.py::test_no_room_is_claimed_from_floor_nobody_walked_on` — the
+   closed-pocket stage claims a 39 m² room out of floor nobody stood on; the seen-floor
+   fallback checks for a camera and that stage does not.
+"""
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):

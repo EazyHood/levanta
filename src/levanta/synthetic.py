@@ -54,9 +54,24 @@ class Apartment:
     wall_ext: float = 0.25
 
 
+def a_room_and_a_view() -> Apartment:
+    """One room to walk, and space beyond a wide opening that nobody walks into.
+
+    Every other synthetic scene is a closed box, and that is why the automated tests could
+    not see the failure the ground-truth bench measures: with nothing outside, a sight line
+    has nothing to reach past a wall, so the interior cannot leak out of the building.  Here
+    the far space is never entered and its surfaces are seen from the doorway, which is the
+    geometry the real flats have.
+    """
+    return Apartment(
+        rooms=[SRoom("Walked", 0.0, 0.0, 4.0, 4.0), SRoom("Beyond", 4.12, -2.0, 9.0, 6.0)],
+        openings=[SOpening(axis="x", at=4.0, t0=1.2, t1=2.8, z0=0.0, z1=2.05, kind="door")],
+    )
+
+
 def scenes() -> dict:
     """Name -> factory of every built-in apartment."""
-    return {"two_rooms": two_rooms, "three_rooms": three_rooms}
+    return {"two_rooms": two_rooms, "three_rooms": three_rooms, "a_room_and_a_view": a_room_and_a_view}
 
 
 def two_rooms() -> Apartment:
@@ -143,6 +158,7 @@ def sample_apartment(
     cameras_per_room: int = 3,
     furniture: int = 2,
     seed: int = 0,
+    camera_rooms: tuple[int, ...] | None = None,
     rigid: np.ndarray | None = None,
     through_doors: float = 0.5,
 ) -> PointCloud:
@@ -152,6 +168,11 @@ def sample_apartment(
     transform applied to everything (to test gravity/Manhattan recovery);
     ``through_doors`` the share of the points visible through a doorway that get
     attributed to a camera on the other side.
+
+    ``camera_rooms`` restricts which rooms are walked.  A room outside it gets no cameras of
+    its own and its surfaces are attributed to the cameras of the rooms that are walked, so
+    it is space seen from a doorway and never entered.  That is what a closed box cannot
+    offer, and without it a sight line has nothing to reach past a wall.
     """
     rng = np.random.default_rng(seed)
     xyz, nrm, view, room_of = [], [], [], []
@@ -161,7 +182,8 @@ def sample_apartment(
 
     for ri, room in enumerate(apt.rooms):
         cam_ids = []
-        for _ in range(cameras_per_room):
+        n_here = cameras_per_room if (camera_rooms is None or ri in camera_rooms) else 0
+        for _ in range(n_here):
             cx = rng.uniform(room.x0 + 0.5, room.x1 - 0.5)
             cy = rng.uniform(room.y0 + 0.5, room.y1 - 0.5)
             yaw = rng.uniform(0, 2 * np.pi)
@@ -171,6 +193,8 @@ def sample_apartment(
             R = np.stack([right, down, f], axis=1)
             cams.append(make_pose(R, [cx, cy, 1.4]))
             cam_ids.append(len(cams) - 1)
+        if not cam_ids:  # never entered: whoever is walking sees it from their doorway
+            cam_ids = [i for r in cams_of_room.values() for i in r] or list(range(len(cams)))
         cam_ids = np.array(cam_ids)
         cams_of_room[ri] = cam_ids
 

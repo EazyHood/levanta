@@ -72,6 +72,20 @@ def test_two_rooms_sharing_floor_are_reported():
     assert "rooms_overlap" in keys(plan)
 
 
+def test_a_hand_sized_overlap_is_reported_too():
+    """The threshold is a square millimetre, so 4 sq cm is not a rounding error: it is floor
+    counted twice.  It used to be 0.05 sq m, which let this through."""
+    plan = _plan([_room(0, SQUARE), _room(1, [(3.99, 0), (8, 0), (8, 4), (3.99, 4)])])
+    assert "rooms_overlap" in keys(plan)
+
+
+def test_float_noise_does_not_fire():
+    """Two rooms sharing an edge and nothing else must stay quiet: measured over ten plans
+    the excess is exactly 0.0 eight times and 1.4e-14 once."""
+    plan = _plan([_room(0, SQUARE), _room(1, [(4, 0), (8, 0), (8, 4), (4, 4)])])
+    assert "rooms_overlap" not in keys(plan)
+
+
 @pytest.mark.parametrize(
     ("tag", "ring"),
     [

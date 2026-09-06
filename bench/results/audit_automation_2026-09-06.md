@@ -165,3 +165,55 @@ them: **a test's input must come from upstream of the thing being tested.** For 
 apartment gate the unit is the planner, so the input has to be the cloud that goes in, never
 the plan that comes out. For the label and note tests the unit is the renderer, so a plan is
 upstream and using a real one is right.
+
+---
+
+# Follow-up 2: the threshold, and a scene with something outside it
+
+## 9. The overlap threshold was reserving margin for noise that does not exist
+
+Asked for the distribution at full precision instead of four decimals, over ten plans:
+
+| | excess of the sum over the area covered |
+|---|---|
+| eight plans (both synthetic apartments at five seeds, the TUM office, two examples) | **exactly 0.0** |
+| Replica apt_0 | 1.4e-14 m² — one float epsilon on a 62 m² sum |
+| U2 apartment | **0.4443 m²** |
+
+There is no noise floor to clear. I had written that the 0.05 m² threshold "was placed by
+luck but is well placed"; **it is not**, and the measurement says so: it would let a real
+overlap of four hand-sized centimetres through with nothing measured to justify it. It is
+now **1e-6 m²**, thirteen orders of magnitude above the noise, with a test that 4 cm² fires
+and a test that two rooms sharing an edge stay quiet. A margin is justified by a case, and
+the day a case lands in between it raises this with the case in front of it.
+
+## 10. `a_room_and_a_view`: the scene the suite was missing
+
+Every synthetic apartment was a sealed box, so a sight line had nothing to reach past a wall
+and the interior could not leak out of the building — which is why the suite passed with two
+changes the bench measures at up to twice the area error.
+
+The new scene gives one room to walk and a larger space behind a 1.6 m doorway that nobody
+enters; its surfaces are attributed to the cameras in the walked room, which is the geometry
+a real flat has. `sample_apartment` gained `camera_rooms` for it.
+
+What it shows:
+
+| | rooms | areas | total |
+|---|---|---|---|
+| default | 2 | **39.0**, 16.0 | 55.0 m² |
+| `rooms_clipped_by_low_walls` | 2 | 37.5, 15.1 | 52.6 m² |
+| `free_blocked_by_walls` | 2 | 39.0, 16.0 | 55.0 m² |
+
+The walked room comes out at 16.0 m² against a truth of 16.0. **And levanta claims a second
+room of 39 m² out of floor nobody ever stood on.** The scene also moves under a planner
+change where the closed scenes moved not at all, which is the sensitivity it was built for,
+though only by 5 %.
+
+And it named a concrete cause: both rooms come from the **closed-pocket** stage
+(`closed: 2`), and that stage has no check that a room was entered. The seen-floor fallback
+does: it requires a room to contain a camera. One of the two stages checks and the other
+does not.
+
+That is now `tests/test_room_and_a_view.py`, with the defect as an `xfail(strict=True)` and
+`MAX_XFAIL` raised to 2 with both cases written next to it.

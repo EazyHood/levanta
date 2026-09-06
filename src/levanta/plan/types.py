@@ -265,8 +265,13 @@ class FloorPlan:
         from levanta.i18n import t
 
         out: list[dict[str, str]] = []
+        # A square millimetre, not a margin.  Measured over ten plans, eight give an excess
+        # of exactly 0.0 and one gives 1.4e-14 m2, one float epsilon on a 62 m2 sum; the
+        # only real one is 0.4443.  There is no noise floor to clear, so reserving 0.05 m2
+        # would let a real overlap of half a hand through for no measured reason.  The day a
+        # case lands in between, it raises this with the case in front of it.
         overlap = float(sum(r.area for r in self.rooms)) - self.total_area
-        if overlap > 0.05:
+        if overlap > 1e-6:
             out.append({"key": "rooms_overlap", "level": "warn", "text": t(lang, "qa_rooms_overlap").format(m2=f"{overlap:.2f}")})
 
         wall_ids = {w.id for w in self.walls}
