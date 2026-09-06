@@ -278,7 +278,7 @@ poses already agree with each other and the ICP has nothing to correct; and comp
 chunks by overlap instead of time left the RMS where it was (1.05 m with 16 views sharing
 8, 1.01 m with 12 sharing 6, against 1.04 m with 24 sharing 4). The bend is inside what
 the network predicts for a set of views. Details in
-[`bench/results/`](bench/results/arkitscenes_2026-09-05_round5.md).
+[`bench/results/`](bench/results/round5_2026-09-05.md).
 
 **MapAnything from RGB only** on the same sequence (16 frames of 640×480, RTX 5060 laptop
 8 GB, 6.7 GB VRAM, 46 s once the weights are cached), compared pixel by pixel with the
