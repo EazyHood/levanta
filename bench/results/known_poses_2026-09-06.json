@@ -1,0 +1,26 @@
+{
+ "frames": 94,
+ "depth": {
+  "views": 94,
+  "scale_median": 0.5415537059307098,
+  "scale_p10": 0.37008593082427976,
+  "scale_p90": 0.7040145099163055,
+  "abs_rel_median": 0.05569419823586941,
+  "abs_rel_mean": 0.09895257322870671
+ },
+ "known_poses": {
+  "ok": true,
+  "scale_factor": 1.0000000078986744,
+  "camera_rms_m": 1.0258034618199254e-07,
+  "rooms_levanta": 1,
+  "rooms_truth": 3,
+  "rooms_matched": 0,
+  "doors_levanta": 1,
+  "doorways_truth": 2,
+  "area_total_error_pct": -42.95990693078428,
+  "area_total_error_scaled_pct": -42.95990602970203,
+  "per_room": [],
+  "walls": 3,
+  "unreliable": null
+ }
+}

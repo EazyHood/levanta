@@ -1,0 +1,106 @@
+{
+ "overrides": {},
+ "rows": [
+  {
+   "scene": "41069021",
+   "walls": 8,
+   "rooms": 1,
+   "doors": 0,
+   "area_m2": 13.14079781001661,
+   "truth_rooms": 1,
+   "truth_doors": 0,
+   "truth_area_m2": 19.082500000000003,
+   "area_error_pct": -31.136917018123373,
+   "camera_rms_m": 0.4662529835847372,
+   "wall_recall": 0.4798052134059009,
+   "wall_precision": 0.9143556280587276
+  },
+  {
+   "scene": "42897526",
+   "walls": 6,
+   "rooms": 1,
+   "doors": 1,
+   "area_m2": 4.675841374208309,
+   "truth_rooms": 0,
+   "truth_doors": 0,
+   "truth_area_m2": 5.647500000000001,
+   "area_error_pct": -17.20511068245581,
+   "camera_rms_m": 0.5143293180182601,
+   "wall_recall": 0.40216271884654997,
+   "wall_precision": 0.7937956204379562
+  },
+  {
+   "scene": "45260905",
+   "walls": 6,
+   "rooms": 1,
+   "doors": 0,
+   "area_m2": 17.585253601992868,
+   "truth_rooms": 1,
+   "truth_doors": 0,
+   "truth_area_m2": 25.615000000000006,
+   "area_error_pct": -31.34782899866147,
+   "camera_rms_m": 0.5936373825693794,
+   "wall_recall": 0.32706766917293234,
+   "wall_precision": 0.6787830896878704
+  },
+  {
+   "scene": "47331964",
+   "walls": 6,
+   "rooms": 3,
+   "doors": 0,
+   "area_m2": 22.07967866060354,
+   "truth_rooms": 2,
+   "truth_doors": 1,
+   "truth_area_m2": 27.797500000000003,
+   "area_error_pct": -20.56955243959515,
+   "camera_rms_m": 0.8400771434654217,
+   "wall_recall": 0.14338343648688476,
+   "wall_precision": 0.7376811594202899
+  },
+  {
+   "scene": "47430051",
+   "walls": 4,
+   "rooms": 0,
+   "doors": 0,
+   "area_m2": 0.0,
+   "truth_rooms": 0,
+   "truth_doors": 0,
+   "truth_area_m2": 5.405000000000001,
+   "area_error_pct": -100.0,
+   "camera_rms_m": 0.8911484227756546,
+   "wall_recall": 0.02832512315270936,
+   "wall_precision": 1.0
+  },
+  {
+   "scene": "TUM fr1/room",
+   "walls": 3,
+   "rooms": 1,
+   "doors": 1,
+   "area_m2": 24.493782034469362,
+   "truth_rooms": 1,
+   "truth_doors": 1,
+   "truth_area_m2": 24.49,
+   "area_error_pct": 0.01544317872341175,
+   "walls_expected": 3,
+   "wall_lengths": [
+    5.8,
+    4.93,
+    4.07
+   ]
+  },
+  {
+   "scene": "Replica apt_0 (perfect cloud)",
+   "walls": 16,
+   "rooms": 3,
+   "doors": 2,
+   "area_m2": 61.52513028087887,
+   "truth_rooms": 3,
+   "truth_doors": 2,
+   "truth_area_m2": 51.76750000000001,
+   "area_error_pct": 18.848950173137304,
+   "camera_rms_m": 9.441454631616075e-08,
+   "wall_recall": 0.3285494618144541,
+   "wall_precision": 0.6149629151886489
+  }
+ ]
+}
