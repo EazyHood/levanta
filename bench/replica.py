@@ -27,6 +27,11 @@ import argparse
 import json
 import math
 import subprocess
+
+try:
+    from quiet import NO_WINDOW  # a child console must never open over the user's screen
+except ImportError:  # run from outside bench/
+    NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 import sys
 import time
 from collections import deque
@@ -430,7 +435,7 @@ def run_levanta(video: Path, out: Path, max_views: int, focal_px: float | None, 
         cmd += ["--focal-px", f"{focal_px:.2f}"]
     out.mkdir(parents=True, exist_ok=True)
     with (out.parent / f"{out.name}.log").open("w", encoding="utf-8") as fh:
-        subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, check=False)
+        subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, check=False, creationflags=NO_WINDOW)
     return out
 
 
