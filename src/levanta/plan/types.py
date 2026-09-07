@@ -25,6 +25,10 @@ ARKitScenes rooms, against **0.78** on the one flat nobody chose, whose plan cam
 fifth of its floor.  The line sits below every real scene and well above the thin one; move
 it with a case in front of you, not for margin.
 
+The line is defensible where the ceiling's was not, and the difference is whether the gap
+exists: here it sits between 0.78 and 2.38, a factor of three, while the ceiling's would
+have sat in 0.22 m between a real 3.204 and a suspect 3.42.
+
 The floor area of the plan is the wrong denominator here, and that is the trap this avoids:
 a plan that under-measures reports a flattering density, so the sparser the capture the
 better it would look.
@@ -233,8 +237,23 @@ class FloorPlan:
         if views and foot and foot > 1.0:
             per_m2 = float(views) / float(foot)
             if per_m2 < MIN_FRAMES_PER_M2:
-                out.append({"key": "too_few_frames", "level": "warn",
-                            "text": t(lang, "qa_too_few_frames").format(n=int(views), m2=round(float(foot)), rate=f"{per_m2:.1f}")})
+                want = math.ceil(MIN_FRAMES_PER_M2 * float(foot))
+                # whose shortfall is it?  A 30 fps clip sampled at 1 fps has 96 % of its
+                # frames unused, and telling that person to walk more slowly blames them for
+                # a default of ours.  Only when the file itself had nothing more to give is
+                # the advice about how they filmed.
+                vfps = float(self.meta.get("video_fps") or 0.0)
+                sfps = float(self.meta.get("sample_fps") or 0.0)
+                if vfps and sfps and vfps > 2.0 * sfps:
+                    need = min(vfps, sfps * want / max(int(views), 1))
+                    out.append({"key": "sampled_too_sparsely", "level": "warn",
+                                "text": t(lang, "qa_sampled_too_sparsely").format(n=int(views), total=int(self.meta.get("video_frames") or 0), rate=f"{per_m2:.1f}", fps=f"{need:.0f}")})
+                else:
+                    # in walking time, which is the only unit the person can act on
+                    secs = want / sfps if sfps else 0.0
+                    when = t(lang, "qa_walk_time").format(mins=f"{secs / 60:.0f}") if secs >= 90 else t(lang, "qa_walk_time_s").format(secs=f"{secs:.0f}")
+                    out.append({"key": "too_few_frames", "level": "warn",
+                                "text": t(lang, "qa_too_few_frames").format(n=int(views), m2=round(float(foot)), rate=f"{per_m2:.1f}", want=want, when=when if secs else "")})
         thin = [r for r in self.rooms if r.floor_seen is not None and r.floor_seen < 0.5]
         if thin:
             avg = round(100 * sum(r.floor_seen for r in thin) / len(thin))

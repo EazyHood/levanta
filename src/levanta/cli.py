@@ -268,6 +268,18 @@ def video(
         encoding="utf-8",
     )
     _ok(f"{len(kept)} frames covering {kept[0].time_s:.0f}-{kept[-1].time_s:.0f} s of the clip ({time.time() - t0:.0f} s)")
+    # what the file offered against what was taken: a 30 fps clip sampled at 1 fps has 96 %
+    # of its frames left on the table, and a warning about a thin capture must not blame the
+    # person filming for a default of ours
+    try:
+        import cv2 as _cv2
+
+        _cap = _cv2.VideoCapture(str(video))
+        video_fps = float(_cap.get(_cv2.CAP_PROP_FPS)) or 0.0
+        video_frames = int(_cap.get(_cv2.CAP_PROP_FRAME_COUNT))
+        _cap.release()
+    except Exception:
+        video_fps, video_frames = 0.0, 0
     phone_name = None
     if not focal_px:
         import cv2
@@ -303,6 +315,7 @@ def video(
         _fail(f"reconstruction failed: {type(e).__name__}: {e}\n  Out of memory?  Lower --max-views.  'OS error 1455' on Windows: close other applications.")
     if phone_name:
         cloud.meta["focal_source"] = phone_name
+    cloud.meta.update({"video_fps": video_fps, "video_frames": video_frames, "sample_fps": float(fps)})
     cloud.save_ply(out / f"{stem}_recon.ply")
     dropped = cloud.meta.get("views_dropped_flat", 0)
     _ok(f"{len(cloud):,} points from {len(frames)} views in {cloud.meta.get('chunks', 1)} chunk(s) ({time.time() - t1:.0f} s)" + (f"; {dropped} view(s) were a flat picture and were skipped" if dropped else ""))

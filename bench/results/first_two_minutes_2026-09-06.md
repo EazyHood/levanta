@@ -130,3 +130,36 @@ measures 3.42 m. But the real scenes measure 2.09, 2.45, 2.55, 2.79, 2.85, 2.91 
 **3.204**. A threshold in a 0.22 m gap is fitted to two points, and old flats do have high
 ceilings, so there is no defensible line and none was shipped. The ceiling does not separate
 a bad reconstruction from an unusual room in the data available.
+
+## 7. Whose 1 fps was it?
+
+The warning was written saying the walk "could not have produced a good plan at any
+setting", which rests on the video being 1 fps. That had not been checked, and the answer
+splits:
+
+| file | native | frames |
+|---|---|---|
+| `replica_apt1/walk.mp4`, the stranger's flat | **1.00 fps** | 80 |
+| `replica_apt0/walk.mp4` | 1.00 fps | 116 |
+| the real phone tour, `I-JUCu_9xKQ.mp4` | **29.97 fps** | **6 604** |
+| TUM `tum_room.mp4` | 30.00 fps | 1 362 |
+
+So for the rendered walk the 1 fps is the file's and the warning is fair. **For any real
+phone video it is ours**: levanta samples at 1 fps by default, so a 30 fps clip has 96 % of
+its frames left on the table, and a warning telling that person to walk more slowly would be
+blaming them for a default of ours. A warning that blames the person filming is very hard to
+withdraw later.
+
+So the check now asks whose shortfall it is, and says two different things:
+
+- **the file had more to give** (native fps over twice the sampling rate):
+  *"levanta used 55 of the 6604 frames in your video. Nothing is wrong with the recording:
+  run it again with `--fps 2`."* Free to act on, and no blame.
+- **the file had nothing more** (the rendered walk):
+  *"55 frames for about 70 m² of ground, and the file had no more to give. A floor this size
+  needs about 106 frames, which at this frame rate is about 2 minutes of walking."* In
+  minutes, because frames per square metre is not a unit anyone can act on.
+
+And the threshold itself is defensible where the ceiling's was not, for the reason the
+ceiling failed: **the gap exists.** 1.5 sits between 0.78 and 2.38, a factor of three; the
+ceiling's would have sat in 0.22 m between a real 3.204 and a suspect 3.42.

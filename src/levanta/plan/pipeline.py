@@ -383,7 +383,7 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
         plan.meta["cloud_footprint_m2"] = float(MultiPoint([tuple(q) for q in xy2]).convex_hull.area)
     except Exception:
         pass
-    for key in ("chunk_scales", "mask_fraction", "views", "chunks", "views_dropped_flat", "focal_source"):
+    for key in ("chunk_scales", "mask_fraction", "views", "chunks", "views_dropped_flat", "focal_source", "video_fps", "video_frames", "sample_fps"):
         if key in cloud.meta:
             plan.meta[key] = cloud.meta[key]
     if opts.tidy:
