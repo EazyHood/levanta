@@ -20,8 +20,15 @@ Scenes:
 The headline is **how often the number of rooms is right**, not the area error.  A tolerance
 invites an argument about where to draw it; a count does not, and no disclaimer on any
 published floor plan covers a missing room (`bench/results/who_is_this_for_2026-09-06.md`).
-Read it with its denominator: today it is 4 of 6, and **0 of the 2 scenes that have more than
-one room**, because the other four are single-room scenes where the count is nearly free.
+It is printed **one line per scene and never as a single fraction**.  A grouped number moves
+on its own: every easy scene added raises it without the planner improving, every hard one
+lowers it even if the planner improved, and a single figure standing next to two correct
+scenes gets quoted alone.  Today the two scenes where the question has meaning fail in
+**opposite directions**, which one number could never show: 47331964 draws three rooms where
+there are two, and of those three only one is real, two are invented and the second true room
+is missed entirely; the Replica flat draws two where there are three, one of them a single
+room covering two.  A fix for one is the opposite of a fix for the other, which is why every
+global change measured so far has helped one scene and hurt the other.
 
 Metrics per scene: wall recall and precision against the mesh (how much of the real wall
 became a wall, and how much of what was drawn is wall), rooms found vs. real, doors found
@@ -289,12 +296,18 @@ def summary(rows: list[dict]) -> str:
         # published floor plan covers a room that is missing (bench/results/who_is_this_for).
         # It also cannot improve by accident: an area figure moves when the summing changes,
         # a count only rises when the rooms are really separated.
-        hit = sum(1 for r in good if r["rooms"] == r["truth_rooms"])
         multi = [r for r in good if r["truth_rooms"] > 1]
-        multi_hit = sum(1 for r in multi if r["rooms"] == r["truth_rooms"])
-        out.append(f"ROOM COUNT RIGHT IN {hit} OF {len(good)} SCENES"
-                   + (f", and {multi_hit} of the {len(multi)} with more than one room" if multi else "")
-                   + f" ({len(good) - len(multi)} of the {len(good)} have a single room, where the count is nearly free)")
+        single = [r for r in good if r["truth_rooms"] == 1]
+        out.append("ROOM COUNT, one line per scene where the question has meaning:")
+        for r in multi:
+            if r["rooms"] == r["truth_rooms"]:
+                verdict = "right"
+            elif r["rooms"] > r["truth_rooms"]:
+                verdict = f"SPLITS: {r.get('rooms_matched', 0)} real, {r.get('rooms_spurious', 0)} invented, {r.get('rooms_missed', 0)} missed"
+            else:
+                verdict = f"FUSES: {r.get('rooms_fused', 0)} room(s) covering more than one"
+            out.append(f"  {r['scene'][:30]:30s} truth {r['truth_rooms']}, levanta {r['rooms']}  -> {verdict}")
+        out.append(f"  and {sum(1 for r in single if r['rooms'] == 1)} of {len(single)} single-room scenes, where the count is nearly free")
         area = np.mean([abs(r["area_error_pct"]) for r in good])
         rec = [r["wall_recall"] for r in good if r.get("wall_recall") is not None]
         found = sum(r["rooms_matched"] for r in good if "rooms_matched" in r)
