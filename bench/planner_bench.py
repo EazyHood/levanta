@@ -21,6 +21,13 @@ Metrics per scene: wall recall and precision against the mesh (how much of the r
 became a wall, and how much of what was drawn is wall), rooms found vs. real, doors found
 vs. doorways, and total room area against the floor.
 
+**The mean area error went from 17 % to 19 % on 2026-09-06 and that is not a regression.**
+Before that date the column summed room areas without checking they did not overlap, and
+47331964's three rooms shared 2.29 m2 of floor, which it was counting twice; the other nine
+plans measured overlapped by exactly 0.00 m2.  `_unshare_floor` now gives shared floor to
+one room only, so the number went up because it stopped being flattered.  A metric that
+improves when a defect is fixed is rewarding the defect.
+
 **One planner change per round.**  Round 4 shipped two changes at once, a new scoring in
 `snap_edges_to_walls` and a longer snap reach; the pair helped, so both were kept.  Round 6
 swept them separately and found the scoring was worse or equal on all seven scenes and the

@@ -53,3 +53,48 @@ Sources: [Photoplan on floor plan accuracy](https://www.photoplan.co.uk/guides/h
 [RICS measuring standards](https://www.photoplan.co.uk/guides/rics-measuring-standards-explained),
 [IPMS residential](https://ipmsc.org/wp-content/uploads/2016/09/ipms-residential-buildings-sept-2016.pdf),
 [measured building survey practice](https://xpsurveys.co.uk/measured-survey/).
+
+
+---
+
+## 5. And the other half: who needs a plan and has no depth sensor?
+
+Every figure above comes from people who already have LiDAR, so the open question was whether
+the segment without it accepts less. It does not, and the segment is not empty either.
+
+**It exists and it has a name.** `magicplan` works on any phone without LiDAR and its stated
+focus is **insurance claims, inspections and loss adjustment**; `RoomScan Pro` and `CamToPlan`
+serve the same gap on Android. So the "no depth sensor" niche is real, occupied, and already
+addressed by tools that do not need one.
+
+**Its tolerance is tighter than what levanta delivers, not looser.** In insurance estimating,
+a **15-25 % discrepancy in square footage** is described as the significant variance that
+inflates or deflates the total, which is to say it is the error being eliminated, not the
+tolerance accepted. **levanta's 19 % lands inside it.**
+
+**And the loosest documented tier does not save it.** Marketing plans published as
+*"illustrative purposes only, not to scale"* are a real category with standard disclaimers,
+but the ±5 % consumer-protection floor still applies to any stated area; the disclaimer covers
+approximation, not being wrong by a fifth.
+
+### What that changes
+
+If a plan states no areas at all, then area error stops mattering to the reader and what is
+left is the **layout**: how many rooms there are and how they connect. That is the one escape
+route the tolerances leave open, and **levanta does not currently qualify for it either**: on
+the only three-room flat measured it finds one or two rooms, and on one scene it draws 0 % of
+the partition.
+
+So there is a second target beside the ±5 %, and it is not a tolerance:
+
+> **Get the number of rooms right.** A plan with three rooms and approximate areas serves the
+> illustrative tier. A plan with one room where there are three serves nobody, at any
+> tolerance, because no disclaimer covers a missing room.
+
+That is a gate rather than a gradient, which makes it the cheaper of the two to aim at, and
+it is the same fusion the last several rounds have been circling.
+
+Sources for this section: [room scan apps compared](https://www.arcsite.com/blog/room-scan-apps),
+[floor plan apps for real estate](https://roomio.io/articles/best-floor-plan-apps-real-estate/),
+[Xactimate sketching accuracy](https://prideestimating.com/mastering-xactimate-sketching/),
+[estate agent vs architectural plans](https://www.spacesurvey.co.uk/post/illustrative-vs-accurate-the-difference-between-estate-agent-plans-and-architectural-plans).
