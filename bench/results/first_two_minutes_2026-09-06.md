@@ -87,3 +87,46 @@ The flag stays, off by default, with four tests: a plain wall does score above t
 like a title card, the filter does drop it, raising the bar keeps it, and a textured frame
 survives either way. The filter's own docstring said a plain wall would trip it before any of
 this was measured.
+
+## 6. The division that changes whose problem it is
+
+Frames per square metre, scene by scene, against the truth floor:
+
+| scene | frames | floor | frames per m² |
+|---|---|---|---|
+| 41069021 | 184 | 19.1 m² | 9.64 |
+| 47430051 ⚠ | 57 | 5.4 m² | 10.55 |
+| 42897526 | 46 | 5.6 m² | 8.15 |
+| 47331964 | 128 | 27.8 m² | 4.60 |
+| 45260905 | 79 | 25.6 m² | 3.08 |
+| **apt_1, the stranger's flat** | **55** | **56.8 m²** | **0.97** |
+
+**Every scene the bench was measured on had three to eleven times the input density of the
+one flat nobody chose.** The video is 80 s at 1 fps, so even keeping every frame it could
+only reach 1.4 per m², still below the thinnest bench scene. **This walk could not have
+produced a good plan at any setting**, and levanta never said so.
+
+That does not make the planner innocent: with perfect depth on a different flat it still
+misses rooms. It does mean the −82 % is not a fair measure of the planner, and that the
+first thing a user needs is not a better model but a sentence before they start.
+
+### So the sheet now says it
+
+`FloorPlan.quality()` gains a check: frames per square metre of the cloud's own footprint,
+below **1.5**, warns that the capture is thinner than any scene levanta has been measured
+on and that the plan will be short of floor. The numbers behind the line: 6.53, 2.48 and
+2.38 on real scenes, **0.78** on the thin one.
+
+The denominator is the point. Using the plan's own area would make a sparse capture look
+dense, because a plan that under-measures reports a flattering density: the same flat scores
+4.1 frames per m² against its own 13.3 m² plan and 0.78 against the ground it actually
+covers. The footprint over-estimates on some scenes and under-estimates on others, so it is
+a gauge, not a measurement, and it separates by a factor of three.
+
+### And a second canary was tried and dropped
+
+A ceiling outside a dwelling's usual range looked like a free signal: the stranger's flat
+measures 3.42 m. But the real scenes measure 2.09, 2.45, 2.55, 2.79, 2.85, 2.91 and
+**3.204**. A threshold in a 0.22 m gap is fitted to two points, and old flats do have high
+ceilings, so there is no defensible line and none was shipped. The ceiling does not separate
+a bad reconstruction from an unusual room in the data available.

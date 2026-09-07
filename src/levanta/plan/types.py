@@ -17,6 +17,24 @@ from typing import Any
 import numpy as np
 from shapely.geometry import LineString, Polygon
 
+MIN_FRAMES_PER_M2 = 1.5
+"""Below this the capture is thinner than any scene levanta has been measured on.
+
+Frames per square metre of the cloud's own footprint: **6.53, 2.48 and 2.38** on three
+ARKitScenes rooms, against **0.78** on the one flat nobody chose, whose plan came out at a
+fifth of its floor.  The line sits below every real scene and well above the thin one; move
+it with a case in front of you, not for margin.
+
+The floor area of the plan is the wrong denominator here, and that is the trap this avoids:
+a plan that under-measures reports a flattering density, so the sparser the capture the
+better it would look.
+
+A ceiling outside a dwelling's usual range was tried as a second canary and **dropped**: the
+measured ceilings run 2.09, 2.45, 2.55, 2.79, 2.85, 2.91 and **3.204** on real scenes against
+**3.42** on the suspect one.  A 0.22 m gap is a threshold fitted to two points, and old flats
+do have high ceilings.
+"""
+
 
 @dataclass
 class Wall:
@@ -210,6 +228,13 @@ class FloorPlan:
         if not self.rooms:
             out.append({"key": "no_rooms", "level": "warn", "text": t(lang, "qa_no_rooms")})
         out += self._impossible(lang)
+        views = self.meta.get("views")
+        foot = self.meta.get("cloud_footprint_m2")
+        if views and foot and foot > 1.0:
+            per_m2 = float(views) / float(foot)
+            if per_m2 < MIN_FRAMES_PER_M2:
+                out.append({"key": "too_few_frames", "level": "warn",
+                            "text": t(lang, "qa_too_few_frames").format(n=int(views), m2=round(float(foot)), rate=f"{per_m2:.1f}")})
         thin = [r for r in self.rooms if r.floor_seen is not None and r.floor_seen < 0.5]
         if thin:
             avg = round(100 * sum(r.floor_seen for r in thin) / len(thin))

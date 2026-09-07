@@ -369,6 +369,20 @@ def extract_floor_plan(cloud: PointCloud, options: PlanOptions | None = None) ->
     floor_seen = [seen_floor_fraction(poly, floor_r, grid) for poly, _ in room_polys]
 
     plan = _assemble(lines, openings, room_polys, ceiling_h, ceiling_measured, T_total, opts, grav, debug, source=str(cloud.meta.get("source", "")), floor_seen=floor_seen)
+    # How much ground the capture covers, which the plan's own area cannot say: a plan that
+    # came out at a fifth of the flat would report a flattering density.  The convex hull of
+    # the cloud's footprint over-estimates on some scenes and under-estimates on others, so
+    # it is a gauge and not a measurement, but it separates cleanly: every bench scene sits
+    # at 2.5-6.5 frames per m2 of it and the one unchosen flat sat at 1.3.
+    try:
+        from shapely.geometry import MultiPoint
+
+        xy2 = np.asarray(aligned.xyz)[:, :2]
+        if len(xy2) > 40000:
+            xy2 = xy2[np.random.default_rng(0).choice(len(xy2), 40000, replace=False)]
+        plan.meta["cloud_footprint_m2"] = float(MultiPoint([tuple(q) for q in xy2]).convex_hull.area)
+    except Exception:
+        pass
     for key in ("chunk_scales", "mask_fraction", "views", "chunks", "views_dropped_flat", "focal_source"):
         if key in cloud.meta:
             plan.meta[key] = cloud.meta[key]
