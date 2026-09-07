@@ -223,6 +223,7 @@ def video(
     overlap: int = typer.Option(4, help="Frames shared by consecutive chunks; they carry the pose from one chunk to the next."),
     max_frames: int | None = typer.Option(None, help="Cap on the frames used, spread over the clip (default: every sharp frame at --fps)."),
     keep_views: bool = typer.Option(False, "--keep-views", help="Write every view's depth, mask, intrinsics and pose to out/views (for refinement experiments)."),
+    keep_flat: bool = typer.Option(False, "--keep-flat", help="Keep frames the title-card filter would drop. A plain wall filling the frame scores like a title card and is thrown away with them."),
     model: str = typer.Option("facebook/map-anything-apache", help="HuggingFace checkpoint (Apache-2.0 by default)."),
     focal_px: float | None = typer.Option(None, "--focal-px", help="Focal length in pixels of the (downscaled) frames, if known; improves the metric scale."),
     manhattan: bool = typer.Option(True, "--manhattan/--free", help="Snap walls to two orthogonal directions."),
@@ -245,7 +246,7 @@ def video(
     dxf_units: str = DXF_UNITS_OPT,
 ) -> None:
     """Phone video -> frames -> MapAnything -> floor plan + 3D model (GPU recommended)."""
-    from levanta.io.video import extract_frames
+    from levanta.io.video import FLAT_MAX, extract_frames
     from levanta.recon.mapanything import MISSING, MapAnythingBackend
     from levanta.scene import Camera, Frame
 
@@ -257,7 +258,7 @@ def video(
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     _step("picking sharp frames")
-    kept = extract_frames(video, out / "frames", fps=fps, max_frames=max_frames)
+    kept = extract_frames(video, out / "frames", fps=fps, max_frames=max_frames, flat_max=1.01 if keep_flat else FLAT_MAX)
     if len(kept) < 4:
         _fail(f"only {len(kept)} usable frames; the video is too short or too blurry (run 'levanta check').")
     import json as _json

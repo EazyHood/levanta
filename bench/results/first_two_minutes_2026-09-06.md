@@ -9,8 +9,9 @@ six bench scenes**, run end to end with nothing touched half way.
 `out/replica_apt1/` held a walk video, a `frames/` directory and a log that stops on the
 line after the weights load. No plan, no error, no follow-up. It is exactly the shape of
 the tramo nobody walks: it failed on 2026-09-05 and was never looked at again. Re-run today
-it completes in 57 s of card, so the failure was transient, probably one of the fork
-failures from the evening the disk hit 2 GB free.
+it completes in 57 s of card, **which proves it does not reproduce today and not that it was
+transient**: a run that dies leaves no notice, and the absence of a notice reads exactly like
+the absence of an attempt.
 
 ## 1. The pre-flight tells the user something untrue
 
@@ -38,8 +39,9 @@ it. Cause named, not proven: there is no flag to disable the filter, so it was n
 | room count | 2 where there is 1 |
 
 **The plan covers 18 % of the flat.** That is the number a stranger gets on a house levanta
-has never seen, and it is worse than any of the six scenes in the bench, whose mean is 19 %.
-The bench is measured on scenes that were chosen, and this one was not.
+has never seen, and it is four times worse than the bench's 19 %. **The two figures belong
+together from now on: the bench is not an estimate of what a user receives, it is the best
+case**, measured on scenes that were chosen, and this one was not.
 
 ## 3. What the sheet says about itself, which is the good half
 
@@ -62,3 +64,26 @@ A rendered walk is steady, evenly lit, horizontal and 720p. The failures a real 
 — vertical video, low light, a 15-second clip, a hallway — are untested, and the search for a
 freely licensed house-tour video to test them with came up empty. That remains open, and it
 is the half of the first two minutes that decides whether someone tries again.
+
+
+## 5. Was the filter the cause? No, and now it is measured
+
+The pre-flight discards a third of the footage, and the plan comes out at a fifth of the
+flat. Two facts that ask to be the same one. There was no way to test it, so
+`extract_frames(flat_max=...)` and `levanta video --keep-flat` were added, and the same
+pipeline ran twice on the same video:
+
+| | frames | rooms | area | error | ceiling |
+|---|---|---|---|---|---|
+| filter on (today's default) | 39 | 2 | 10.27 m² | **−82 %** | 2.79 m |
+| `--keep-flat` | **55** | 2 | 13.31 m² | **−77 %** | 3.42 m |
+
+**The filter costs about 3 m², and it is not the reason the plan is a fifth of the flat.**
+Sixteen frames come back and the area moves five points; four fifths of the floor are still
+missing for another reason. The biggest suspected cause is eliminated, which is worth the
+flag it took to test it.
+
+The flag stays, off by default, with four tests: a plain wall does score above the threshold
+like a title card, the filter does drop it, raising the bar keeps it, and a textured frame
+survives either way. The filter's own docstring said a plain wall would trip it before any of
+this was measured.

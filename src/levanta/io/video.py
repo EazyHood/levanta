@@ -31,6 +31,10 @@ def _sharpness(gray: np.ndarray) -> float:
 
 
 FLAT_MAX = 0.6  # measured: title cards 0.87-0.98, rooms 0.07-0.31
+# A plain wall filling the frame scores like a title card, and a plain wall is the house.
+# `extract_frames(flat_max=...)` and `levanta video --keep-flat` raise the bar so the filter
+# never fires, which is how its cost was measured on a walk that has no title cards at all.
+
 
 
 def _flatness(gray: np.ndarray) -> float:
@@ -45,9 +49,9 @@ def _flatness(gray: np.ndarray) -> float:
     return float(np.convolve(h, np.ones(9), "same").max() / gray.size)
 
 
-def _usable(gray: np.ndarray) -> float:
+def _usable(gray: np.ndarray, flat_max: float = FLAT_MAX) -> float:
     """Sharpness of a frame worth keeping, 0 for a flat one."""
-    return 0.0 if _flatness(gray) > FLAT_MAX else _sharpness(gray)
+    return 0.0 if _flatness(gray) > flat_max else _sharpness(gray)
 
 
 def extract_frames(
@@ -59,6 +63,7 @@ def extract_frames(
     min_sharpness: float = 20.0,
     jpeg_quality: int = 95,
     score_every: int = 3,
+    flat_max: float = FLAT_MAX,
 ) -> list[ExtractedFrame]:
     """Write the sharpest frame of every ``1/fps`` window of ``video_path`` to ``out_dir``.
 
@@ -109,7 +114,7 @@ def extract_frames(
         if gray.shape[1] > 640:
             scale = 640 / gray.shape[1]
             gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
-        s = _usable(gray)
+        s = _usable(gray, flat_max)
         if best is None or s > best[0]:
             best = (s, bgr, i)
         if (i + 1) % window == 0:
@@ -148,7 +153,7 @@ def _spread(candidates: list[tuple[float, bytes, int]], max_frames: int | None, 
     return sorted(chosen, key=lambda c: c[2])
 
 
-def inspect_video(video_path: str | Path, fps: float = 1.0, min_sharpness: float = 20.0, max_probe: int = 600) -> dict:
+def inspect_video(video_path: str | Path, fps: float = 1.0, min_sharpness: float = 20.0, max_probe: int = 600, flat_max: float = FLAT_MAX) -> dict:
     """Quick quality report without writing anything: size, length, sharpness, usable frames.
 
     Up to ``max_probe`` frames spread over the clip are scored; the estimate of usable
@@ -180,7 +185,7 @@ def inspect_video(video_path: str | Path, fps: float = 1.0, min_sharpness: float
                 if gray.shape[1] > 640:
                     s = 640 / gray.shape[1]
                     gray = cv2.resize(gray, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
-                is_flat = _flatness(gray) > FLAT_MAX
+                is_flat = _flatness(gray) > flat_max
                 probes.append((idx, 0.0 if is_flat else _sharpness(gray), is_flat))
         idx += 1
     cap.release()
