@@ -17,6 +17,12 @@ Scenes:
   the path passes within 2 m of 80-94 % of every room.  This is the planner with no
   network error in the way, not the planner with full information.
 
+The headline is **how often the number of rooms is right**, not the area error.  A tolerance
+invites an argument about where to draw it; a count does not, and no disclaimer on any
+published floor plan covers a missing room (`bench/results/who_is_this_for_2026-09-06.md`).
+Read it with its denominator: today it is 4 of 6, and **0 of the 2 scenes that have more than
+one room**, because the other four are single-room scenes where the count is nearly free.
+
 Metrics per scene: wall recall and precision against the mesh (how much of the real wall
 became a wall, and how much of what was drawn is wall), rooms found vs. real, doors found
 vs. doorways, and total room area against the floor.
@@ -278,6 +284,17 @@ def summary(rows: list[dict]) -> str:
     bad = [r for r in rows if r.get("unreliable")]
     out = []
     if good:
+        # The headline, and it is a count rather than a percentage on purpose: a tolerance
+        # always invites an argument about where to draw it, and no disclaimer on any
+        # published floor plan covers a room that is missing (bench/results/who_is_this_for).
+        # It also cannot improve by accident: an area figure moves when the summing changes,
+        # a count only rises when the rooms are really separated.
+        hit = sum(1 for r in good if r["rooms"] == r["truth_rooms"])
+        multi = [r for r in good if r["truth_rooms"] > 1]
+        multi_hit = sum(1 for r in multi if r["rooms"] == r["truth_rooms"])
+        out.append(f"ROOM COUNT RIGHT IN {hit} OF {len(good)} SCENES"
+                   + (f", and {multi_hit} of the {len(multi)} with more than one room" if multi else "")
+                   + f" ({len(good) - len(multi)} of the {len(good)} have a single room, where the count is nearly free)")
         area = np.mean([abs(r["area_error_pct"]) for r in good])
         rec = [r["wall_recall"] for r in good if r.get("wall_recall") is not None]
         found = sum(r["rooms_matched"] for r in good if "rooms_matched" in r)

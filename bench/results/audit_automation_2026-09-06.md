@@ -217,3 +217,31 @@ does not.
 
 That is now `tests/test_room_and_a_view.py`, with the defect as an `xfail(strict=True)` and
 `MAX_XFAIL` raised to 2 with both cases written next to it.
+
+---
+
+# Follow-up 3: the publish path, walked as far as it goes
+
+`publish.yml` has run three times and failed three times at the upload, so **no part of it
+has ever been proven except by that failure**. Everything before the upload can be walked
+here, and was:
+
+| step | result |
+|---|---|
+| `python -m build` | builds `levanta-0.3.0.tar.gz` and `levanta-0.3.0-py3-none-any.whl` |
+| `python -m twine check dist/*` | **PASSED** on both |
+| install the wheel into an empty virtual environment | installs on the ten core dependencies alone, no torch |
+| `levanta --help` | the command exists and its help renders |
+| `levanta demo` | **13 files**, including the PDF, the DXF and the GLB |
+| `levanta doctor` | reports `torch` and `mapanything` missing with the exact install lines, and the Overture extra as optional |
+| `pypa/gh-action-pypi-publish` | **the only step never executed**, and the one that needs the pending publisher |
+
+So what a stranger gets from `pip install levanta` works, start to finish, on a machine that
+has never seen this repository. The gap is one step wide and it is not ours to close:
+
+```
+owner: EazyHood   repository: levanta   workflow: publish.yml   environment: pypi
+```
+
+The tag `v0.3.0` is already pushed, so the existing run can simply be re-run once the
+publisher exists.
