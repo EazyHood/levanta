@@ -41,6 +41,7 @@ import numpy as np
 from scipy import ndimage
 
 sys.path.insert(0, str(Path(__file__).parent))
+from area_report import area_shape
 from arkitscenes import umeyama
 
 CELL = 0.05
@@ -536,7 +537,7 @@ def main() -> None:
         results[name] = r
         print(f"  {name}: {json.dumps({k: v for k, v in r.items() if k != 'per_room'})}")
         for m in r.get("per_room", []):
-            print(f"      room {m['truth_room']}: {m['truth_m2']:.1f} m2 -> levanta {m['levanta_m2']:.1f} m2 ({m['area_error_pct']:+.0f} %)")
+            print(f"      room {m['truth_room']}: {m['truth_m2']:.1f} m2 -> levanta {m['levanta_m2']:.1f} m2 ({area_shape(m['area_error_pct'], r['scale_factor'])})")
     (args.out / "results.json").write_text(json.dumps(results, indent=1), encoding="utf-8")
 
 

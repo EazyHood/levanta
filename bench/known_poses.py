@@ -36,6 +36,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
+from area_report import area_shape
 from replica import evaluate, floor_truth, load_mesh
 
 
@@ -170,7 +171,7 @@ def main() -> None:
     results["known_poses"] = r
     print("known poses:", json.dumps({k: v for k, v in r.items() if k != "per_room"}))
     for m in r.get("per_room", []):
-        print(f"   room {m['truth_room']}: {m['truth_m2']:.1f} m2 -> levanta {m['levanta_m2']:.1f} m2 ({m['area_error_pct']:+.0f} %)")
+        print(f"   room {m['truth_room']}: {m['truth_m2']:.1f} m2 -> levanta {m['levanta_m2']:.1f} m2 ({area_shape(m['area_error_pct'], r['scale_factor'])})")
     (args.out / "known_poses.json").write_text(json.dumps(results, indent=1), encoding="utf-8")
 
 

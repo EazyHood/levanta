@@ -275,6 +275,7 @@ def collect(out: Path) -> list[dict]:
                 "frames": n,
                 "frames_per_m2": (n / r["truth_area_m2"]) if n else None,
                 "area_error_pct": k.get("area_error_pct"),
+                "scale_factor": k.get("scale_factor"),
                 "rooms": k.get("levanta_rooms"),
                 "floor_iou": k.get("floor_iou"),
                 "seconds_for_both_scenes": secs,
@@ -285,6 +286,14 @@ def collect(out: Path) -> list[dict]:
 
 def _fmt(v, spec: str = "{:.2f}") -> str:
     return "\u2014" if v is None else spec.format(v)
+
+
+def _area(r: dict) -> str:
+    # this table printed "area error" alone, and at 4 fps its -15 % was a plan 2.2 times too
+    # big with a shape 83 % short; see bench/area_report.py
+    from area_report import area_with_scale
+
+    return area_with_scale(r["area_error_pct"], r.get("scale_factor"))
 
 
 def table(rows: list[dict]) -> str:
@@ -298,7 +307,7 @@ def table(rows: list[dict]) -> str:
             continue
         lines.append(
             f"| {r['fps']:g} | {r['scene']} | {r['truth_m2']:.1f} m\u00b2 | {_fmt(r['frames'], '{:d}')} | {_fmt(r['frames_per_m2'], '{:.1f}')} "
-            f"| {_fmt(r['area_error_pct'], '{:+.0f} %')} | {_fmt(r['rooms'], '{:d}')} | {_fmt(r['floor_iou'])} | {r.get('note') or _fmt(r['seconds_for_both_scenes'], '{:.0f} s')} |"
+            f"| {_area(r)} | {_fmt(r['rooms'], '{:d}')} | {_fmt(r['floor_iou'])} | {r.get('note') or _fmt(r['seconds_for_both_scenes'], '{:.0f} s')} |"
         )
     if not rows:
         lines.append("| | **no runs on disk** | | | | | | | |")

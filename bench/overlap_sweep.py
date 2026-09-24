@@ -51,13 +51,15 @@ def main() -> None:
         rows.append(r)
         print(f"{spec}: {json.dumps({k: v for k, v in r.items() if k != 'per_room'})}", flush=True)
     (args.out / "overlap_sweep.json").write_text(json.dumps(rows, indent=1), encoding="utf-8")
-    print("\n| views:overlap | scale | camera RMS | rooms | walls | total area error |")
-    print("|---|---|---|---|---|---|")
+    from area_report import area_with_scale
+
+    print("\n| views:overlap | camera RMS | rooms | walls | total area error |")
+    print("|---|---|---|---|---|")
     for r in rows:
         if r.get("ok"):
-            print(f"| {r['max_views']}:{r['overlap']} | {r['scale_factor']:.2f} | {r['camera_rms_m']:.2f} m | {r['rooms_levanta']} ({r['rooms_truth']}) | {r['walls']} | {r['area_total_error_pct']:+.0f} % |")
+            print(f"| {r['max_views']}:{r['overlap']} | {r['camera_rms_m']:.2f} m | {r['rooms_levanta']} ({r['rooms_truth']}) | {r['walls']} | {area_with_scale(r['area_total_error_pct'], r['scale_factor'])} |")
         else:
-            print(f"| {r['max_views']}:{r['overlap']} | — | — | — | — | — |")
+            print(f"| {r['max_views']}:{r['overlap']} | — | — | — | — |")
 
 
 if __name__ == "__main__":

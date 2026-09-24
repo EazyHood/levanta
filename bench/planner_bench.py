@@ -155,6 +155,7 @@ def run_scene(scene: dict, overrides: dict) -> dict:
     if dst is not None and cams is not None and len(cams) == len(dst) and len(cams) >= 5:
         s, R, t, rms = umeyama(cams, dst)
         row["camera_rms_m"] = rms
+        row["scale_factor"] = s  # every area error below is printed with it (bench/area_report.py)
         walls = [{"a": w.a, "b": w.b, "thickness": w.thickness} for w in plan.walls]
         wt = wall_truth(mesh, truth)
         pm = partition_mask(truth, wt)
@@ -257,6 +258,17 @@ def _pct(row: dict, key: str) -> str:
     return "—" if row.get(key) is None else f"{100 * row[key]:.0f} %"
 
 
+def _area(r: dict, error_pct: float | None) -> str:
+    """The area error of a row or of one of its rooms, never without its scale."""
+    from area_report import area_vs_reference, area_with_scale
+
+    if "walls_expected" in r:
+        return area_vs_reference(error_pct)
+    if error_pct is not None and r.get("scale_factor") is None:
+        return "no scale (cameras not aligned), so no area error"
+    return area_with_scale(error_pct, r.get("scale_factor"))
+
+
 def fmt(rows: list[dict]) -> str:
     head = "| scene | truth: floor / rooms / doorways | walls | rooms | doors | area | wall recall | partition recall | wall precision |"
     out = [head, "|" + "---|" * 9]
@@ -265,7 +277,7 @@ def fmt(rows: list[dict]) -> str:
         flag = " ⚠" if r.get("unreliable") else ""
         out.append(
             f"| {r['scene']}{flag} | {r['truth_area_m2']:.1f} m² / {r['truth_rooms']} / {r['truth_doors']} "
-            f"| {r['walls']}{exp} | {r['rooms']} | {r['doors']} | {r['area_m2']:.1f} m² ({r['area_error_pct']:+.0f} %) "
+            f"| {r['walls']}{exp} | {r['rooms']} | {r['doors']} | {r['area_m2']:.1f} m² ({_area(r, r['area_error_pct'])}) "
             f"| {_pct(r, 'wall_recall')} | {_pct(r, 'partition_recall')} | {_pct(r, 'wall_precision')} |"
         )
     rooms = [(r, m) for r in rows for m in r.get("per_room", [])]
@@ -273,7 +285,7 @@ def fmt(rows: list[dict]) -> str:
         out += ["", "| scene | room (truth) | levanta | error | of the room covered | off the floor |", "|" + "---|" * 6]
         for r, m in rooms:
             got = "not found" if m["levanta_m2"] is None else f"{m['levanta_m2']:.1f} m²"
-            err = "—" if m["error_pct"] is None else f"{m['error_pct']:+.0f} %"
+            err = _area(r, m["error_pct"])
             off = "—" if m["levanta_m2"] is None else f"{m['outside_pct']:.0f} %"
             out.append(f"| {r['scene']} | {m['truth_m2']:.1f} m² | {got} | {err} | {m['covered_pct']:.0f} % | {off} |")
     return "\n".join(out)
@@ -308,15 +320,20 @@ def summary(rows: list[dict]) -> str:
                 verdict = f"FUSES: {r.get('rooms_fused', 0)} room(s) covering more than one"
             out.append(f"  {r['scene'][:30]:30s} truth {r['truth_rooms']}, levanta {r['rooms']}  -> {verdict}")
         out.append(f"  and {sum(1 for r in single if r['rooms'] == 1)} of {len(single)} single-room scenes, where the count is nearly free")
+        from area_report import shape_pct
+
         area = np.mean([abs(r["area_error_pct"]) for r in good])
+        # the same mean once each scene's own scale is divided out; a reference row has no
+        # reconstruction in it, so its error already is a shape error
+        shape = np.mean([abs(shape_pct(r["area_error_pct"], r["scale_factor"]) if r.get("scale_factor") else r["area_error_pct"]) for r in good])
         rec = [r["wall_recall"] for r in good if r.get("wall_recall") is not None]
         found = sum(r["rooms_matched"] for r in good if "rooms_matched" in r)
         want = sum(r["truth_rooms"] for r in good if "rooms_matched" in r)
-        out.append(f"{len(good)} scenes levanta stands behind: area error {area:.0f} % on average"
+        out.append(f"{len(good)} scenes levanta stands behind: area error {area:.0f} % on average, {shape:.0f} % once each scene's scale is divided out"
                    + (f", wall recall {100 * np.mean(rec):.0f} %" if rec else "")
                    + (f", rooms {found} of {want}" if want else ""))
     for r in bad:
-        out.append(f"apart, flagged unreliable by levanta itself: {r['scene']}, area {r['area_error_pct']:+.0f} %, wall recall {100 * (r.get('wall_recall') or 0):.0f} %")
+        out.append(f"apart, flagged unreliable by levanta itself: {r['scene']}, area {_area(r, r['area_error_pct'])}, wall recall {100 * (r.get('wall_recall') or 0):.0f} %")
     return "\n".join(out)
 
 
@@ -346,7 +363,7 @@ def main() -> None:
         rows.append(row)
         print(f"  {row['scene']}: {json.dumps({k: (round(v, 3) if isinstance(v, float) else v) for k, v in row.items() if k not in ('scene', 'per_room', 'room_stages')})}")
         for m in row.get("per_room", []):
-            got = "not found" if m["levanta_m2"] is None else f"{m['levanta_m2']:.1f} m² ({m['error_pct']:+.0f} %)"
+            got = "not found" if m["levanta_m2"] is None else f"{m['levanta_m2']:.1f} m² ({_area(row, m['error_pct'])})"
             spill = "" if m["levanta_m2"] is None else f", {m['outside_pct']:.0f} % of it off the floor"
             print(f"      room of {m['truth_m2']:.1f} m² -> {got}, {m['covered_pct']:.0f} % of it covered{spill}")
         if row.get("room_stages"):

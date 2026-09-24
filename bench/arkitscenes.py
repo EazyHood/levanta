@@ -352,12 +352,14 @@ def main() -> None:
         results.append(rows)
         (args.out / "results.json").write_text(json.dumps(results, indent=1), encoding="utf-8")
     # the table
-    lines = ["| scene | truth floor m² / rooms | scale, no K | scale, with K | area error, no K | area error, with K | floor IoU (K) | rooms (K) | doors (K) | camera RMS (K) |", "|---|---|---|---|---|---|---|---|---|---|"]
+    from area_report import area_with_scale
+
+    lines = ["| scene | truth floor m² / rooms | area error, no K | area error, with K | floor IoU (K) | rooms (K) | doors (K) | camera RMS (K) |", "|---|---|---|---|---|---|---|---|"]
     for r in results:
         a, b = r["noK"], r["withK"]
         fmt = lambda v, f="{:.2f}": "—" if v is None else f.format(v)  # noqa: E731
         lines.append(
-            f"| {r['video_id']} | {r['truth_area_m2']:.1f} / {r['truth_rooms']} | {fmt(a.get('scale_factor'))} | {fmt(b.get('scale_factor'))} | {fmt(a.get('area_error_pct'), '{:+.0f} %')} | {fmt(b.get('area_error_pct'), '{:+.0f} %')} | {fmt(b.get('floor_iou'))} | {b.get('levanta_rooms', '—')} | {b.get('levanta_doors', '—')} | {fmt(b.get('traj_rms_m'))} m |"
+            f"| {r['video_id']} | {r['truth_area_m2']:.1f} / {r['truth_rooms']} | {area_with_scale(a.get('area_error_pct'), a.get('scale_factor'))} | {area_with_scale(b.get('area_error_pct'), b.get('scale_factor'))} | {fmt(b.get('floor_iou'))} | {b.get('levanta_rooms', '—')} | {b.get('levanta_doors', '—')} | {fmt(b.get('traj_rms_m'))} m |"
         )
     (args.out / "results.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
