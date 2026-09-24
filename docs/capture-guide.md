@@ -81,7 +81,7 @@ Measured on five ARKitScenes rooms (real iPhone walks with a LiDAR floor as trut
   five times) than the 23-second chunks of the default (a median 7 %). A long take of
   default-length chunks was measured only on a rendered flat: three laps, 14 chunks, kept the
   scale within 6 %, but the camera track drifted twice as far as over one lap and the plan
-  drew the same rooms twice. So a long take keeps its size and loses its shape; several
+  drew the same rooms twice. On that flat, a long take kept its size and lost its shape; several
   shorter takes, one part of the home each, are the safer way today. levanta stamps a sheet
   *NOT RECONSTRUCTIBLE · scale lost along the walk* when two parts of one walk end up more
   than ten times apart in size, and a walk can be badly wrong well before that.

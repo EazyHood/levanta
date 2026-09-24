@@ -88,7 +88,7 @@ como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
   7 %). Una toma larga con tramos de la longitud por defecto solo se ha medido en un piso
   renderizado: tres vueltas, 14 tramos, conservaron la escala dentro del 6 %, pero la
   trayectoria de la cámara derivó el doble que en una vuelta y el plano dibujó las mismas
-  habitaciones dos veces. O sea, una toma larga conserva el tamaño y pierde la forma; hoy es
+  habitaciones dos veces. En ese piso, la toma larga conservó el tamaño y perdió la forma; hoy es
   más seguro grabar varias tomas cortas, una parte de la casa cada una. levanta sella la
   lámina *NO RECONSTRUIBLE · escala perdida en el recorrido* cuando dos partes del mismo
   paseo acaban con tamaños más de diez veces distintos, y un paseo puede ir muy mal bastante

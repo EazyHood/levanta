@@ -1,4 +1,4 @@
-# One lap against three: a long chain of sound chunks keeps its scale, and still draws the rooms twice
+# One lap against three on a rendered flat: fourteen chunks keep the scale and draw the rooms twice
 
 The fps sweep could not say whether a long take at the default keeps its scale: raising the
 fps lengthened the chain and shortened every chunk at once. This measures the chain alone.
@@ -23,15 +23,20 @@ more than 0.05 below one lap's. **It holds**: scale 0.94, IoU 0.39 against a flo
 
 ## What the verdict does not say
 
-- **The IoU half of the rule was loose, because the baseline was poor.** One lap finds one
-  room of three at IoU 0.16, as round 5 found on this flat. A floor of 0.11 is easy to clear.
-  The half that bites is the scale, and that one held: fourteen chunks of sound length,
-  handed down link by link, end 6 % from the truth.
+- **The rule's premise failed, and half of it measured nothing.** "Sound chunks" assumed one
+  lap comes out sound; it came out at IoU 0.16, one room of three and 1.08 m of camera error
+  over five chunks, and the per-chunk table below says why: inside every chunk the network
+  puts depth at 0.55 of the truth and its cameras at about 1. The chunks are not sound inside
+  even where their overall scale looks right. So the IoU half, with a floor of 0.11, was
+  empty. The half that measures is the scale: fourteen chunks of default length, handed down
+  link by link, end 6 % from the truth.
 - **The scale held; the walk did not.** Between five chunks and fourteen the camera error
   doubles (1.08 m to 2.11 m), the shape goes from 35 % short to 56 % over, the rooms go from
   one to four and the walls from 4 to 14. The second and third laps lay the same rooms down
   again a little elsewhere. IoU rises because the rooms now cover more of the floor, not
-  because the plan is better. A long take keeps its size and loses its shape.
+  because the plan is better. On this flat, a long take kept its size and lost its shape. That
+  rests on two scenes and two points of drift on synthetic images, and is not to be quoted as
+  a general property of long takes.
 - **So the defect of a long take is the pose chain, not the scale chain.** That matches the
   fps sweep's chain experiment, where keeping each chunk's own scale stopped nothing because
   the poses were still chained.
