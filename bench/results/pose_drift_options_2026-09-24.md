@@ -114,3 +114,31 @@ renders, flat-shaded with no lighting, are what fool the field of view.
   rendered flat is run with its true focal, or not at all.
 - The next measurement is still **B**, and on the rendered flat it is judged with the true focal
   passed, one lap and three, against the thresholds above.
+
+## Option B, protocol written before its baselines exist
+
+**What B is, concretely.** Consecutive chunks share whole frames, so the same pixel of a shared
+frame is the same point of the surface in both chunks. B places chunk k on chunk k-1 by the
+similarity that carries chunk k's unprojected pixels onto chunk k-1's unprojected pixels, over
+every valid pixel of the shared frames, trimmed of its worst residuals and refitted. Today's
+link uses four camera centres, their orientations and a median depth ratio. B is tried on
+chunks solved independently and recomposed on the CPU, against the chained recomposition of
+the same chunks, so the only difference is the link.
+
+**Baselines first, B second.** Because the rendered flat must now be run with its true focal
+(731.2 px at 1024 px wide, from the renderer's 70°), the page's numbers above no longer apply
+there. New baselines, run before any B number is looked at:
+
+- the rendered flat, one lap and three laps, `--focal-px 731.2`, the pipeline as a user runs it;
+- the same two walks with independent chunks kept raw, for the recompositions.
+
+**The rule for B, fixed now as formulas on those baselines** (the deltas are the page's own):
+
+- three laps: camera error at most the one-lap baseline's plus **0.22 m**, and **no more than
+  three rooms**;
+- one lap: camera error no worse than its baseline plus **0.10 m**;
+- ARKitScenes 41069021 at 1 fps (no focal, as a user without a known phone): floor IoU at least
+  **0.60**, from the chunks already on disk.
+
+B holds only if it meets all three. If it does, it goes into `align_chunk` behind a flag and is
+measured again through the pipeline before it becomes the default.
