@@ -28,26 +28,37 @@ is real and the warning at 9 chunks stays its statement.
 
 **Held out, written before any result came back (the supervisor's condition, 2026-09-24).**
 Those thresholds are numbers of 41069021 itself, so a policy that holds there is a hypothesis,
-not a result.  The only other scene with a video on disk, 42897526, is the held-out one.  The
-rule, stated per scene so that it reproduces the numbers above exactly on 41069021:
+not a result.  The only other scene with a video on disk, 42897526, is the held-out one.
 
-- at 4 fps, scale within ±15 % of the truth;
-- at 4 fps, floor IoU at least that scene's *today* IoU at 1 fps minus 0.15
-  (41069021: 0.65 − 0.15 = 0.50; 42897526: 0.43 − 0.15 = 0.28);
-- at 1 fps, floor IoU at least that scene's *today* IoU at 1 fps minus 0.05
-  (41069021: 0.60; 42897526: 0.38).
+**Corrected before the held-out pass ran (second condition, same day).**  The first version
+of this rule measured every scene against its own 1 fps IoU, which is the shape of 41069021,
+where 1 fps is best.  On 42897526 the best walk today is 4 fps (IoU 0.61), so that version
+would have let a policy sink a sound walk from 0.61 to 0.30 and still pass; and there the
+chain does not break at 4 fps (9 chunks) but at 8 fps (17 chunks, scale 1.29, IoU 0.32).
+The rule now names, per scene, which walks are sound and which chain is broken today, and
+asks two things of each, with today's own numbers and nothing chosen afterwards:
+
+- **it does not break a sound walk**: at each sound fps, floor IoU at least today's IoU at
+  that same fps minus 0.05;
+- **it holds the broken chain**: at the broken fps, scale within ±15 % of the truth and floor
+  IoU at least the scene's best IoU today minus 0.15.
+
+| scene | sound walks (IoU at least) | broken chain (scale 1 ± 0.15 and IoU at least) |
+|---|---|---|
+| 41069021, chosen | 1 fps: 0.6543 − 0.05 = 0.60 | 4 fps, 36 chunks: 0.6543 − 0.15 = 0.50 |
+| 42897526, held out | 1 fps: 0.4315 − 0.05 = 0.38; 4 fps: 0.6127 − 0.05 = 0.56 | 8 fps, 17 chunks: 0.6127 − 0.15 = 0.46 |
+
+On 41069021 this is exactly the rule written first, so the choice is unaffected.
 
 1. The **winner** is chosen on 41069021 only: among the policies that hold there, the one with
-   the smallest scale error at 4 fps.  With lambda = 1 and nothing retuned, it alone is then
-   run on 42897526 (the same pass at 1 and 4 fps, recomposed on the CPU) and must hold there.
+   the smallest scale error at its broken chain.  With lambda = 1 and nothing retuned, it
+   alone is then run on 42897526 (passes at 1, 4 and 8 fps, recomposed on the CPU) and must
+   hold there.
 2. If only the joint fit holds, and only at another lambda, that lambda is fixed on 41069021
    and judged on 42897526; never the other way round, never on both together.
 3. Until a policy holds on both, the default of `levanta video` does not change and the
    warning at 9 chunks stays as it is.  A policy that holds on one and fails on the other is
    a result too: it says the ceiling is real and that this is not the way past it.
-
-42897526 at 4 fps is 9 chunks, not 36: the held-out scene tests whether the winner holds the
-scale on a different room and does not break a sound walk, not a chain as long as the first.
 
 
 Usage:
@@ -73,42 +84,64 @@ sys.path.insert(0, str(HERE))
 
 SCENE = "41069021"  # where the winner is chosen
 HELD_OUT = "42897526"  # where it is judged
-FPS = (1.0, 4.0)
+SWEEP_FPS = (1.0, 2.0, 4.0, 8.0)  # what "today" was measured at
+# per scene: the walks that are sound today and the chain that is broken today
+PLAN = {
+    SCENE: {"sound": (1.0,), "broken": 4.0},
+    HELD_OUT: {"sound": (1.0, 4.0), "broken": 8.0},
+}
 POLICIES = ("chained", "own_scale", "joint")
 LAMBDA = 1.0
 SCALE_TOL = 0.15
-IOU_DROP_LONG = 0.15  # at 4 fps, below the scene's own 1 fps IoU
-IOU_DROP_SHORT = 0.05  # at 1 fps, below the same
+IOU_DROP_SOUND = 0.05  # a sound walk may lose this much IoU against today at the same fps
+IOU_DROP_BROKEN = 0.15  # the broken chain must reach the scene's best IoU today minus this
 
 
-def holds(rows: list[dict], policy: str, today_iou_1fps: float) -> tuple[bool, list[str]]:
-    """Whether ``policy`` holds the scale on the scene these rows belong to, and why not.
+def fps_for(scene_id: str) -> tuple[float, ...]:
+    spec = PLAN[scene_id]
+    return tuple(sorted({*spec["sound"], spec["broken"]}))
 
-    The rule in the module docstring, written before any result: at 4 fps the scale within
-    ±15 % and the IoU at least the scene's own 1 fps IoU minus 0.15; at 1 fps the IoU at least
-    that minus 0.05."""
+
+def thresholds(scene_id: str, today_iou: dict[float, float]) -> dict:
+    """The numbers the rule sets on this scene, from today's IoU at every swept fps."""
+    spec = PLAN[scene_id]
+    return {"sound": {f: today_iou[f] - IOU_DROP_SOUND for f in spec["sound"]},
+            "broken": (spec["broken"], max(today_iou.values()) - IOU_DROP_BROKEN)}
+
+
+def holds(rows: list[dict], policy: str, scene_id: str, today_iou: dict[float, float]) -> tuple[bool, list[str]]:
+    """Whether ``policy`` does not break the scene's sound walks and holds its broken chain,
+    and why not.  The rule in the module docstring, written before the held-out pass."""
     by_fps = {r["fps"]: r for r in rows if r["policy"] == policy}
+    th = thresholds(scene_id, today_iou)
     why = []
-    long, short = by_fps.get(4.0), by_fps.get(1.0)
-    if long is None or short is None:
-        return False, [f"{policy}: missing a run"]
-    s = long.get("scale_factor")
-    if s is None or abs(s - 1.0) > SCALE_TOL:
-        why.append(f"scale at 4 fps {s if s is None else round(s, 2)}, outside 1 ± {SCALE_TOL}")
-    if (long.get("floor_iou") or 0.0) < today_iou_1fps - IOU_DROP_LONG:
-        why.append(f"IoU at 4 fps {long.get('floor_iou')}, under {today_iou_1fps - IOU_DROP_LONG:.2f}")
-    if (short.get("floor_iou") or 0.0) < today_iou_1fps - IOU_DROP_SHORT:
-        why.append(f"IoU at 1 fps {short.get('floor_iou')}, under {today_iou_1fps - IOU_DROP_SHORT:.2f}")
+    for f, need in th["sound"].items():
+        r = by_fps.get(f)
+        if r is None:
+            why.append(f"no run at {f:g} fps")
+        elif (r.get("floor_iou") or 0.0) < need:
+            why.append(f"sound walk at {f:g} fps broken: IoU {r.get('floor_iou'):.2f}, under {need:.2f}")
+    f, need = th["broken"]
+    r = by_fps.get(f)
+    if r is None:
+        why.append(f"no run at {f:g} fps")
+    else:
+        s = r.get("scale_factor")
+        if s is None or abs(s - 1.0) > SCALE_TOL:
+            why.append(f"chain at {f:g} fps not held: scale {s if s is None else round(s, 2)}, outside 1 ± {SCALE_TOL}")
+        if (r.get("floor_iou") or 0.0) < need:
+            why.append(f"chain at {f:g} fps not held: IoU {r.get('floor_iou'):.2f}, under {need:.2f}")
     return not why, why
 
 
-def winner(rows: list[dict], today_iou_1fps: float) -> str | None:
+def winner(rows: list[dict], today_iou: dict[float, float]) -> str | None:
     """Among the policies that hold on the scene where it is chosen, the one with the smallest
-    scale error at 4 fps; None if none holds."""
-    ok = [p for p in POLICIES if any(r["policy"] == p for r in rows) and holds(rows, p, today_iou_1fps)[0]]
+    scale error at its broken chain; None if none holds."""
+    ok = [p for p in POLICIES if any(r["policy"] == p for r in rows) and holds(rows, p, SCENE, today_iou)[0]]
     if not ok:
         return None
-    return min(ok, key=lambda p: abs(math.log(next(r["scale_factor"] for r in rows if r["policy"] == p and r["fps"] == 4.0))))
+    f = PLAN[SCENE]["broken"]
+    return min(ok, key=lambda p: abs(math.log(next(r["scale_factor"] for r in rows if r["policy"] == p and r["fps"] == f))))
 
 
 def load_chunks(d: Path) -> list[dict]:
@@ -248,17 +281,23 @@ def gpu_pass(scenes_dir: Path, out: Path, fps: float, scene_id: str = SCENE) -> 
 def today_rows(scene_id: str) -> dict[float, dict]:
     """The fps sweep's own runs of this scene, poses fed in: the reference every rule reads."""
     out = {}
-    for fps in FPS:
+    for fps in SWEEP_FPS:
         rows = json.loads((ROOT / f"out/fps_sweep/fps_{fps:g}/results.json").read_text(encoding="utf-8"))
         out[fps] = next(r["noK"] for r in rows if r["video_id"] == scene_id)
     return out
 
 
+def today_iou(scene_id: str) -> dict[float, float]:
+    return {f: r["floor_iou"] for f, r in today_rows(scene_id).items()}
+
+
 def verdict_lines(rows: list[dict], scene_id: str, judged: list[str]) -> list[str]:
-    iou = today_rows(scene_id)[1.0]["floor_iou"]
-    lines = [f"Rule (written before the results): at 4 fps scale within 1 ± {SCALE_TOL} and IoU >= {iou - IOU_DROP_LONG:.2f}; at 1 fps IoU >= {iou - IOU_DROP_SHORT:.2f} ({scene_id}, today's 1 fps IoU {iou:.2f})."]
+    th = thresholds(scene_id, today_iou(scene_id))
+    sound = ", ".join(f"at {f:g} fps IoU >= {v:.2f}" for f, v in th["sound"].items())
+    f, need = th["broken"]
+    lines = [f"Rule ({scene_id}, written before the held-out pass): sound walks {sound}; broken chain at {f:g} fps scale within 1 ± {SCALE_TOL} and IoU >= {need:.2f}."]
     for p in judged:
-        ok, why = holds(rows, p, iou)
+        ok, why = holds(rows, p, scene_id, today_iou(scene_id))
         lines.append(f"- {p}: {'HOLDS' if ok else 'does not hold: ' + '; '.join(why)}")
     return lines
 
@@ -281,7 +320,7 @@ def main() -> None:
     scene_id, policies, lam = SCENE, list(POLICIES), args.lam
     if args.winner_from is not None:
         chosen = json.loads(args.winner_from.read_text(encoding="utf-8"))
-        w = winner(chosen, today_rows(SCENE)[1.0]["floor_iou"])
+        w = winner(chosen, today_iou(SCENE))
         if w is None:
             print(f"no policy held on {SCENE}: nothing to judge on {HELD_OUT}; the ceiling stands")
             return
@@ -295,7 +334,7 @@ def main() -> None:
         truth = floor_truth(*read_ply(scene / f"{scene_id}_3dod_mesh.ply"))
         today = today_rows(scene_id)
         rows = []
-        for fps in FPS:
+        for fps in fps_for(scene_id):
             run_out = args.out / f"fps_{fps:g}"
             if not args.recompose_only:
                 rec = gpu_pass(args.scenes_dir, args.out, fps, scene_id)
@@ -321,7 +360,7 @@ def main() -> None:
     judged = [p for p in policies if any(r["policy"] == p for r in rows)]
     lines += ["", *verdict_lines(rows, scene_id, judged)]
     if scene_id == SCENE:
-        w = winner(rows, today_rows(SCENE)[1.0]["floor_iou"])
+        w = winner(rows, today_iou(SCENE))
         lines.append(f"Winner on {SCENE}: {w or 'none; the length ceiling stands'}" + (f", to be judged on {HELD_OUT} with --winner-from" if w else ""))
     (args.out / "chain_policies.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))

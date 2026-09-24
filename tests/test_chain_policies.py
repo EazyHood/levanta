@@ -13,10 +13,20 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bench"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # the mock network lives next door
-from chain_policies import holds, load_chunks, log_scales, place, winner
+from chain_policies import (
+    HELD_OUT,
+    SCENE,
+    holds,
+    load_chunks,
+    log_scales,
+    place,
+    thresholds,
+    winner,
+)
 
 from test_recon_chunks import MockNet, _frames, _truth
 
@@ -66,26 +76,46 @@ def test_without_independence_the_dump_says_poses_were_fed_in(tmp_path):
     assert all(int(c["fed_poses"]) == 3 for c in chunks[1:])
 
 
-def _rows(policy, scale4, iou4, iou1):
-    return [{"policy": policy, "fps": 4.0, "scale_factor": scale4, "floor_iou": iou4},
-            {"policy": policy, "fps": 1.0, "scale_factor": 1.0, "floor_iou": iou1}]
+# today's floor IoU at every swept fps (bench/results/fps_sweep_2026-09-24.md)
+TODAY_CHOSEN = {1.0: 0.6543, 2.0: 0.5506, 4.0: 0.1627, 8.0: 0.1628}
+TODAY_HELD_OUT = {1.0: 0.4315, 2.0: 0.5244, 4.0: 0.6127, 8.0: 0.3202}
 
 
-def test_the_rule_reproduces_the_thresholds_written_for_the_choice_scene():
-    """41069021, today's 1 fps IoU 0.65: 0.50 at 4 fps and 0.60 at 1 fps, as written first."""
-    assert holds(_rows("own_scale", 0.90, 0.50, 0.60), "own_scale", 0.65)[0]
-    assert not holds(_rows("own_scale", 0.84, 0.70, 0.70), "own_scale", 0.65)[0]  # scale 16 % off
-    assert not holds(_rows("own_scale", 1.00, 0.49, 0.70), "own_scale", 0.65)[0]
-    assert not holds(_rows("own_scale", 1.00, 0.70, 0.59), "own_scale", 0.65)[0]
+def _run(policy, fps, scale, iou):
+    return {"policy": policy, "fps": fps, "scale_factor": scale, "floor_iou": iou}
 
 
-def test_the_held_out_scene_gets_its_own_numbers_from_the_same_rule():
-    """42897526, today's 1 fps IoU 0.43: 0.28 at 4 fps and 0.38 at 1 fps."""
-    assert holds(_rows("joint", 1.10, 0.28, 0.38), "joint", 0.43)[0]
-    assert not holds(_rows("joint", 1.10, 0.27, 0.38), "joint", 0.43)[0]
+def test_on_the_choice_scene_the_rule_is_the_one_written_first():
+    """41069021: sound walk at 1 fps down to 0.60, broken chain at 4 fps to 0.50 and 1 ± 0.15."""
+    th = thresholds(SCENE, TODAY_CHOSEN)
+    assert th["sound"] == {1.0: pytest.approx(0.6043)}
+    assert th["broken"] == (4.0, pytest.approx(0.5043))
+    good = [_run("own_scale", 1.0, 1.0, 0.61), _run("own_scale", 4.0, 0.90, 0.51)]
+    assert holds(good, "own_scale", SCENE, TODAY_CHOSEN)[0]
+    assert not holds([good[0], _run("own_scale", 4.0, 0.84, 0.70)], "own_scale", SCENE, TODAY_CHOSEN)[0]  # 16 % off
+
+
+def test_on_the_held_out_scene_a_sunk_sound_walk_fails():
+    """The supervisor's case against the first version: 42897526 is best at 4 fps (0.61), and a
+    policy that sinks it to 0.30 must not pass because 0.30 clears 1 fps minus 0.15."""
+    th = thresholds(HELD_OUT, TODAY_HELD_OUT)
+    assert th["sound"] == {1.0: pytest.approx(0.3815), 4.0: pytest.approx(0.5627)}
+    assert th["broken"] == (8.0, pytest.approx(0.4627))
+    sunk = [_run("joint", 1.0, 1.0, 0.45), _run("joint", 4.0, 1.0, 0.30), _run("joint", 8.0, 1.0, 0.60)]
+    ok, why = holds(sunk, "joint", HELD_OUT, TODAY_HELD_OUT)
+    assert not ok and any("4 fps" in w for w in why)
+
+
+def test_on_the_held_out_scene_the_broken_chain_is_8_fps():
+    sound = [_run("joint", 1.0, 1.0, 0.45), _run("joint", 4.0, 1.1, 0.62)]
+    assert not holds(sound, "joint", HELD_OUT, TODAY_HELD_OUT)[0]  # no 8 fps run: not judged
+    assert not holds([*sound, _run("joint", 8.0, 1.29, 0.62)], "joint", HELD_OUT, TODAY_HELD_OUT)[0]  # today's scale
+    assert holds([*sound, _run("joint", 8.0, 1.10, 0.47)], "joint", HELD_OUT, TODAY_HELD_OUT)[0]
 
 
 def test_the_winner_is_the_holder_closest_to_the_true_scale():
-    rows = _rows("chained", 1.02, 0.60, 0.62) + _rows("own_scale", 0.95, 0.70, 0.66) + _rows("joint", 1.20, 0.70, 0.66)
-    assert winner(rows, 0.65) == "chained"  # joint is 20 % off and does not hold at all
-    assert winner(_rows("chained", 0.45, 0.16, 0.65), 0.65) is None
+    rows = [_run("chained", 1.0, 1.0, 0.62), _run("chained", 4.0, 1.02, 0.60),
+            _run("own_scale", 1.0, 1.0, 0.66), _run("own_scale", 4.0, 0.95, 0.70),
+            _run("joint", 1.0, 1.0, 0.66), _run("joint", 4.0, 1.20, 0.70)]
+    assert winner(rows, TODAY_CHOSEN) == "chained"  # joint is 20 % off and does not hold at all
+    assert winner([_run("chained", 1.0, 1.0, 0.65), _run("chained", 4.0, 0.45, 0.16)], TODAY_CHOSEN) is None
