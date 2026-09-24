@@ -16,6 +16,10 @@ is whether the card is busy: GPU utilisation from `nvidia-smi`, and a short list
 executables that actually render a game.  Launchers, services and crash handlers do not
 count.
 
+*The game was only checked between runs.*  8 fps is a 35-minute run, so a game opened a
+minute into it shared the card until the end.  Now `game_open` is polled every 30 s during a
+run and stops the child's whole tree, and the fps is retried when the card is free again.
+
 *A process launched by hand does not survive the night.*  The log of 2026-09-11 stops at
 23:07 with no farewell line: the PC slept or shut down and nothing relaunched the watcher.
 It now runs as a scheduled task at logon with StartWhenAvailable (the pattern Bocado proved
@@ -95,6 +99,19 @@ def busy(procs=LIVE, gpu=LIVE) -> list[str]:
     return reasons
 
 
+def game_open(procs=LIVE) -> str | None:
+    """The games rendering right now, for use *during* a run, or None.
+
+    Only the process list: while the sweep runs, the card is busy with the sweep itself, so
+    its utilisation says nothing about whether he is playing.
+    """
+    procs = process_names() if procs is LIVE else procs
+    if procs is None:
+        return None  # cannot look; the check before the run already said the card was free
+    found = sorted({p for p in procs if p in GAME_EXES})
+    return ", ".join(found) or None
+
+
 def wait_until_idle(log, poll_s: int = 60) -> None:
     while True:
         why = busy()
@@ -134,10 +151,17 @@ def main() -> None:
                 if verify(run_out) is None and not args.eval_only:
                     log.write(f"fps {fps:g}: already done and verified, skipped\n")
                     continue
-                wait_until_idle(log, args.poll)
-                log.write(f"{time.strftime('%H:%M:%S')} idle, running fps {fps:g}\n")
-                log.flush()
-                rec = run_one(args.scenes_dir, args.out, fps, eval_only=args.eval_only)
+                while True:
+                    wait_until_idle(log, args.poll)
+                    log.write(f"{time.strftime('%H:%M:%S')} idle, running fps {fps:g}\n")
+                    log.flush()
+                    # the games are watched during the run too: 8 fps is a 35-minute run, and a
+                    # game opened a minute in used to share the card with it until the end
+                    rec = run_one(args.scenes_dir, args.out, fps, eval_only=args.eval_only, should_stop=game_open)
+                    if not rec.get("stopped"):
+                        break
+                    log.write(f"{time.strftime('%H:%M:%S')} fps {fps:g} stopped after {rec['seconds']:.0f} s: {rec['stopped']} opened; waiting to retry\n")
+                    log.flush()
                 problem = verify(run_out)
                 if problem:
                     failed.append(fps)

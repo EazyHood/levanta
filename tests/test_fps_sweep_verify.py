@@ -10,13 +10,15 @@ directories were left in has to come back as a failure.
 from __future__ import annotations
 
 import json
+import os
 import sys
+import time
 from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bench"))
-from fps_sweep import MIN_SECONDS, verify
+from fps_sweep import MIN_SECONDS, note, verify
 
 THAT_NIGHT = Path(__file__).resolve().parent.parent / "out" / "fps_sweep_2026-09-06_empty" / "fps_1"
 
@@ -80,9 +82,45 @@ def test_missing_results_is_a_failure(tmp_path):
     assert verify(_run(tmp_path, results=False)) is not None
 
 
-def test_a_missing_return_code_is_a_failure(tmp_path):
-    """The old record format cannot tell a run from nothing, so it must not pass."""
-    assert verify(_run(tmp_path, record_rc=False)) is not None
+def test_a_missing_return_code_without_results_is_a_failure(tmp_path):
+    """A watcher that died before its child wrote anything leaves nothing to count."""
+    assert verify(_run(tmp_path, record_rc=False, results=False)) is not None
+
+
+def test_a_watcher_that_died_after_a_complete_run_is_counted_and_labelled(tmp_path):
+    """2026-09-23: 8 fps wrote both scenes ok at 11:11 after its watcher was gone, and for
+    eleven days the missing return code turned a finished run into "never launched", which
+    re-ran the same half hour of GPU at every boot.  The child's own results are the proof."""
+    d = _run(tmp_path, record_rc=False)
+    assert verify(d) is None
+    assert "watcher died" in (note(d) or "")
+
+
+def test_an_older_results_file_cannot_stand_in_for_a_cut_short_run(tmp_path):
+    """The record written at launch carries the start time; a results.json from a previous
+    run is older than it and must not count."""
+    d = _run(tmp_path, record_rc=False)
+    old = time.time() - 3600
+    os.utime(d / "results.json", (old, old))
+    rec = json.loads((d / "timing.json").read_text(encoding="utf-8"))
+    rec["started"] = time.time()
+    (d / "timing.json").write_text(json.dumps(rec), encoding="utf-8")
+    assert verify(d) is not None
+
+
+REAL_SWEEP = Path(__file__).resolve().parent.parent / "out" / "fps_sweep"
+
+
+@pytest.mark.skipif(not (REAL_SWEEP / "fps_8" / "results.json").exists(), reason="the 2026-09 sweep is not on this machine")
+def test_the_real_sweep_reads_as_it_happened():
+    """On disk, not on a copy: 1, 2 and 4 fps verified with their watcher's record, 8 fps
+    verified from the child's results with the watcher's death named, and the empty night of
+    2026-09-06 still a failure."""
+    for fps in ("1", "2", "4"):
+        assert verify(REAL_SWEEP / f"fps_{fps}") is None, fps
+        assert note(REAL_SWEEP / f"fps_{fps}") is None, fps
+    assert verify(REAL_SWEEP / "fps_8") is None
+    assert "watcher died" in (note(REAL_SWEEP / "fps_8") or "")
 
 
 def test_a_real_run_passes(tmp_path):

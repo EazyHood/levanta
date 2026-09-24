@@ -34,6 +34,16 @@ log is not empty, it took at least a second, and it left `results.json`; anythin
 named as a failure by `verify`, and the interpreter is pinned to the venv by absolute path
 rather than inherited.
 
+**What happened on 2026-09-12 to 09-23, and why `supervise` exists.**  1, 2 and 4 fps ran and
+verified; the watcher died during 8 fps and, because only it wrote the record, the run read as
+"never launched".  The task at logon ran the same half hour of GPU at every boot, nine times in
+eleven days, while the check for games ran only between runs.  On the 23rd the child finished
+at 11:11 with both scenes ok, after its watcher was gone.  Now the record is written before
+launch, a run whose watcher died is judged by the child's own results (if they are newer than
+the launch), the child lives in a job object that kills it with its watcher, and the games are
+checked every 30 s during the run.  The result of the sweep, which contradicted the prediction
+above, is in bench/results/fps_sweep_2026-09-24.md.
+
 Usage (free to write, needs the card to run -- see bench/when_idle.py):
     python bench/fps_sweep.py C:/Users/jhona/arkitscenes_data/raw/Validation out/fps_sweep
     python bench/fps_sweep.py ... --eval-only      # rehearse the launch without the card
@@ -68,31 +78,138 @@ def interpreter() -> str:
     return str(posix) if posix.exists() else sys.executable
 
 
-def run_one(scenes_dir: Path, out: Path, fps: float, eval_only: bool = False) -> dict:
-    """One fps, both scenes, its own directory, no console, and a record that can be checked."""
+POLL_S = 30.0  # how often a running child is checked against the games
+
+
+class _KillOnCloseJob:
+    """A Windows job object whose processes die when its last handle closes.
+
+    On 2026-09-23 the watcher was ended from outside (task result 0xC000013A, no farewell line)
+    while its child kept the card for another half hour with nobody supervising it.  A child
+    placed in this job dies with the process holding the handle, however that process dies,
+    and so do the children it starts (`levanta video` under the bench), because processes
+    created inside a job stay in it.  Elsewhere this is a no-op.
+    """
+
+    def __init__(self) -> None:
+        self.handle = None
+        if sys.platform != "win32":
+            return
+        import ctypes
+        from ctypes import wintypes
+
+        class _Basic(ctypes.Structure):
+            _fields_ = [
+                ("PerProcessUserTimeLimit", ctypes.c_int64), ("PerJobUserTimeLimit", ctypes.c_int64),
+                ("LimitFlags", wintypes.DWORD), ("MinimumWorkingSetSize", ctypes.c_size_t),
+                ("MaximumWorkingSetSize", ctypes.c_size_t), ("ActiveProcessLimit", wintypes.DWORD),
+                ("Affinity", ctypes.c_size_t), ("PriorityClass", wintypes.DWORD), ("SchedulingClass", wintypes.DWORD),
+            ]
+
+        class _Io(ctypes.Structure):
+            _fields_ = [(n, ctypes.c_ulonglong) for n in ("ReadOps", "WriteOps", "OtherOps", "ReadBytes", "WriteBytes", "OtherBytes")]
+
+        class _Extended(ctypes.Structure):
+            _fields_ = [
+                ("BasicLimitInformation", _Basic), ("IoInfo", _Io), ("ProcessMemoryLimit", ctypes.c_size_t),
+                ("JobMemoryLimit", ctypes.c_size_t), ("PeakProcessMemoryUsed", ctypes.c_size_t), ("PeakJobMemoryUsed", ctypes.c_size_t),
+            ]
+
+        k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        k32.CreateJobObjectW.restype = wintypes.HANDLE
+        k32.SetInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+        k32.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+        k32.TerminateJobObject.argtypes = [wintypes.HANDLE, wintypes.UINT]
+        k32.CloseHandle.argtypes = [wintypes.HANDLE]
+        job = k32.CreateJobObjectW(None, None)
+        if not job:
+            return
+        info = _Extended()
+        info.BasicLimitInformation.LimitFlags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+        if not k32.SetInformationJobObject(job, 9, ctypes.byref(info), ctypes.sizeof(info)):  # 9 = extended limits
+            k32.CloseHandle(job)
+            return
+        self._k32, self.handle = k32, job
+
+    def adopt(self, proc: subprocess.Popen) -> bool:
+        return bool(self.handle) and bool(self._k32.AssignProcessToJobObject(self.handle, int(proc._handle)))
+
+    def kill(self) -> None:
+        if self.handle:
+            self._k32.TerminateJobObject(self.handle, 1)
+
+    def close(self) -> None:
+        if self.handle:
+            self._k32.CloseHandle(self.handle)
+            self.handle = None
+
+
+def supervise(cmd: list[str], log: Path, should_stop=None, poll_s: float = POLL_S) -> dict:
+    """Run ``cmd`` with its output in ``log``, stop its whole tree if ``should_stop()`` names a
+    reason, and make sure the tree dies with this process whatever kills it.
+
+    The first version checked for a game only *between* runs, and 8 fps is a 35-minute run: a
+    game opened a minute after it started shared the card with it until the end.
+    """
+    t0 = time.time()
+    stopped = None
+    job = _KillOnCloseJob()
+    with log.open("w", encoding="utf-8") as fh:
+        try:
+            proc = subprocess.Popen(cmd, stdout=fh, stderr=subprocess.STDOUT, creationflags=NO_WINDOW)
+        except Exception as e:
+            job.close()
+            return {"rc": f"launch failed: {type(e).__name__}: {e}", "seconds": time.time() - t0, "stopped": None, "in_job": False}
+        in_job = job.adopt(proc)
+        try:
+            while True:
+                try:
+                    rc: int | str = proc.wait(timeout=poll_s)
+                    break
+                except subprocess.TimeoutExpired:
+                    reason = should_stop() if should_stop else None
+                    if reason:
+                        stopped = reason
+                        job.kill() if in_job else proc.kill()
+                        proc.wait()
+                        rc = f"stopped: {reason}"
+                        break
+        finally:
+            job.close()  # anything the child left running dies here too
+    return {"rc": rc, "seconds": time.time() - t0, "stopped": stopped, "in_job": in_job}
+
+
+def run_one(scenes_dir: Path, out: Path, fps: float, eval_only: bool = False, should_stop=None, poll_s: float = POLL_S) -> dict:
+    """One fps, both scenes, its own directory, no console, and a record that can be checked.
+
+    The record is written twice: once **before** launch, with the command and the start time,
+    and again when the child returns.  On 2026-09-12 the watcher died during 8 fps, the only
+    record was the one written after, and a finished run read as "never launched" for eleven
+    days, which made the task at logon run the same half hour of GPU at every boot.
+    """
     run_out = out / f"fps_{fps:g}"
     run_out.mkdir(parents=True, exist_ok=True)
     cmd = [interpreter(), str(HERE / "arkitscenes.py"), str(scenes_dir), str(run_out), "--only", *SCENES, "--runs", "noK", "--fps", f"{fps:g}"]
     if eval_only:
         cmd.append("--eval-only")
     log = run_out / "sweep.log"
-    t0 = time.time()
-    with log.open("w", encoding="utf-8") as fh:
-        try:
-            rc: int | str = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, check=False, creationflags=NO_WINDOW).returncode
-        except Exception as e:
-            rc = f"launch failed: {type(e).__name__}: {e}"
-    record = {
-        "fps": fps,
-        "seconds": time.time() - t0,
-        "rc": rc,
-        "executable": cmd[0],
-        "cmd": cmd,
-        "log_bytes": log.stat().st_size if log.exists() else 0,
-        "eval_only": eval_only,
-    }
-    (run_out / "timing.json").write_text(json.dumps(record, indent=1), encoding="utf-8")
+    timing = run_out / "timing.json"
+    record = {"fps": fps, "started": time.time(), "executable": cmd[0], "cmd": cmd, "eval_only": eval_only}
+    timing.write_text(json.dumps(record, indent=1), encoding="utf-8")
+    result = supervise(cmd, log, should_stop=should_stop, poll_s=poll_s)
+    record.update(result)
+    record["log_bytes"] = log.stat().st_size if log.exists() else 0
+    timing.write_text(json.dumps(record, indent=1), encoding="utf-8")
     return record
+
+
+def note(run_out: Path) -> str | None:
+    """What a trustworthy run needs said about it, beyond "it ran"."""
+    timing = run_out / "timing.json"
+    rec = json.loads(timing.read_text(encoding="utf-8")) if timing.exists() else {}
+    if "rc" not in rec:
+        return "watcher died before recording it; counted from the child's own results"
+    return None
 
 
 def verify(run_out: Path) -> str | None:
@@ -100,23 +217,32 @@ def verify(run_out: Path) -> str | None:
 
     Estrenado against the case that motivated it: a `timing.json` with only fps and 25 ms in
     it, a 0-byte log and no results.json must come back as a failure, not as a run.
+
+    A missing return code is no longer a failure by itself.  It means the watcher died, and
+    the child may well have finished: on 2026-09-23 8 fps wrote both scenes ok at 11:11 while
+    its watcher was already gone.  Such a run is judged by what the child left, and only if
+    its results are newer than the record written at launch, so an old results.json cannot
+    stand in for a run that was cut short.
     """
     timing = run_out / "timing.json"
-    if not timing.exists():
+    results = run_out / "results.json"
+    if not timing.exists() and not results.exists():
         return "no timing.json: never launched"
-    rec = json.loads(timing.read_text(encoding="utf-8"))
-    if "rc" not in rec:
-        return "no return code recorded: the old launcher that could not tell a run from nothing"
-    if rec["rc"] != 0:
-        return f"return code {rec['rc']!r}"
+    rec = json.loads(timing.read_text(encoding="utf-8")) if timing.exists() else {}
     log = run_out / "sweep.log"
     if not log.exists() or log.stat().st_size == 0:
         return "log is empty: the child wrote nothing"
-    if rec.get("seconds", 0.0) < MIN_SECONDS:
-        return f"took {rec.get('seconds', 0.0):.3f} s, less than Python needs to start"
-    results = run_out / "results.json"
+    if "rc" in rec:
+        if rec["rc"] != 0:
+            return f"return code {rec['rc']!r}"
+        if rec.get("seconds", 0.0) < MIN_SECONDS:
+            return f"took {rec.get('seconds', 0.0):.3f} s, less than Python needs to start"
+    elif rec.get("eval_only"):
+        return "rehearsal without a recorded return code"
     if not results.exists():
         return "no results.json: the bench never got to its evaluation"
+    if "rc" not in rec and "started" in rec and results.stat().st_mtime < rec["started"]:
+        return "results.json is older than this launch: the run was cut short and the file is a previous one"
     if not rec.get("eval_only"):
         # a real run where levanta itself fell over still leaves a results.json, with the
         # scene marked not ok; that is the next way this file could say "done" over nothing
@@ -135,7 +261,9 @@ def collect(out: Path) -> list[dict]:
         if problem:
             rows.append({"fps": fps, "scene": "(all)", "failed": problem})
             continue
-        secs = json.loads((run_out / "timing.json").read_text(encoding="utf-8")).get("seconds")
+        timing = run_out / "timing.json"
+        secs = json.loads(timing.read_text(encoding="utf-8")).get("seconds") if timing.exists() else None
+        why = note(run_out)
         for r in json.loads((run_out / "results.json").read_text(encoding="utf-8")):
             k = r.get("noK", {})
             idx = run_out / r["video_id"] / "noK" / "frames" / "index.json"
@@ -150,6 +278,7 @@ def collect(out: Path) -> list[dict]:
                 "rooms": k.get("levanta_rooms"),
                 "floor_iou": k.get("floor_iou"),
                 "seconds_for_both_scenes": secs,
+                "note": why,
             })
     return rows
 
@@ -169,7 +298,7 @@ def table(rows: list[dict]) -> str:
             continue
         lines.append(
             f"| {r['fps']:g} | {r['scene']} | {r['truth_m2']:.1f} m\u00b2 | {_fmt(r['frames'], '{:d}')} | {_fmt(r['frames_per_m2'], '{:.1f}')} "
-            f"| {_fmt(r['area_error_pct'], '{:+.0f} %')} | {_fmt(r['rooms'], '{:d}')} | {_fmt(r['floor_iou'])} | {_fmt(r['seconds_for_both_scenes'], '{:.0f} s')} |"
+            f"| {_fmt(r['area_error_pct'], '{:+.0f} %')} | {_fmt(r['rooms'], '{:d}')} | {_fmt(r['floor_iou'])} | {r.get('note') or _fmt(r['seconds_for_both_scenes'], '{:.0f} s')} |"
         )
     if not rows:
         lines.append("| | **no runs on disk** | | | | | | | |")
