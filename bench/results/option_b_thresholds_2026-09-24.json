@@ -1,0 +1,12 @@
+{
+ "baseline": {
+  "one_lap_camera_m": 1.0414925919221918,
+  "three_laps_camera_m": 1.9222676722994247,
+  "one_lap_rooms": 1,
+  "three_laps_rooms": 2
+ },
+ "three_laps_camera_at_most_m": 1.1533606033796548,
+ "three_laps_rooms_at_most": 3,
+ "one_lap_camera_at_most_m": 1.1414925919221919,
+ "arkit_iou_at_least": 0.6
+}
