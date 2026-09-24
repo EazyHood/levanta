@@ -79,3 +79,67 @@ def test_turning_in_place_carries_no_scale():
         views.append({"depth": _depth(T) * 0.55, "mask": np.ones((H, W), bool), "K": K, "T": T})
     s, rep = consistent_depth_scales(views)
     assert not rep["estimable"] and np.allclose(s, 1.0)
+
+
+# Option C's wall direction, on the same box room: a reconstruction turned by some angle about
+# the vertical must read as turned by that angle, modulo 90 degrees, and C must turn it back.
+def _rz(deg):
+    a = math.radians(deg)
+    R = np.eye(4)
+    R[:2, :2] = [[math.cos(a), -math.sin(a)], [math.sin(a), math.cos(a)]]
+    return R
+
+
+def _chunk(poses, reported):
+    return [{"depth": _depth(T), "mask": np.ones((H, W), bool), "K": K, "T": Tr} for T, Tr in zip(poses, reported, strict=True)]
+
+
+def test_the_wall_direction_turns_with_the_reconstruction():
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bench"))
+    from chain_policies import wall_yaw
+
+    poses = [_pose(np.array([0.8 + 0.3 * k, 0.9 + 0.15 * k, 1.4]), 25 * k) for k in range(6)]
+    up = np.array([0.0, 0.0, 1.0])
+    base, clarity = wall_yaw(_chunk(poses, poses), up)
+    turned, _ = wall_yaw(_chunk(poses, [_rz(10) @ T for T in poses]), up)
+    assert clarity > 0.5
+    assert abs(math.degrees(turned - base) - 10) < 1.0
+
+
+def test_option_c_turns_a_chunk_back_onto_the_walk():
+    """Chunk 1 comes back from the network turned 12 degrees inside itself, all but the two frames
+    it shares; the chain alone leaves it turned, C brings it back at least halfway."""
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bench"))
+    from chain_policies import place, place_yaw_from_walls, wall_yaw
+
+    first = [_pose(np.array([0.8 + 0.2 * k, 0.9 + 0.1 * k, 1.4]), 30 * k) for k in range(6)]
+    second = first[-2:] + [_pose(np.array([1.9 + 0.2 * k, 1.5 - 0.1 * k, 1.4]), 150 + 30 * k) for k in range(6)]
+    pivot = first[-1][:3, 3]
+    turn = np.eye(4)
+    turn[:3, :3] = _rz(12)[:3, :3]
+    turn[:3, 3] = pivot - turn[:3, :3] @ pivot
+    raw_second = second[:2] + [turn @ T for T in second[2:]]
+
+    def pack(true_poses, reported, idx, shared):
+        return {"idx": np.array(idx), "shared": np.int32(shared), "depth": np.stack([_depth(T) for T in true_poses]),
+                "mask": np.ones((len(idx), H, W), bool), "K": np.stack([K] * len(idx)), "T": np.stack(reported)}
+
+    chunks = [pack(first, first, list(range(6)), 0), pack(second, raw_second, list(range(4, 12)), 2)]
+    up = np.array([0.0, 0.0, 1.0])
+
+    def error(solved):
+        got, _ = wall_yaw([solved[i] for i in range(6, 12)], up)
+        ref, _ = wall_yaw([solved[i] for i in range(6)], up)
+        return abs(math.degrees((got - ref + math.pi / 4) % (math.pi / 2) - math.pi / 4))
+
+    x = np.zeros(2)
+    chain_err = error(place(chunks, x))
+    c_err = error(place_yaw_from_walls(chunks, x))
+    assert chain_err > 8
+    assert c_err < chain_err / 2

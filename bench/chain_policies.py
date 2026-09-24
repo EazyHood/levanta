@@ -275,6 +275,99 @@ def place_by_points(chunks: list[dict], pixels: int = 4000, rounds: int = 3, see
     return solved, np.array(xs)
 
 
+def wall_yaw(views: list[dict], up: np.ndarray, stride: int = 4) -> tuple[float, float]:
+    """Option C's measurement: the direction of a chunk's walls about the vertical, modulo 90°,
+    and how clearly it shows (0 to 1).  Normals come from each placed view's own point map;
+    only near-horizontal normals (walls, not floor or ceiling) vote, and a room's two wall
+    directions fold onto one by taking four times the angle."""
+    up = up / np.linalg.norm(up)
+    e1 = np.cross(up, [1.0, 0.0, 0.0] if abs(up[0]) < 0.9 else [0.0, 1.0, 0.0])
+    e1 /= np.linalg.norm(e1)
+    e2 = np.cross(up, e1)
+    total, count = 0j, 0
+    for v in views:
+        d = np.asarray(v["depth"], np.float64)[::stride, ::stride]
+        m = np.asarray(v["mask"], bool)[::stride, ::stride] & (d > 0.05)
+        h, w = d.shape
+        ys, xs = np.mgrid[0:h, 0:w]
+        K = np.asarray(v["K"], np.float64)
+        rays = np.linalg.inv(K) @ np.vstack([xs.ravel() * stride + 0.5, ys.ravel() * stride + 0.5, np.ones(h * w)])
+        rays /= rays[2]
+        T = np.asarray(v["T"], np.float64)
+        P = (T[:3, :3] @ (rays * d.ravel()) + T[:3, 3:4]).T.reshape(h, w, 3)
+        dx = P[1:-1, 2:] - P[1:-1, :-2]
+        dy = P[2:, 1:-1] - P[:-2, 1:-1]
+        n = np.cross(dx, dy)
+        norm = np.linalg.norm(n, axis=2)
+        ok = m[1:-1, 1:-1] & m[1:-1, 2:] & m[1:-1, :-2] & m[2:, 1:-1] & m[:-2, 1:-1] & (norm > 1e-9)
+        # no normals across a depth edge: the four neighbours must sit near the centre's depth
+        dc = d[1:-1, 1:-1]
+        for nb in (d[1:-1, 2:], d[1:-1, :-2], d[2:, 1:-1], d[:-2, 1:-1]):
+            ok &= np.abs(nb - dc) < 0.06 * dc
+        n = n[ok] / norm[ok][:, None]
+        horizontal = np.abs(n @ up) < 0.2
+        n = n[horizontal]
+        if not len(n):
+            continue
+        theta = np.arctan2(n @ e2, n @ e1)
+        total += np.exp(4j * theta).sum()
+        count += len(theta)
+    if count == 0:
+        return 0.0, 0.0
+    return float(np.angle(total) / 4.0), float(abs(total) / count)
+
+
+def place_yaw_from_walls(chunks: list[dict], x: np.ndarray, min_clarity: float = 0.2) -> dict[int, dict]:
+    """Option C: placed as the chain places them, then each chunk turned about the vertical,
+    through the centre of the frames it shares with the chunk before, so its walls run the
+    walk's way (the first chunk's), modulo 90°.  A chunk whose walls do not show clearly
+    (clarity under ``min_clarity``) is left as the chain put it."""
+    from levanta.recon.mapanything import Similarity, align_similarity
+
+    solved: dict[int, dict] = {}
+    up = None
+    ref = None
+    for k, c in enumerate(chunks):
+        s = float(math.exp(x[k]))
+        if k == 0:
+            sim = Similarity(s, np.eye(3), np.zeros(3))
+        else:
+            sh = [j for j in range(int(c["shared"])) if int(c["idx"][j]) in solved]
+            new_T = [c["T"][j] for j in sh]
+            old_T = [solved[int(c["idx"][j])]["T"] for j in sh]
+            R = align_similarity(new_T, old_T).R
+            cs = np.array([T[:3, 3] for T in new_T])
+            cd = np.array([T[:3, 3] for T in old_T])
+            sim = Similarity(s, R, (cd - s * (R @ cs.T).T).mean(axis=0))
+        placed = [{"T": sim.apply(c["T"][j]), "depth": c["depth"][j].astype(np.float32) * s, "mask": c["mask"][j], "K": c["K"][j]} for j in range(len(c["idx"]))]
+        if k == 0:
+            # up: against the cameras' mean "down" axis (OpenCV cameras, y down), held for the walk
+            up = -np.mean([v["T"][:3, 1] for v in placed], axis=0)
+            up /= np.linalg.norm(up)
+            ref, _ = wall_yaw(placed, up)
+        else:
+            yaw, clarity = wall_yaw(placed, up)
+            if clarity >= min_clarity:
+                delta = (ref - yaw + math.pi / 4) % (math.pi / 2) - math.pi / 4
+                pivot = np.mean([solved[int(c["idx"][j])]["T"][:3, 3] for j in range(int(c["shared"])) if int(c["idx"][j]) in solved], axis=0)
+                a = up * math.sin(delta / 2)
+                q = np.array([math.cos(delta / 2), *a])
+                w_, x_, y_, z_ = q
+                Rd = np.array([[1 - 2 * (y_ * y_ + z_ * z_), 2 * (x_ * y_ - z_ * w_), 2 * (x_ * z_ + y_ * w_)],
+                               [2 * (x_ * y_ + z_ * w_), 1 - 2 * (x_ * x_ + z_ * z_), 2 * (y_ * z_ - x_ * w_)],
+                               [2 * (x_ * z_ - y_ * w_), 2 * (y_ * z_ + x_ * w_), 1 - 2 * (x_ * x_ + y_ * y_)]])
+                for v in placed:
+                    T = v["T"].copy()
+                    T[:3, :3] = Rd @ T[:3, :3]
+                    T[:3, 3] = Rd @ (T[:3, 3] - pivot) + pivot
+                    v["T"] = T
+        for j, i in enumerate(c["idx"]):
+            i = int(i)
+            if i not in solved:
+                solved[i] = placed[j]
+    return solved
+
+
 def write_recomposed(solved: dict[int, dict], x: np.ndarray, source_run: Path, run: Path) -> None:
     """Fuse and plan a recomposed walk into ``run`` the way `levanta video` would, leaving the
     files the evaluations read (plan.json, plan_cloud.ply, frames/index.json)."""

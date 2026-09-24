@@ -51,9 +51,9 @@ def thresholds() -> dict:
     }
 
 
-def judge(th: dict, rows: dict) -> tuple[bool, list[str]]:
+def judge(th: dict, rows: dict, policy: str = "points") -> tuple[bool, list[str]]:
     why = []
-    three, one, ark = rows["three_laps"]["points"], rows["one_lap"]["points"], rows["arkit"]["points"]
+    three, one, ark = rows["three_laps"][policy], rows["one_lap"][policy], rows["arkit"][policy]
     if three["camera_rms_m"] > th["three_laps_camera_at_most_m"]:
         why.append(f"three laps: camera error {three['camera_rms_m']:.2f} m over {th['three_laps_camera_at_most_m']:.2f}")
     if three["rooms_levanta"] > th["three_laps_rooms_at_most"]:
