@@ -193,3 +193,40 @@ threshold written first, not a result.
 left, C (yaw from the walls) is the other half-day on the CPU, and the one aimed at what the
 three laps show: the same rooms laid down again, turned. D, the global alignment, is still
 the structure a whole home needs and still the most expensive.
+
+## Option C, measured: closest yet, and it does not hold
+
+Code and tests committed at 15:44:44 (64a8695), judged with B's numbers from 2f80d86,
+untouched (`bench/option_c.py`):
+
+| walk | composition | camera error | rooms (truth 3) | floor IoU | area error |
+|---|---|---|---|---|---|
+| one lap | **C** | 1.05 m | 2 | 0.24 | +4 % (shape +32 %, scale 1.13) |
+| three laps | **C** | 1.20 m | 5 | 0.29 | −12 % (shape +17 %, scale 1.15) |
+| ARKitScenes 1 fps | **C** | 0.45 m | 1 | 0.60 | −32 % (shape −36 %, scale 0.97) |
+
+**Verdict: C does not hold.** Three laps end at 1.20 m against 1.153 m, with five rooms
+against three. One lap (1.05 m) and ARKitScenes (IoU 0.601 against 0.60, by a hair) hold. It
+is the closest of the three: three laps went from 1.92 m through the pipeline and 1.41 m with
+the plain chain to 1.20 m. What turning the chunks did not do is stop the rooms being drawn
+again: five of three.
+
+## The ledger, and the line closed
+
+| option | what it tried | verdict |
+|---|---|---|
+| A | depth made consistent with the network's own poses | nothing to fix: depth and poses agree; the "0.55" was the focal length |
+| B | links from the shared frames' pixels | does not hold: 1.63 m, four rooms; worse than the plain chain |
+| C | each chunk turned to the walk's wall directions | does not hold: 1.20 m, five rooms; the closest |
+| D | one alignment for the whole walk, with loop closure | not tried: the most expensive, and it waits for a real phone video of a home |
+| E, F | an anchor that does not drift; more views per chunk | not tried |
+| G | more shared frames | answered in round 5: 1.01 to 1.05 m against 1.0 |
+
+Observed and not chased, in two scenes: solving the chunks without the previous chunk's poses
+and chaining them the ordinary way lowers the camera error (three laps 1.92 m to 1.41 m;
+ARKitScenes 52 times apart in size against 1.97) and invents rooms (six of three). Not
+combined with C after seeing the numbers.
+
+**The line is closed here**, by agreement with the supervisor: no other option on the chain is
+opened until Jhona's own video of a home exists. The rooms drawn again on the rendered flat
+are the finding that stands, and every option measured today left them.
