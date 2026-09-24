@@ -234,6 +234,8 @@ def video(
     max_frames: int | None = typer.Option(None, help="Cap on the frames used, spread over the clip (default: every sharp frame at --fps)."),
     keep_views: bool = typer.Option(False, "--keep-views", help="Write every view's depth, mask, intrinsics and pose to out/views (for refinement experiments)."),
     keep_flat: bool = typer.Option(False, "--keep-flat", help="Keep frames the title-card filter would drop. A plain wall filling the frame scores like a title card and is thrown away with them."),
+    keep_chunks: bool = typer.Option(False, "--keep-chunks", hidden=True, help="Write every chunk's raw output, before alignment, to out/chunks (bench/chain_policies.py)."),
+    independent_chunks: bool = typer.Option(False, "--independent-chunks", hidden=True, help="Solve each chunk without the previous chunk's poses (bench/chain_policies.py)."),
     model: str = typer.Option("facebook/map-anything-apache", help="HuggingFace checkpoint (Apache-2.0 by default)."),
     focal_px: float | None = typer.Option(None, "--focal-px", help="Focal length in pixels of the (downscaled) frames, if known; improves the metric scale."),
     manhattan: bool = typer.Option(True, "--manhattan/--free", help="Snap walls to two orthogonal directions."),
@@ -315,10 +317,13 @@ def video(
 
             cam = Camera(K=np.array([[focal_px, 0, w / 2], [0, focal_px, h / 2], [0, 0, 1.0]]), T=np.eye(4), width=w, height=h)
         frames.append(Frame(path=k.path, camera=cam))
-    n_chunks = 1 if len(frames) <= max_views else 1 + -(-(len(frames) - max_views) // max(1, max_views - overlap))
+    from levanta.plan.types import chunk_count
+
+    n_chunks = chunk_count(len(frames), max_views, overlap)
     _step(f"reconstructing with MapAnything ({model}), {len(frames)} frames in {n_chunks} chunk{'s' if n_chunks > 1 else ''} of {max_views}; the first run downloads ~4.6 GB of weights")
     t1 = time.time()
-    be = MapAnythingBackend(model_name=model, max_views=max_views, overlap=overlap, dump_dir=(out / "views") if keep_views else None)
+    be = MapAnythingBackend(model_name=model, max_views=max_views, overlap=overlap, dump_dir=(out / "views") if keep_views else None,
+                            chunk_dump_dir=(out / "chunks") if keep_chunks else None, independent_chunks=independent_chunks)
     try:
         cloud = be.reconstruct(frames)
     except Exception as e:

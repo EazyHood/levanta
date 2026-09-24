@@ -162,9 +162,17 @@ class MapAnythingBackend:
         memory_efficient: bool = True,
         overlap: int = 4,
         dump_dir: Path | None = None,
+        chunk_dump_dir: Path | None = None,
+        independent_chunks: bool = False,
     ) -> None:
         self.model_name = model_name
         self.dump_dir = Path(dump_dir) if dump_dir else None
+        # for the chain experiment (bench/chain_policies.py): every chunk's raw output in its
+        # own frame, before it is scaled onto the one before; and, when independent, chunks
+        # solved without the previous chunk's poses fed in, so the raw output of one does not
+        # already carry the chain of all the others
+        self.chunk_dump_dir = Path(chunk_dump_dir) if chunk_dump_dir else None
+        self.independent_chunks = independent_chunks
         self.device = device
         self.max_views = max_views
         self.overlap = overlap
@@ -288,6 +296,22 @@ class MapAnythingBackend:
             index.append({"i": i, "path": str(frames[i].path), "npz": f"view_{i:04d}.npz"})
         (self.dump_dir / "views.json").write_text(json.dumps({"max_views": self.max_views, "overlap": self.overlap, "views": index}, indent=1), encoding="utf-8")
 
+    def _dump_chunk(self, c: int, idx: Sequence[int], fed_poses: int, shared: int, views: Sequence[dict]) -> None:
+        """One chunk's raw network output, in the chunk's own frame, before any alignment:
+        ``chunk_NNN.npz`` with the frame indices, how many leading views it shares with the
+        previous chunk, and how many of those were handed in with a pose."""
+        self.chunk_dump_dir.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(
+            self.chunk_dump_dir / f"chunk_{c:03d}.npz",
+            idx=np.asarray(idx, dtype=np.int32),
+            shared=np.int32(shared),
+            fed_poses=np.int32(fed_poses),
+            depth=np.stack([v["depth"] for v in views]).astype(np.float16),
+            mask=np.stack([v["mask"] for v in views]),
+            K=np.stack([v["K"] for v in views]),
+            T=np.stack([v["T"] for v in views]),
+        )
+
     def reconstruct(self, frames: Sequence[Frame]) -> PointCloud:
         """Every frame through the network, ``max_views`` at a time.
 
@@ -314,7 +338,8 @@ class MapAnythingBackend:
             else:
                 ov = prev[-overlap:]
                 idx = ov + list(range(start, min(start + step, n)))
-                known = [solved[i]["T"] for i in ov] + [None] * (len(idx) - len(ov))
+                inherited = [None] * len(ov) if self.independent_chunks else [solved[i]["T"] for i in ov]
+                known = inherited + [None] * (len(idx) - len(ov))
             ks = []
             for i, T in zip(idx, known, strict=True):
                 f = frames[i]
@@ -323,6 +348,8 @@ class MapAnythingBackend:
                 else:
                     ks.append(None if f.camera is None else f.camera.K)
             views = self.predict_views([frames[i].path for i in idx], intrinsics=ks if any(k is not None for k in ks) else None, poses=known if any(T is not None for T in known) else None)
+            if self.chunk_dump_dir is not None:
+                self._dump_chunk(chunks, idx, sum(1 for T in known if T is not None), len(ov) if prev else 0, views)
             chunks += 1
             if prev:
                 sim = align_chunk([views[j] for j in range(len(ov))], [solved[i] for i in ov])

@@ -316,6 +316,7 @@ def main() -> None:
     ap.add_argument("--keep-views", action="store_true", help="pass --keep-views to levanta (per-view depths for refinement)")
     ap.add_argument("--fps", type=float, default=1.0, help="frames per second given to levanta")
     ap.add_argument("--overlap", type=int, default=None, help="chunk overlap passed to levanta")
+    ap.add_argument("--independent-chunks", action="store_true", help="solve each chunk without the previous one's poses and keep every chunk raw (bench/chain_policies.py)")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     results = []
@@ -348,6 +349,7 @@ def main() -> None:
             run = args.out / vid / name
             if name in args.runs and not args.eval_only:
                 extra = (["--keep-views"] if args.keep_views else []) + (["--overlap", str(args.overlap)] if args.overlap is not None else [])
+                extra += ["--independent-chunks", "--keep-chunks"] if args.independent_chunks else []
                 run = run_levanta(mov, run, args.max_views, focal, extra=extra or None, fps=args.fps)
             r = evaluate(scene, args.out, truth, run) if run.exists() else {"run": name, "ok": False}
             rows[name] = r
