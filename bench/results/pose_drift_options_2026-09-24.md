@@ -142,3 +142,18 @@ there. New baselines, run before any B number is looked at:
 
 B holds only if it meets all three. If it does, it goes into `align_chunk` behind a flag and is
 measured again through the pipeline before it becomes the default.
+
+**Refined with the supervisor, still before any baseline number was seen** (the baseline runs
+started at 15:2x and this was committed while they ran):
+
+- The three-lap condition takes **both** recipes, the one above and the supervisor's: camera
+  error at most the one-lap baseline plus 0.22 m **and** at most 0.6 × the three-lap baseline,
+  with no more than three rooms. The one-lap and ARKitScenes conditions are unchanged.
+- **Which ARKitScenes row is the product's.** `levanta video` uses a phone's published focal when
+  the file names the phone (`focal_for_video`), and the network's own guess when it does not.
+  The ARKitScenes `.mov` names no phone, so on that walk the product runs with the network's
+  focal, and that is the row B is judged on: 41069021 at 1 fps, no focal given. For the
+  rendered flat the product path is the true focal, since a known phone would give one.
+  Jhona's own video will be judged on whichever of the two his file triggers.
+- The numbers of the recipe are filled from the baselines and committed **before** the first
+  run of B.

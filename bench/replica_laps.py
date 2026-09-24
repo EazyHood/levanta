@@ -218,11 +218,13 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=ROOT / "out" / "replica_laps")
     ap.add_argument("--score-only", action="store_true")
     ap.add_argument("--skip-per-chunk", action="store_true", help="only the runs the verdict needs")
+    ap.add_argument("--focal-px", type=float, default=None, help="the renderer's true focal at the frames' width (731.2 at 1024 px); the product path passes a known focal")
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
     args.out.mkdir(parents=True, exist_ok=True)
     base = [np.array(p) for p in json.loads((SOURCE / "walk_poses.json").read_text(encoding="utf-8"))["poses"]]
     seqs = build_videos(args.out, len(base))
+    focal = ["--focal-px", f"{args.focal_px:.2f}"] if args.focal_px else []
     truth = floor_truth(load_mesh(SCENE_DIR / "mesh.ply"))
     log = args.out / "replica_laps.log"
     rows = {}
@@ -230,7 +232,7 @@ def main() -> None:
         poses = [base[i] for i in seqs[name]]
         run = args.out / name
         if not args.score_only:
-            rec = guarded_run(args.out / f"{name}.mp4", run, [], log)
+            rec = guarded_run(args.out / f"{name}.mp4", run, focal, log)
             if rec.get("rc") != 0:
                 print(f"{name}: levanta failed ({rec.get('rc')}), see {run.parent / (run.name + '.log')}")
                 continue
@@ -242,7 +244,7 @@ def main() -> None:
             poses = [base[i] for i in seqs[name]]
             run = args.out / f"{name}_independent"
             if not args.score_only:
-                rec = guarded_run(args.out / f"{name}.mp4", run, ["--independent-chunks", "--keep-chunks"], log)
+                rec = guarded_run(args.out / f"{name}.mp4", run, [*focal, "--independent-chunks", "--keep-chunks"], log)
                 if rec.get("rc") != 0:
                     continue
             if (run / "chunks").exists():
