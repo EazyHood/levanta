@@ -25,10 +25,10 @@ more than 0.05 below one lap's. **It holds**: scale 0.94, IoU 0.39 against a flo
 
 - **The rule's premise failed, and half of it measured nothing.** "Sound chunks" assumed one
   lap comes out sound; it came out at IoU 0.16, one room of three and 1.08 m of camera error
-  over five chunks, and the per-chunk table below says why: inside every chunk the network
-  puts depth at 0.55 of the truth and its cameras at about 1. The chunks are not sound inside
-  even where their overall scale looks right. So the IoU half, with a floor of 0.11, was
-  empty. The half that measures is the scale: fourteen chunks of default length, handed down
+  over five chunks. The per-chunk table below shows why, once read correctly (see the
+  correction under it): with no focal length given, the network guesses these renders' field
+  of view at about 106° instead of 70°, and every chunk comes out squashed along the line of
+  sight. So the IoU half, with a floor of 0.11, was empty. The half that measures is the scale: fourteen chunks of default length, handed down
   link by link, end 6 % from the truth.
 - **The scale held; the walk did not.** Between five chunks and fourteen the camera error
   doubles (1.08 m to 2.11 m), the shape goes from 35 % short to 56 % over, the rooms go from
@@ -51,17 +51,20 @@ both runs agree to three decimals, as they should: the setup is deterministic.
 | one lap | 5 | 1.81 | 1.66 to 1.94 | 0.59 | 0.22 to 1.22 |
 | three laps | 14 | 1.81 | 1.47 to 2.12 | 0.71 | 0.19 to 1.29 |
 
-- **By depth**, which does not depend on how far the camera moved, each chunk's own scale is
-  **steady along the chain**: the same median at 5 and at 14 chunks, no drift with position.
-  On these renders the network puts every surface at about 0.55 of its true distance, the
-  per-view 0.37 to 0.70 round 6 found with exact poses. That is a constant bias of the network
-  on synthetic pictures, not something the chain does.
+- **By depth**, each chunk's number is **steady along the chain**: the same median at 5 and at
+  14 chunks, no drift with position. It is not a scale, though; see the correction below.
 - **By cameras** the fits are too poor to read: residuals of 0.40 to 0.85 m on 2.5 to 8 m of
   travel per chunk. Kept for completeness, not as a measurement.
-- That the depth sits at 0.55 while the whole walk's cameras come out at 0.94 to 1.07 means
-  the network's depth and its camera motion disagree by nearly a factor of two inside a
-  chunk. It is the same disagreement round 6 named, and it is why the shape is wrong even
-  where the scale is right.
+- **Correction, the same afternoon** (`pose_drift_options_2026-09-24.md`, option A). I first
+  read the 1.81 as "depth at 0.55 while the cameras sit at 1, a factor of two inside a chunk".
+  That was wrong. The network's depth and its own poses agree with each other (the depth
+  scale that makes its points meet is 1.00), and its camera steps are as long as the true
+  ones (1.02). What sits at 0.55 is its **focal length**: 0.536 of the true one on these
+  renders, and predicted depth over true depth divided by that ratio is 0.99. A focal guessed
+  too short squashes every surface along the line of sight and leaves the rest alone. On the
+  real video the same guess is 0.93 of ARKit's. So the shape figures of this page are
+  dominated by the network's focal guess on synthetic pictures; the comparison of one lap
+  with three, which share it, still isolates the chain.
 
 ## What changes
 

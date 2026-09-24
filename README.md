@@ -318,8 +318,14 @@ per-chunk error by ±0.03 m; composing chunks by overlap rather than time left t
 1.01–1.05 m. The measurement: on the rendered walk, where the true pose of every frame and
 the true depth of every pixel are known, handing the network the **exact poses** still
 gives one room of three and −43 % area, while a **perfect cloud** gives three rooms and
-+19 %. What the network gets wrong is the scale of its depth: the shape is good to 6 %,
-but the scale is half the truth and swings by a factor of two between views (0.37 to 0.70).
++19 %. The per-view depth came out at half the truth, swinging between views (0.37 to
+0.70), and that was first read as a defect in the scale of the network's depth. **Corrected
+on 2026-09-24:** it is the network's guess of the focal length. That run passed no focal, and
+on these flat-shaded renders the network guesses a field of view of about 106° where the
+renderer used 70°: a focal at 0.536 of the truth, and predicted depth over true depth divided
+by that ratio is 0.99. Its depth and its own camera motion agree with each other; on real
+video its focal guess is 0.93 of ARKit's
+([pose_drift_options_2026-09-24.md](bench/results/pose_drift_options_2026-09-24.md)).
 
 And half of the error above is the planner, not the network: on that same perfect cloud it
 turns 29 % of the wall it can see into walls. A seven-scene planner bench that needs no GPU

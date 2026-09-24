@@ -10,7 +10,9 @@ One is chosen and measured; the rest wait.
 
 Two measurements from earlier rounds change the order of this page.
 
-- **On this flat the plan fails even with exact poses.** Handing the network the true pose of
+- *(Corrected at the end of this page, the same afternoon: what follows was the network's
+  focal length, not its depth scale, and it is why option A found nothing to fix.)*
+  **On this flat the plan fails even with exact poses.** Handing the network the true pose of
   every frame still gives one room of three and −43 % of area; a perfect cloud gives three
   rooms (README, round 6). What goes wrong first is the **scale of each view's depth**: half
   the truth and swinging by a factor of two between views (0.37 to 0.70). The laps showed the
@@ -62,3 +64,53 @@ answered.
 What none of these touch: everything here is measured on one rendered flat and one real
 room. A fix that passes still has to pass on a phone video of a real home before anything
 about long takes is said outside the bench.
+
+## Option A, measured before it went into the pipeline: nothing to fix
+
+The supervisor's two conditions were written into the estimator before it was coded
+(`src/levanta/recon/depth_consistency.py`): consistency of the **3D points** through the
+network's own relative poses, not depth against depth, and **no constant**, every scale
+solved from the walk's own data. On a box room whose answer is known it recovers true depths
+at 1, a uniform 0.55 at 1/0.55 and per-view factors from 0.4 to 0.7, each within 5 %, and
+reports a camera that only turns as not estimable (`tests/test_depth_consistency.py`).
+
+On the chunks already on disk (`bench/depth_consistency_check.py`, no GPU):
+
+| scene | chunks estimable | views | depth scale that makes the points agree, median | range |
+|---|---|---|---|---|
+| Replica, one lap | 5 of 5 | 110 | 1.00 | 0.80 to 1.19 |
+| Replica, three laps | 14 of 14 | 334 | 0.97 | 0.07 to 1.99 |
+| ARKitScenes 41069021, 1 fps | 9 of 9 | 216 | 1.01 | 0.97 to 1.17 |
+| ARKitScenes 41069021, 4 fps | 36 of 36 | 855 | 1.02 | 0.86 to 2.70 |
+
+**The network's depth and its own poses agree with each other, on both scenes.** The camera
+steps confirm it: on the rendered flat each reconstructed step is as long as the true one
+(median 1.02 over one lap, 0.99 over three). So the "depth at 0.55 while the cameras sit at 1"
+that motivated A was a wrong reading, mine, and A would move nothing: it is not wired into
+the pipeline.
+
+**What the 0.55 really is: the focal length.** On these renders the network estimates a focal
+of about 195 px at 518 px wide, a 106° field of view, where the renderer used 70° (370 px).
+A focal at 0.536 of the truth squashes every surface along the line of sight by the same
+factor and leaves lateral positions and camera steps alone. View by view:
+
+| walk | network focal / true focal | predicted depth / true depth | depth ratio / focal ratio |
+|---|---|---|---|
+| one lap, 110 views | 0.536 (0.51 to 0.71) | 0.533 | 0.985 |
+| three laps, 334 views | 0.536 (0.51 to 0.74) | 0.541 | 0.993 |
+
+On the real video the network's focal is much closer: 0.93 of ARKit's own (median; 0.51 to
+1.28), which is why "a known focal does not help" on ARKitScenes (round 3). The synthetic
+renders, flat-shaded with no lighting, are what fool the field of view.
+
+**Consequences, written before anything else is run.**
+
+- The round-6 finding in the README ("the scale of its depth is half the truth and swings
+  between views", with exact poses giving one room of three) was measured **without the focal
+  length passed to the network**. It was this, not a depth-scale defect.
+- Every number from the rendered flat run without `--focal-px` measures the network's focal
+  guess first. The laps' comparison of one lap with three still isolates the chain (both share
+  the same guess), but their absolute shape figures are dominated by it. From here on the
+  rendered flat is run with its true focal, or not at all.
+- The next measurement is still **B**, and on the rendered flat it is judged with the true focal
+  passed, one lap and three, against the thresholds above.
