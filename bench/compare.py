@@ -40,7 +40,7 @@ def main() -> None:
             f"| {area_with_scale(a.get('area_error_pct'), a.get('scale_factor'))} → **{area_with_scale(b.get('area_error_pct'), b.get('scale_factor'))}** "
             f"| {_fmt(a.get('floor_iou'))} → **{_fmt(b.get('floor_iou'))}** "
             f"| {_fmt(a.get('traj_rms_m'))} → **{_fmt(b.get('traj_rms_m'))}** m "
-            f"| {b.get('levanta_rooms', '—')} ({tr['truth_rooms']}) | {b.get('levanta_doors', '—')} | {'yes' if b.get('unreliable') else 'no'} |"
+            f"| {b.get('levanta_rooms', '—')} ({tr['truth_rooms']}) | {b.get('levanta_doors', '—')} | {'yes' if b.get('unreliable') or b.get('scale_chain_broken') else 'no'} |"
         )
     print("\n".join(lines))
 

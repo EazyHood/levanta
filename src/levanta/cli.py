@@ -206,10 +206,20 @@ def check(
     typer.echo(f"{video.name}: {rep['width']}x{rep['height']}, {rep['duration_s']:.0f} s at {rep['fps']:.0f} fps, {rep['frames']} frames")
     typer.echo(f"sharpness: median {rep['sharpness_median']:.0f}, 10th percentile {rep['sharpness_p10']:.0f}  (below 20 is blurry)")
     typer.echo(f"would keep {rep['usable_frames']} frames at {fps:g} fps ({rep['blurry_windows']} windows had nothing sharp, {rep['flat_windows']} were title cards or blank)")
+    from levanta.plan.types import CHUNKS_MEASURED, chunk_count
+
+    chunks = chunk_count(int(rep["usable_frames"]))
+    typer.echo(f"the network would take them in {chunks} chunk(s) of 24, each taking its scale from the one before")
+    warnings = list(rep["warnings"])
+    if chunks > CHUNKS_MEASURED:
+        # before the GPU time, not after: the chain was measured up to 9 links at the default
+        # and cutting a walk finer made its scale worse at every step (docs/capture-guide.md)
+        warnings.append(f"{chunks} chunks is longer than any walk measured against a real floor ({CHUNKS_MEASURED}, about three minutes at 1 fps); "
+                        "the scale is handed from chunk to chunk and has only been seen to get worse with more of them")
     _phone_line(video, rep["width"])
-    for w in rep["warnings"]:
+    for w in warnings:
         _warn("! " + w)
-    if not rep["warnings"]:
+    if not warnings:
         _ok("looks good")
 
 

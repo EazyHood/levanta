@@ -111,6 +111,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "stamp": "PRELIMINARY · scale not calibrated",
         "stamp_unreliable": "NOT RECONSTRUCTIBLE · mirror or glass",
         "qa_unreliable": "Reconstruction not reliable: {bad} of {n} chunks broke scale, the network kept {cover} % of a typical frame. Mirrors, glass or tiles do this; film that room from the doorway and measure it by hand.",
+        "stamp_chain": "NOT RECONSTRUCTIBLE · scale lost along the walk",
+        "qa_scale_chain": "Scale lost along the walk: it was handed from one chunk of the video to the next {links} times, and two parts of the same walk ended up drawn {times} times apart in size. No room is that far off its own size, so this plan's size and its shape cannot both be right. The walks measured against real floors went up to 9 chunks, about 3 minutes of video at the default 1 frame per second.",
         "stamp_short": "not calibrated",
     },
     "es": {
@@ -221,6 +223,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "stamp": "PRELIMINAR · escala sin calibrar",
         "stamp_unreliable": "NO RECONSTRUIBLE · espejo o cristal",
         "qa_unreliable": "Reconstrucción no fiable: {bad} de {n} tramos rompieron la escala, la red conservó el {cover} % de un fotograma típico. Lo hacen los espejos, el cristal y el azulejo; graba esa habitación desde el vano de la puerta y mídela a mano.",
+        "stamp_chain": "NO RECONSTRUIBLE · escala perdida en el recorrido",
+        "qa_scale_chain": "Escala perdida en el recorrido: pasó de un tramo del vídeo al siguiente {links} veces, y dos partes del mismo paseo acabaron dibujadas con tamaños {times} veces distintos. Ninguna habitación se aleja tanto de su propio tamaño, así que el tamaño y la forma de este plano no pueden estar bien a la vez. Los paseos medidos contra suelos reales llegan a 9 tramos, unos 3 minutos de vídeo al fotograma por segundo por defecto.",
         "stamp_short": "sin calibrar",
     },
 }

@@ -134,7 +134,7 @@ def run_scene(scene: dict, overrides: dict) -> dict:
         "doors": sum(1 for o in plan.openings if o.kind == "door"),
         "area_m2": float(sum(areas)),
         "room_stages": stages,
-        "unreliable": plan.unreliable is not None,
+        "unreliable": plan.unreliable is not None or plan.scale_chain_broken is not None,
     }
     if scene["kind"] == "reference":
         ref = scene["reference"]

@@ -70,6 +70,15 @@ Measured on five ARKitScenes rooms (real iPhone walks with a LiDAR floor as trut
 - **Keep one room to one or two minutes.** The camera track drifted 0.4–0.9 m over one
   to three minute walks; there is no loop closure yet, so a long wander degrades the
   plan more than a second, shorter clip would.
+- **Past three minutes in one take is past anything measured.** A walk longer than one
+  batch goes through the network in chunks of 24 frames, and each chunk takes its scale
+  from the one before, so the scale is handed down the walk link by link. The walks
+  measured against real floors went up to 9 chunks, about three minutes at the default
+  1 frame per second. No longer take has been measured. What has points one way: cutting
+  the same walk into more chunks (a higher `--fps`) made the scale error grow at every step,
+  3 % at 9 chunks and 123 % at 36. levanta stamps a sheet *NOT RECONSTRUCTIBLE · scale lost
+  along the walk* when two parts of one walk end up more than ten times apart in size, and a
+  chain can go badly wrong well before that.
 - Doors are found where the camera looked through them: in the benchmark rooms the
   doors were closed and levanta found one in five. Open the doors before you film.
 

@@ -335,12 +335,28 @@ def room_label_specs(plan: FloorPlan, lang: str, units: str, scale: float, fs: f
     return specs
 
 
-def stamp(d: Drawing, cx: float, cy: float, extent: float, lang: str, fs: float, unreliable: bool = False) -> None:
+def stamp_reason(plan: FloorPlan) -> str | None:
+    """Which stamp the sheet carries, or None: the scale lost along the walk names its own
+    cause (a mirror stamp on a 67-chunk walk would send the reader looking for glass), then
+    the broken chunks of a mirror or glass, then the plain uncalibrated scale."""
+    if plan.scale_chain_broken is not None:
+        return "stamp_chain"
+    if plan.unreliable is not None:
+        return "stamp_unreliable"
+    if plan.scale_uncalibrated:
+        return "stamp"
+    return None
+
+
+def stamp(d: Drawing, cx: float, cy: float, extent: float, lang: str, fs: float, unreliable: bool | str = False) -> None:
     """A diagonal "PRELIMINARY - scale not calibrated" across the drawing, sized to it;
-    "NOT RECONSTRUCTIBLE - mirror or glass" when the reconstruction itself broke."""
+    "NOT RECONSTRUCTIBLE - ..." when the reconstruction itself broke.  ``unreliable`` is
+    True for the mirror stamp, or the key of the stamp text from :func:`stamp_reason`."""
     from levanta.io.pdf import text_width
 
-    text = t(lang, "stamp_unreliable" if unreliable else "stamp")
+    key = unreliable if isinstance(unreliable, str) else ("stamp_unreliable" if unreliable else "stamp")
+    unreliable = key != "stamp"
+    text = t(lang, key)
     size = max(12.0 * fs, min(extent / 9.0, 0.9 * extent * 1.25 / max(text_width(text, 1.0, True), 1e-6)))
     d.text(cx, cy + size * 0.35, text, size=size, weight="bold", color="#e07070" if unreliable else "#e8a0a0", rotate=28.0, cls="stamp")
 
@@ -563,8 +579,9 @@ def floor_plan_drawing(
     # north arrow
     if plan.north_deg is not None:
         _north_arrow(d, X(xmin) - 1.05 * scale, oy - 0.45 * scale, plan.north_deg, fs, lang)
-    if plan.scale_uncalibrated or plan.unreliable is not None:
-        stamp(d, X((xmin + xmax) / 2), Y((ymin + ymax) / 2), min(plan_w, plan_h), lang, fs, unreliable=plan.unreliable is not None)
+    reason = stamp_reason(plan)
+    if reason is not None:
+        stamp(d, X((xmin + xmax) / 2), Y((ymin + ymax) / 2), min(plan_w, plan_h), lang, fs, unreliable=reason)
     # tables + notes
     if have_tables:
         if below:

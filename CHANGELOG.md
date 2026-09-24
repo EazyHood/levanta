@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- A walk whose scale was lost chunk by chunk is flagged and stamped *NOT RECONSTRUCTIBLE · scale lost along the walk* when two parts of it end up more than 10 times apart in size (`FloorPlan.scale_chain_broken`, `tests/test_scale_chain.py`). The case it exists for drew a plan 2.2 times too big with a shape 83 % short, and nothing flagged it before.
+- `levanta check` prints how many chunks the network will take the video in, and warns past 9, the longest chain measured against a real floor at the default settings.
+- The sparse-sampling warning no longer tells people to raise `--fps`: the fps sweep measured the scale error growing with every step from 1 to 8 fps (`bench/results/fps_sweep_2026-09-24.md`).
+
 ## 0.3.0 - 2026-09-05
 
 What a drafter expects on a sheet.

@@ -247,9 +247,12 @@ def evaluate(scene: Path, out_dir: Path, truth: dict, run: Path) -> dict:
     lev_area = float(sum(Polygon(r["polygon"]).area for r in plan["rooms"]))
     from levanta.plan.types import FloorPlan
 
-    flagged = FloorPlan.from_json(run / "plan.json").unreliable  # (bad chunks, chunks, coverage) or None
+    fp = FloorPlan.from_json(run / "plan.json")
+    flagged = fp.unreliable  # (bad chunks, chunks, coverage) or None
+    chain = fp.scale_chain_broken  # (times apart in size, links) or None
     res.update(
         {
+            "scale_chain_broken": list(chain) if chain else None,
             "levanta_area_m2": lev_area,
             "levanta_rooms": len(plan["rooms"]),
             "levanta_doors": sum(1 for o in plan["openings"] if o["kind"] == "door"),

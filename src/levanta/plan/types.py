@@ -39,6 +39,38 @@ measured ceilings run 2.09, 2.45, 2.55, 2.79, 2.85, 2.91 and **3.204** on real s
 do have high ceilings.
 """
 
+CHAIN_RANGE_MAX = 10.0
+"""Above this the scale was lost along the walk, whatever each single step looked like.
+
+A video longer than one batch of views goes through the network in chunks, and each chunk's
+scale is set to match the one before it, so the scale is handed down the walk link by link.
+The product of those links says how far apart in size two parts of the same walk ended up.
+Measured on every reconstruction with ground truth (13 of them, bench/results/fps_sweep_2026-09-24.md):
+**1.15 to 4.64** on all but two, and **52** and **55 900** on the two that broke.  The 52 is
+the case this exists for: the fps sweep's 4 fps run on the 17.5 m² room drew the plan 2.2
+times too big with a shape 83 % short, and nothing flagged it, because no single link left
+[0.5, 2] and their spread was 1.79.  The line sits in an order-of-magnitude gap, 2.2 times
+above the highest sound walk and 5 times below the lowest broken one; no room's size is
+that far off its own.
+"""
+
+CHUNKS_MEASURED = 9
+"""The longest chain measured against a real floor at the default settings: 9 chunks, the
+184 frames of ARKitScenes 41069021 at 1 frame per second (about three minutes), scale off by
+3 %.  Longer chains exist in the bench only from cutting the same walk finer (18, 36 and 67
+chunks at 2, 4 and 8 fps), and there the scale error grew at every step.  `levanta check`
+says so before a longer take costs any GPU time."""
+
+
+def chunk_count(frames: int, max_views: int = 24, overlap: int = 4) -> int:
+    """How many chunks the network takes ``frames`` in: the first holds ``max_views``, each
+    later one ``max_views - overlap`` new frames plus ``overlap`` from the one before (the
+    loop in :meth:`levanta.recon.mapanything.MapAnythingBackend.reconstruct`)."""
+    if frames <= 0:
+        return 0
+    step = max(1, max_views - max(1, min(overlap, max_views - 1)))
+    return 1 + max(0, math.ceil((frames - max_views) / step))
+
 
 @dataclass
 class Wall:
@@ -269,6 +301,9 @@ class FloorPlan:
         bad = self.unreliable
         if bad is not None:
             out.append({"key": "unreliable", "level": "warn", "text": t(lang, "qa_unreliable").format(bad=bad[0], n=bad[1], cover=round(100 * bad[2]))})
+        chain = self.scale_chain_broken
+        if chain is not None:
+            out.append({"key": "scale_chain", "level": "warn", "text": t(lang, "qa_scale_chain").format(links=chain[1], times=f"{chain[0]:.0f}")})
         if self.scale_uncalibrated:
             out.append({"key": "scale", "level": "warn", "text": t(lang, "qa_scale_uncalibrated")})
         unmeasured = [o.tag or o.kind for o in self.openings if o.kind == "door" and not o.height_measured]
@@ -384,6 +419,20 @@ class FloorPlan:
         if bad == 0 and spread > 2.5:
             bad = sum(1 for s in scales if s < 0.7 or s > 1.4)
         return bad, n, cov
+
+    @property
+    def scale_chain_broken(self) -> tuple[float, int] | None:
+        """(how many times apart in size two parts of the walk ended up, links in the chain)
+        when that exceeds :data:`CHAIN_RANGE_MAX`; None for a sound chain or no chain."""
+        scales = [float(s) for s in (self.meta.get("chunk_scales") or []) if float(s) > 0]
+        if not scales:
+            return None
+        acc, lo, hi = 1.0, 1.0, 1.0
+        for s in scales:
+            acc *= s
+            lo, hi = min(lo, acc), max(hi, acc)
+        spread = hi / lo
+        return (spread, len(scales)) if spread > CHAIN_RANGE_MAX else None
 
     @property
     def scale_uncalibrated(self) -> bool:

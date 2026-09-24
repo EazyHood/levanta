@@ -76,6 +76,15 @@ como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
 - **Una habitación, uno o dos minutos.** La trayectoria derivó 0,4–0,9 m en paseos de
   uno a tres minutos; todavía no hay cierre de bucle, así que deambular largo degrada
   el plano más de lo que lo haría un segundo clip corto.
+- **Más de tres minutos de una toma es más de lo que se ha medido.** Un paseo más largo que
+  una tanda pasa por la red en tramos de 24 fotogramas, y cada tramo toma la escala del
+  anterior, así que la escala se va heredando eslabón a eslabón. Los paseos medidos contra
+  suelos reales llegan a 9 tramos, unos tres minutos al fotograma por segundo por defecto.
+  Ninguna toma más larga se ha medido. Lo que sí se midió apunta en una dirección: partir el
+  mismo paseo en más tramos (un `--fps` mayor) hizo crecer el error de escala en cada paso,
+  un 3 % con 9 tramos y un 123 % con 36. levanta sella la lámina *NO RECONSTRUIBLE · escala
+  perdida en el recorrido* cuando dos partes del mismo paseo acaban con tamaños más de diez
+  veces distintos, y una cadena puede ir muy mal bastante antes de eso.
 - Las puertas se encuentran donde la cámara miró a través de ellas: en el banco estaban
   cerradas y levanta halló una en cinco. Abre las puertas antes de grabar.
 
