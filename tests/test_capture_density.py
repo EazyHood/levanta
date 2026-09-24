@@ -58,7 +58,10 @@ def test_a_sparse_sample_of_a_dense_video_is_our_fault_not_theirs():
     assert "sampled_too_sparsely" in k
     assert "too_few_frames" not in k
     text = next(c["text"] for c in p.quality("en") if c["key"] == "sampled_too_sparsely")
-    assert "6604" in text and "--fps" in text
+    assert "6604" in text
+    # and it no longer promises that more frames would help: the fps sweep measured the
+    # opposite, the scale error grew with every step from 1 to 8 fps on both rooms
+    assert "run it again" not in text and "not a fix" in text
 
 
 def test_when_the_file_had_no_more_to_give_the_advice_is_about_filming():

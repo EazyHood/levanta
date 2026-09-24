@@ -245,9 +245,12 @@ class FloorPlan:
                 vfps = float(self.meta.get("video_fps") or 0.0)
                 sfps = float(self.meta.get("sample_fps") or 0.0)
                 if vfps and sfps and vfps > 2.0 * sfps:
-                    need = min(vfps, sfps * want / max(int(views), 1))
+                    # No "run it again with --fps N": the fps sweep of 2026-09-24 measured that
+                    # more frames per second means more 24-view chunks, and the scale error grew
+                    # at every step on both rooms (3 -> 206 % and 0 -> 30 % from 1 to 8 fps).  The
+                    # advice promised an improvement the data contradicts.  bench/results/fps_sweep_2026-09-24.md
                     out.append({"key": "sampled_too_sparsely", "level": "warn",
-                                "text": t(lang, "qa_sampled_too_sparsely").format(n=int(views), total=int(self.meta.get("video_frames") or 0), rate=f"{per_m2:.1f}", fps=f"{need:.0f}")})
+                                "text": t(lang, "qa_sampled_too_sparsely").format(n=int(views), total=int(self.meta.get("video_frames") or 0), rate=f"{per_m2:.1f}")})
                 else:
                     # in walking time, which is the only unit the person can act on
                     secs = want / sfps if sfps else 0.0
