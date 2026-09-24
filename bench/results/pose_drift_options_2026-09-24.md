@@ -144,7 +144,7 @@ B holds only if it meets all three. If it does, it goes into `align_chunk` behin
 measured again through the pipeline before it becomes the default.
 
 **Refined with the supervisor, still before any baseline number was seen** (the baseline runs
-started at 15:2x and this was committed while they ran):
+were launched at 15:17 and this was committed at 15:17:48, before any of them had finished):
 
 - The three-lap condition takes **both** recipes, the one above and the supervisor's: camera
   error at most the one-lap baseline plus 0.22 m **and** at most 0.6 × the three-lap baseline,
