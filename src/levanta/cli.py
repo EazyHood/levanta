@@ -206,16 +206,20 @@ def check(
     typer.echo(f"{video.name}: {rep['width']}x{rep['height']}, {rep['duration_s']:.0f} s at {rep['fps']:.0f} fps, {rep['frames']} frames")
     typer.echo(f"sharpness: median {rep['sharpness_median']:.0f}, 10th percentile {rep['sharpness_p10']:.0f}  (below 20 is blurry)")
     typer.echo(f"would keep {rep['usable_frames']} frames at {fps:g} fps ({rep['blurry_windows']} windows had nothing sharp, {rep['flat_windows']} were title cards or blank)")
-    from levanta.plan.types import CHUNKS_MEASURED, chunk_count
+    from levanta.plan.types import CHUNK_SECONDS_MEASURED, CHUNKS_MEASURED, chunk_count
 
     chunks = chunk_count(int(rep["usable_frames"]))
-    typer.echo(f"the network would take them in {chunks} chunk(s) of 24, each taking its scale from the one before")
+    per_chunk_s = 24.0 / fps if fps > 0 else 0.0
+    typer.echo(f"the network would take them in {chunks} chunk(s) of 24, about {per_chunk_s:.0f} s of walk each, each taking its scale from the one before")
     warnings = list(rep["warnings"])
+    # before the GPU time, not after (bench/results/fps_sweep_2026-09-24.md, the chain experiment):
+    # what the data supports is a floor on camera travel per chunk, and seconds are its proxy here
+    if 0 < per_chunk_s < CHUNK_SECONDS_MEASURED:
+        warnings.append(f"at {fps:g} fps each chunk covers about {per_chunk_s:.0f} s of walk; the scale held in the bench only for chunks of about "
+                        f"{CHUNK_SECONDS_MEASURED:.0f} s or more (1 fps), and 6-second chunks got their own size wrong by a median 31 % and up to five times")
     if chunks > CHUNKS_MEASURED:
-        # before the GPU time, not after: the chain was measured up to 9 links at the default
-        # and cutting a walk finer made its scale worse at every step (docs/capture-guide.md)
         warnings.append(f"{chunks} chunks is longer than any walk measured against a real floor ({CHUNKS_MEASURED}, about three minutes at 1 fps); "
-                        "the scale is handed from chunk to chunk and has only been seen to get worse with more of them")
+                        "whether the scale holds over a take this long has not been measured")
     _phone_line(video, rep["width"])
     for w in warnings:
         _warn("! " + w)

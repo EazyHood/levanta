@@ -80,11 +80,16 @@ como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
   una tanda pasa por la red en tramos de 24 fotogramas, y cada tramo toma la escala del
   anterior, así que la escala se va heredando eslabón a eslabón. Los paseos medidos contra
   suelos reales llegan a 9 tramos, unos tres minutos al fotograma por segundo por defecto.
-  Ninguna toma más larga se ha medido. Lo que sí se midió apunta en una dirección: partir el
-  mismo paseo en más tramos (un `--fps` mayor) hizo crecer el error de escala en cada paso,
-  un 3 % con 9 tramos y un 123 % con 36. levanta sella la lámina *NO RECONSTRUIBLE · escala
-  perdida en el recorrido* cuando dos partes del mismo paseo acaban con tamaños más de diez
-  veces distintos, y una cadena puede ir muy mal bastante antes de eso.
+  Ninguna toma más larga se ha medido. Partir el mismo paseo más fino (un `--fps` mayor)
+  empeoró la escala en cada paso, un 3 % con 9 tramos y un 123 % con 36, pero eso es otra
+  cosa: cada uno de esos 36 tramos cubría unos 6 segundos y 1,3 m de paseo, y los tramos tan
+  cortos se equivocaron de tamaño mucho más a menudo (una mediana del 31 % demasiado
+  grandes, y hasta cinco veces) que los tramos de 23 segundos del defecto (una mediana del
+  7 %). No se sabe si una toma larga a un fotograma por segundo, con muchos tramos de unos
+  20 segundos, conserva la escala. levanta sella la
+  lámina *NO RECONSTRUIBLE · escala perdida en el recorrido* cuando dos partes del mismo
+  paseo acaban con tamaños más de diez veces distintos, y un paseo puede ir muy mal bastante
+  antes de eso.
 - Las puertas se encuentran donde la cámara miró a través de ellas: en el banco estaban
   cerradas y levanta halló una en cinco. Abre las puertas antes de grabar.
 

@@ -78,6 +78,15 @@ def test_the_chunk_count_levanta_check_prints_is_the_one_the_network_gets():
     assert chunk_count(184) == CHUNKS_MEASURED  # the longest chain measured at the default
 
 
+def test_the_seconds_per_chunk_line_sits_between_what_held_and_what_did_not():
+    """Chunks of about 23 s held their own scale (median 0.93); chunks of about 6 s did not
+    (median 0.69, down to 0.20).  The line `levanta check` warns under has to sit between."""
+    from levanta.plan.types import CHUNK_SECONDS_MEASURED
+
+    assert 6 < CHUNK_SECONDS_MEASURED <= 23
+    assert 24 / 1.0 >= CHUNK_SECONDS_MEASURED > 24 / 2.0  # the default passes, 2 fps is warned
+
+
 def test_no_chain_no_check():
     assert _plan().scale_chain_broken is None
     assert _plan(chunk_scales=[]).scale_chain_broken is None

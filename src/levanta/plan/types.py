@@ -58,8 +58,19 @@ CHUNKS_MEASURED = 9
 """The longest chain measured against a real floor at the default settings: 9 chunks, the
 184 frames of ARKitScenes 41069021 at 1 frame per second (about three minutes), scale off by
 3 %.  Longer chains exist in the bench only from cutting the same walk finer (18, 36 and 67
-chunks at 2, 4 and 8 fps), and there the scale error grew at every step.  `levanta check`
-says so before a longer take costs any GPU time."""
+chunks at 2, 4 and 8 fps), and there the scale error grew at every step; but the chain
+experiment (bench/chain_policies.py) found those chunks, each a few seconds of walk, far
+worse in their own size (median 0.69 against 0.93, measured against the true cameras), so
+they say nothing about a long take at 1 fps.  Past 9, at the default, nothing is known, and
+`levanta check` says so before any GPU time is spent."""
+
+CHUNK_SECONDS_MEASURED = 20.0
+"""The shortest stretch of video per chunk whose scale held in the bench.  At 1 fps a chunk of
+24 frames covers about 23 s and 4.7 m of walk, and its own scale, measured against the true
+cameras, was off by a median 7 % (0.69 to 1.15 over 9 chunks).  At 4 fps it covers about 6 s
+and 1.3 m, and was off by a median 31 % (0.20 to 1.23 over 36).  What decides it is how far
+the camera moves inside a chunk; seconds of video are its proxy before any reconstruction,
+which is when `levanta check` has to say it."""
 
 
 def chunk_count(frames: int, max_views: int = 24, overlap: int = 4) -> int:
@@ -281,6 +292,9 @@ class FloorPlan:
                     # more frames per second means more 24-view chunks, and the scale error grew
                     # at every step on both rooms (3 -> 206 % and 0 -> 30 % from 1 to 8 fps).  The
                     # advice promised an improvement the data contradicts.  bench/results/fps_sweep_2026-09-24.md
+                    # (and the chain experiment there: 24-frame chunks covering ~6 s of walk got
+                    # their own scale wrong by a median 31 %, range 0.20-1.23, against 7 % for
+                    # the ~23 s chunks of the default)
                     out.append({"key": "sampled_too_sparsely", "level": "warn",
                                 "text": t(lang, "qa_sampled_too_sparsely").format(n=int(views), total=int(self.meta.get("video_frames") or 0), rate=f"{per_m2:.1f}")})
                 else:

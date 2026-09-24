@@ -278,6 +278,40 @@ def gpu_pass(scenes_dir: Path, out: Path, fps: float, scene_id: str = SCENE) -> 
     return rec
 
 
+def per_chunk_scales(run_out: Path, scene: Path, scene_id: str) -> list[dict]:
+    """Each raw chunk's own scale against the truth: the similarity between its cameras, as
+    the network left them, and ARKit's cameras for the same frames.  Below 1 means the chunk
+    came out too big, the benches' convention.  The camera travel inside the chunk is kept
+    beside it, because a similarity fitted to cameras that barely moved is fragile."""
+    from arkitscenes import read_traj, umeyama
+
+    source = run_out / scene_id / "noK"
+    index = json.loads((source / "frames" / "index.json").read_text(encoding="utf-8"))
+    res = next(r["noK"] for r in json.loads((run_out / "results.json").read_text(encoding="utf-8")) if r["video_id"] == scene_id)
+    off = res.get("time_offset_s", 0.0)
+    ts, centres = read_traj(scene / "lowres_wide.traj")
+    out = []
+    for k, c in enumerate(load_chunks(source / "chunks")):
+        src, dst = [], []
+        for j, i in enumerate(c["idx"]):
+            t = ts[0] + off + index[int(i)]["time_s"]
+            m = int(np.argmin(np.abs(ts - t)))
+            if abs(ts[m] - t) < 0.2:
+                src.append(c["T"][j][:3, 3])
+                dst.append(centres[m])
+        if len(src) < 5:
+            out.append({"chunk": k, "frames": len(src), "scale": None})
+            continue
+        dst_a = np.array(dst)
+        s, _R, _t, rms = umeyama(np.array(src), dst_a)
+        times = [index[int(i)]["time_s"] for i in c["idx"]]
+        out.append({"chunk": k, "frames": len(src), "scale": float(s), "rms_m": float(rms),
+                    "video_s": float(max(times) - min(times)),
+                    "travel_m": float(np.linalg.norm(np.diff(dst_a, axis=0), axis=1).sum()),
+                    "extent_m": float(max(np.linalg.norm(a - b) for a in dst_a for b in dst_a))})
+    return out
+
+
 def today_rows(scene_id: str) -> dict[float, dict]:
     """The fps sweep's own runs of this scene, poses fed in: the reference every rule reads."""
     out = {}
