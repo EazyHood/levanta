@@ -16,7 +16,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "bench"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # the mock network lives next door
-from chain_policies import load_chunks, log_scales, place
+from chain_policies import holds, load_chunks, log_scales, place, winner
 
 from test_recon_chunks import MockNet, _frames, _truth
 
@@ -64,3 +64,28 @@ def test_without_independence_the_dump_says_poses_were_fed_in(tmp_path):
     _, chunks = _dumped(tmp_path, independent=False)
     assert int(chunks[0]["fed_poses"]) == 0
     assert all(int(c["fed_poses"]) == 3 for c in chunks[1:])
+
+
+def _rows(policy, scale4, iou4, iou1):
+    return [{"policy": policy, "fps": 4.0, "scale_factor": scale4, "floor_iou": iou4},
+            {"policy": policy, "fps": 1.0, "scale_factor": 1.0, "floor_iou": iou1}]
+
+
+def test_the_rule_reproduces_the_thresholds_written_for_the_choice_scene():
+    """41069021, today's 1 fps IoU 0.65: 0.50 at 4 fps and 0.60 at 1 fps, as written first."""
+    assert holds(_rows("own_scale", 0.90, 0.50, 0.60), "own_scale", 0.65)[0]
+    assert not holds(_rows("own_scale", 0.84, 0.70, 0.70), "own_scale", 0.65)[0]  # scale 16 % off
+    assert not holds(_rows("own_scale", 1.00, 0.49, 0.70), "own_scale", 0.65)[0]
+    assert not holds(_rows("own_scale", 1.00, 0.70, 0.59), "own_scale", 0.65)[0]
+
+
+def test_the_held_out_scene_gets_its_own_numbers_from_the_same_rule():
+    """42897526, today's 1 fps IoU 0.43: 0.28 at 4 fps and 0.38 at 1 fps."""
+    assert holds(_rows("joint", 1.10, 0.28, 0.38), "joint", 0.43)[0]
+    assert not holds(_rows("joint", 1.10, 0.27, 0.38), "joint", 0.43)[0]
+
+
+def test_the_winner_is_the_holder_closest_to_the_true_scale():
+    rows = _rows("chained", 1.02, 0.60, 0.62) + _rows("own_scale", 0.95, 0.70, 0.66) + _rows("joint", 1.20, 0.70, 0.66)
+    assert winner(rows, 0.65) == "chained"  # joint is 20 % off and does not hold at all
+    assert winner(_rows("chained", 0.45, 0.16, 0.65), 0.65) is None
