@@ -87,6 +87,13 @@ def test_the_seconds_per_chunk_line_sits_between_what_held_and_what_did_not():
     assert 24 / 1.0 >= CHUNK_SECONDS_MEASURED > 24 / 2.0  # the default passes, 2 fps is warned
 
 
+def test_the_rendered_flat_extends_what_was_measured_and_nothing_else():
+    """Three laps of Replica came to 14 chunks (282 frames); real floors stop at 9."""
+    from levanta.plan.types import CHUNKS_MEASURED, CHUNKS_MEASURED_RENDERED, chunk_count
+
+    assert chunk_count(282) == CHUNKS_MEASURED_RENDERED > CHUNKS_MEASURED
+
+
 def test_no_chain_no_check():
     assert _plan().scale_chain_broken is None
     assert _plan(chunk_scales=[]).scale_chain_broken is None

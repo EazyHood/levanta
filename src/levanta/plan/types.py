@@ -64,6 +64,12 @@ worse in their own size (median 0.69 against 0.93, measured against the true cam
 they say nothing about a long take at 1 fps.  Past 9, at the default, nothing is known, and
 `levanta check` says so before any GPU time is spent."""
 
+CHUNKS_MEASURED_RENDERED = 14
+"""The longest chain of sound chunks measured at all: three laps of a rendered Replica flat,
+14 chunks of about 20 s (bench/results/replica_laps_2026-09-24.md).  The scale held (0.94
+against 1.07 over 5 chunks), but the camera track drifted twice as far and the plan drew the
+rooms twice.  Synthetic and repeating itself, so necessary for a phone video, not sufficient."""
+
 CHUNK_SECONDS_MEASURED = 20.0
 """The shortest stretch of video per chunk whose scale held in the bench.  At 1 fps a chunk of
 24 frames covers about 23 s and 4.7 m of walk, and its own scale, measured against the true

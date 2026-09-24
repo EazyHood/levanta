@@ -85,8 +85,11 @@ como verdad; [los números](../bench/results/arkitscenes_2026-09-05.md)):
   cosa: cada uno de esos 36 tramos cubría unos 6 segundos y 1,3 m de paseo, y los tramos tan
   cortos se equivocaron de tamaño mucho más a menudo (una mediana del 31 % demasiado
   grandes, y hasta cinco veces) que los tramos de 23 segundos del defecto (una mediana del
-  7 %). No se sabe si una toma larga a un fotograma por segundo, con muchos tramos de unos
-  20 segundos, conserva la escala. levanta sella la
+  7 %). Una toma larga con tramos de la longitud por defecto solo se ha medido en un piso
+  renderizado: tres vueltas, 14 tramos, conservaron la escala dentro del 6 %, pero la
+  trayectoria de la cámara derivó el doble que en una vuelta y el plano dibujó las mismas
+  habitaciones dos veces. O sea, una toma larga conserva el tamaño y pierde la forma; hoy es
+  más seguro grabar varias tomas cortas, una parte de la casa cada una. levanta sella la
   lámina *NO RECONSTRUIBLE · escala perdida en el recorrido* cuando dos partes del mismo
   paseo acaban con tamaños más de diez veces distintos, y un paseo puede ir muy mal bastante
   antes de eso.

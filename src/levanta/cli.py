@@ -206,7 +206,12 @@ def check(
     typer.echo(f"{video.name}: {rep['width']}x{rep['height']}, {rep['duration_s']:.0f} s at {rep['fps']:.0f} fps, {rep['frames']} frames")
     typer.echo(f"sharpness: median {rep['sharpness_median']:.0f}, 10th percentile {rep['sharpness_p10']:.0f}  (below 20 is blurry)")
     typer.echo(f"would keep {rep['usable_frames']} frames at {fps:g} fps ({rep['blurry_windows']} windows had nothing sharp, {rep['flat_windows']} were title cards or blank)")
-    from levanta.plan.types import CHUNK_SECONDS_MEASURED, CHUNKS_MEASURED, chunk_count
+    from levanta.plan.types import (
+        CHUNK_SECONDS_MEASURED,
+        CHUNKS_MEASURED,
+        CHUNKS_MEASURED_RENDERED,
+        chunk_count,
+    )
 
     chunks = chunk_count(int(rep["usable_frames"]))
     per_chunk_s = 24.0 / fps if fps > 0 else 0.0
@@ -217,9 +222,12 @@ def check(
     if 0 < per_chunk_s < CHUNK_SECONDS_MEASURED:
         warnings.append(f"at {fps:g} fps each chunk covers about {per_chunk_s:.0f} s of walk; the scale held in the bench only for chunks of about "
                         f"{CHUNK_SECONDS_MEASURED:.0f} s or more (1 fps), and 6-second chunks got their own size wrong by a median 31 % and up to five times")
-    if chunks > CHUNKS_MEASURED:
-        warnings.append(f"{chunks} chunks is longer than any walk measured against a real floor ({CHUNKS_MEASURED}, about three minutes at 1 fps); "
-                        "whether the scale holds over a take this long has not been measured")
+    if CHUNKS_MEASURED < chunks <= CHUNKS_MEASURED_RENDERED:
+        warnings.append(f"{chunks} chunks: on real floors levanta has been measured up to {CHUNKS_MEASURED}; on a rendered flat {CHUNKS_MEASURED_RENDERED} chunks "
+                        "kept the scale within 6 %, but the camera track drifted twice as far and the plan drew the rooms twice")
+    elif chunks > CHUNKS_MEASURED_RENDERED:
+        warnings.append(f"{chunks} chunks is longer than any walk measured ({CHUNKS_MEASURED} on real floors, {CHUNKS_MEASURED_RENDERED} on a rendered flat); "
+                        "at 14 the scale still held but the plan drew the rooms twice, and past that nothing is known")
     _phone_line(video, rep["width"])
     for w in warnings:
         _warn("! " + w)
