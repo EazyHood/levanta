@@ -119,3 +119,14 @@ def test_the_winner_is_the_holder_closest_to_the_true_scale():
             _run("joint", 1.0, 1.0, 0.66), _run("joint", 4.0, 1.20, 0.70)]
     assert winner(rows, TODAY_CHOSEN) == "chained"  # joint is 20 % off and does not hold at all
     assert winner([_run("chained", 1.0, 1.0, 0.65), _run("chained", 4.0, 0.45, 0.16)], TODAY_CHOSEN) is None
+
+
+def test_option_b_recovers_the_true_walk_from_the_shared_pixels(tmp_path):
+    """B places each chunk by registering the shared frames' pixels, which are the same points
+    of the surface in both chunks; on the mock walk it must land on the truth as the chain does."""
+    from chain_policies import place_by_points
+
+    truth, chunks = _dumped(tmp_path)
+    solved, x = place_by_points(chunks)
+    assert _centre_error(truth, solved) < 1e-3  # float16 depth, as the chained case
+    assert len(x) == len(chunks) and x[0] == 0.0

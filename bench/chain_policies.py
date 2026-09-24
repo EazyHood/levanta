@@ -220,9 +220,64 @@ def place(chunks: list[dict], x: np.ndarray) -> dict[int, dict]:
     return solved
 
 
-def plan_and_score(solved: dict[int, dict], x: np.ndarray, source_run: Path, run: Path, scene: Path, truth: dict) -> dict:
-    from arkitscenes import evaluate
+def place_by_points(chunks: list[dict], pixels: int = 4000, rounds: int = 3, seed: int = 0) -> tuple[dict[int, dict], np.ndarray]:
+    """Option B: chunk k placed on chunk k-1 by the similarity that carries its shared frames'
+    pixels onto the same pixels as chunk k-1 already placed them.  A shared frame is the same
+    picture in both chunks, so the same pixel is the same point of the surface: thousands of
+    exact correspondences instead of four camera centres.  Trimmed of its worst residuals and
+    refitted.  Returns the placed frames and each chunk's log-scale."""
+    from arkitscenes import umeyama
 
+    from levanta.recon.mapanything import Similarity
+
+    rng = np.random.default_rng(seed)
+    solved: dict[int, dict] = {}
+    xs = []
+    for k, c in enumerate(chunks):
+        if k == 0:
+            sim = Similarity(1.0, np.eye(3), np.zeros(3))
+        else:
+            src, dst = [], []
+            for j in range(int(c["shared"])):
+                i = int(c["idx"][j])
+                if i not in solved:
+                    continue
+                prev = solved[i]
+                d_new, d_old = c["depth"][j].astype(np.float64), prev["depth"].astype(np.float64)
+                if d_new.shape != d_old.shape:
+                    continue
+                ok = c["mask"][j] & prev["mask"] & (d_new > 0.05) & (d_old > 0.05)
+                ys, xs_ = np.nonzero(ok)
+                if len(xs_) > pixels:
+                    pick = rng.choice(len(xs_), pixels, replace=False)
+                    ys, xs_ = ys[pick], xs_[pick]
+                uv1 = np.vstack([xs_ + 0.5, ys + 0.5, np.ones(len(xs_))])
+                for K, T, d, out in ((c["K"][j], c["T"][j], d_new, src), (prev["K"], prev["T"], d_old, dst)):
+                    rays = np.linalg.inv(np.asarray(K, np.float64)) @ uv1
+                    rays /= rays[2]
+                    pts = np.asarray(T, np.float64)[:3, :3] @ (rays * d[ys, xs_]) + np.asarray(T, np.float64)[:3, 3:4]
+                    out.append(pts.T)
+            if not src:
+                raise ValueError(f"chunk {k} shares no usable pixels with the chunk before")
+            a, b = np.concatenate(src), np.concatenate(dst)
+            keep = np.ones(len(a), bool)
+            for _ in range(rounds):
+                s_, R_, t_, _rms = umeyama(a[keep], b[keep])
+                res = np.linalg.norm(s_ * (R_ @ a.T).T + t_ - b, axis=1)
+                keep = res <= 2.5 * np.median(res[keep]) + 1e-9
+            sim = Similarity(s_, R_, t_)
+        xs.append(math.log(sim.scale))
+        for j, i in enumerate(c["idx"]):
+            i = int(i)
+            if i in solved:
+                continue
+            solved[i] = {"T": sim.apply(c["T"][j]), "depth": c["depth"][j].astype(np.float32) * sim.scale, "mask": c["mask"][j], "K": c["K"][j]}
+    return solved, np.array(xs)
+
+
+def write_recomposed(solved: dict[int, dict], x: np.ndarray, source_run: Path, run: Path) -> None:
+    """Fuse and plan a recomposed walk into ``run`` the way `levanta video` would, leaving the
+    files the evaluations read (plan.json, plan_cloud.ply, frames/index.json)."""
     from levanta.plan.pipeline import PlanOptions, extract_floor_plan
     from levanta.recon.mapanything import is_flat_picture
     from levanta.recon.rgbd import fuse_frames
@@ -248,6 +303,12 @@ def plan_and_score(solved: dict[int, dict], x: np.ndarray, source_run: Path, run
     res = extract_floor_plan(cloud, PlanOptions())
     res.cloud.save_ply(run / "plan_cloud.ply")
     res.plan.label_openings().to_json(run / "plan.json")
+
+
+def plan_and_score(solved: dict[int, dict], x: np.ndarray, source_run: Path, run: Path, scene: Path, truth: dict) -> dict:
+    from arkitscenes import evaluate
+
+    write_recomposed(solved, x, source_run, run)
     r = evaluate(scene, run.parent, truth, run)
     r["composed_spread"] = float(math.exp(x.max() - x.min()))
     return r
