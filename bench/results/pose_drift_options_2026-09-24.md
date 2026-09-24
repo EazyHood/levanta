@@ -157,3 +157,39 @@ were launched at 15:17 and this was committed at 15:17:48, before any of them ha
   Jhona's own video will be judged on whichever of the two his file triggers.
 - The numbers of the recipe are filled from the baselines and committed **before** the first
   run of B.
+
+## Option B, measured: it does not hold, and it is worse than the plain chain
+
+Baselines with the true focal first (the pipeline as a user with a known phone runs it), then
+the numbers of the recipe committed (`option_b_thresholds_2026-09-24.json`, 15:29:50), then B,
+recomposed on the CPU from chunks solved independently (`bench/option_b.py --judge`):
+
+| walk | composition | camera error | rooms (truth 3) | floor IoU | area error |
+|---|---|---|---|---|---|
+| one lap | the pipeline, baseline | 1.04 m | 1 | 0.17 | −32 % (shape −24 %, scale 1.06) |
+| one lap | chained, independent chunks | 1.05 m | 1 | 0.30 | +13 % (shape +41 %, scale 1.12) |
+| one lap | **B** | 1.04 m | 1 | 0.11 | −47 % (shape −27 %, scale 1.17) |
+| three laps | the pipeline, baseline | 1.92 m | 2 | 0.26 | +21 % (shape −3 %, scale 0.90) |
+| three laps | chained, independent chunks | 1.41 m | 6 | 0.30 | +26 % (shape +59 %, scale 1.12) |
+| three laps | **B** | 1.63 m | 4 | 0.11 | −76 % (shape −82 %, scale 0.87) |
+| ARKitScenes 1 fps | chained, independent chunks | 0.47 m | 2 | 0.62 | −19 % (shape −22 %, scale 0.98) |
+| ARKitScenes 1 fps | **B** | 0.50 m | 1 | 0.61 | −20 % (shape −29 %, scale 0.95) |
+
+**Verdict by the committed numbers: B does not hold.** Three laps end at 1.63 m of camera
+error against a limit of 1.15 m, with four rooms against three. It keeps one lap (1.04 m
+against 1.14) and ARKitScenes (IoU 0.61 against 0.60), so it breaks nothing that works, but it
+does not fix what it was for, and on the rendered flat it draws the floor worse than the plain
+chain of the same chunks (IoU 0.11 against 0.30). Registering thousands of shared pixels
+did not make the links better than four camera centres and a depth ratio.
+
+**One difference seen once, noted and not chased.** Chaining the independently solved chunks
+the ordinary way brought three laps from 1.92 m to 1.41 m of camera error, against the
+pipeline, which feeds the previous chunk's poses into the next one. It also drew six rooms of
+three. The chain experiment saw the same direction on ARKitScenes (chunks 52 times apart in
+size with poses fed in, 1.97 without). It is a candidate for its own option, with its own
+threshold written first, not a result.
+
+**What this leaves for the page.** A found nothing to fix and B made nothing better. Of what is
+left, C (yaw from the walls) is the other half-day on the CPU, and the one aimed at what the
+three laps show: the same rooms laid down again, turned. D, the global alignment, is still
+the structure a whole home needs and still the most expensive.
